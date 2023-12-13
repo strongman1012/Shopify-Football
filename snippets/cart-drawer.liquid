@@ -1,0 +1,173 @@
+{% assign cart_icon_style = settings.header_cart_icon_style %}
+{% assign cart_related_collection_handle = settings.cart_related_collection_handle %}
+
+{% assign always_show_cart_related_collection = settings.always_show_cart_related_collection %}
+{%- capture section_settings -%}
+{
+"type": {{ settings.cart_type | json }},
+"itemCount": {{ cart.item_count }},
+"totalPrice": {{ cart.total_price }},
+"drawer": true,
+"hasShippingEstimator": false
+}
+{%- endcapture -%}
+ 
+<div id="sidebar-cart" class="Drawer Cart-Drawer" data-section-type="cart-template" data-section-settings='{{ section_settings }}'  aria-modal="true" role="dialog" tabindex="-1">
+  <div class="Drawer__Header cart-drawer-container">
+    <h3 class="Drawer__Title">{{ 'cart.general.title' | t }}</h3>
+
+    <button class="Drawer__Close" data-action="close-drawer" data-drawer-id="sidebar-cart" aria-label="{{ 'sections.header.close_cart' | t }}">
+      {%- render 'icon' with 'close' -%}
+    </button>
+  </div>
+
+  <form class="Cart Drawer__Content" action="{{ routes.cart_url }}" method="POST" novalidate>
+    <div class="Drawer__Main" data-scrollable>
+      {%- if settings.cart_show_free_shipping_threshold -%}
+      {%- if cart.items.size > 0 %}
+      {%- assign threshold_in_cents = settings.cart_free_shipping_threshold | times: 100 -%}
+      <div class="Cart__ShippingNotice cart-drawer-container">
+        <div class="Drawer__Container">
+
+          {%- if cart.total_price >= threshold_in_cents -%}
+          <p style="color: {{ settings.free_shipping_reached_color }}">{{- 'cart.general.free_shipping' | t -}}</p>
+          {%- else -%}
+          {%- capture remaining_amount -%}<span>
+          {% if settings.currency_code_enable %}
+          {{ cart.total_price | minus: threshold_in_cents | abs | money_with_currency }}
+          {% else %}
+          {{ cart.total_price | minus: threshold_in_cents | abs | money }}
+          {% endif %}          
+          </span>{%- endcapture -%}
+          <p style="color: {{ settings.free_shipping_not_reached_color }}">{{- 'cart.general.free_shipping_remaining_html' | t: remaining_amount: remaining_amount -}}</p>
+          {%- endif -%}
+
+        </div>
+      </div>
+      
+     
+      {% endif %}
+      {%- endif -%}
+
+      {%- if cart.item_count == 0 -%}
+      
+
+      <div class="Cart__Empty {% if settings.empty_cart_featured_collection_1 != blank %} with_empty_cart_buttons {% endif %}">
+        <span>{%- render 'icon', icon: cart_icon_style -%}</span>
+        <p>{{ 'cart.general.empty' | t }}</p>
+      </div>
+      
+      <div class='empty_cart_buttons cart-drawer-container'>
+        {% if settings.empty_cart_featured_collection_1 != blank %}
+
+        {% for i in (1..3) %}
+        {% capture empty_cart_featured_collection_handle %}empty_cart_featured_collection_{{i}}{% endcapture %}
+        {% assign empty_cart_featured_collection_settings = settings[empty_cart_featured_collection_handle] %}
+
+        {% if empty_cart_featured_collection_settings != blank %}
+        {% assign empty_cart_featured_collection = collections[empty_cart_featured_collection_settings] %}
+
+        <a class='empty_cart_featured_collection btn btn--transparent_secondary' href="{{ empty_cart_featured_collection.url }}">
+          <span>{{ empty_cart_featured_collection.title }}</span>
+        </a>
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+
+        <button type="button" class="btn btn--primary keep_shopping__btn" data-action="close-drawer" data-drawer-id="sidebar-cart" aria-label="{{ 'sections.header.close_cart' | t }}">
+          <span>{{ 'cart.general.keep_shopping' | t }}</span>
+        </button>
+
+      </div>
+      
+      {%- else -%}
+      <div class="Drawer__Container">
+        <input type="hidden" name="attributes[collection_mobile_items_per_row]" value="">
+        <input type="hidden" name="attributes[collection_desktop_items_per_row]" value="">
+
+        {% render 'cart-items' %}
+      </div>
+      {%- endif -%}
+    </div>
+
+   
+    <div class="Drawer__Footer" data-drawer-animated-bottom>
+      
+      {% if cart_related_collection_handle != blank %}
+      {% if always_show_cart_related_collection %}
+      {% render 'card-related-products', cart:cart, cart_related_collection_handle: cart_related_collection_handle %}
+      {% else %}
+      {% if cart.item_count == 0 %}
+      {% render 'card-related-products', cart:cart, cart_related_collection_handle: cart_related_collection_handle %}
+      {% endif %}
+      {% endif %}
+      {% endif %}
+      
+      {%- unless cart.item_count == 0 -%} 
+      <div class='cart-drawer-container'>
+
+        {%- assign cartDiscounts = 'template ' | split: ' ' -%}
+        {%- if cart.cart_level_discount_applications.size > 0 -%}
+        {%- assign cartDiscounts = cart.cart_level_discount_applications -%}
+        {%- endif -%}
+        <div{% if cart.cart_level_discount_applications.size == 0 %} class="hide"{% endif %} data-cart-discount-wrapper>
+          <div class="order-discount-card-wrapper" data-cart-discount>
+            {%- for discount_application in cartDiscounts -%}
+            <span class="order-discount order-discount--title order-discount--cart">
+              {% render 'icon-saletag' %}<span class="visually-hidden">{{ 'customer.order.discount' | t }}:</span><span data-cart-discount-title>{{- discount_application.title -}}</span>
+            </span>
+            <span class="order-discount order-discount--cart order-discount--cart-total">
+
+              {% if settings.currency_code_enable %}
+              -<span data-cart-discount-amount>{{ discount_application.total_allocated_amount | money_with_currency }}</span>
+              {% else %}
+              -<span data-cart-discount-amount>{{ discount_application.total_allocated_amount | money }}</span>
+              {% endif %}
+
+            </span>
+            {%- endfor -%}
+          </div>
+        </div>
+
+        
+        <div class="cart-subtotal h6"> 
+          <span class="cart-subtotal__title">{{ 'cart.general.subtotal' | t }}</span>
+          <span class="cart-subtotal__price" data-cart-subtotal>
+            {% if settings.currency_code_enable %}
+            {{ cart.total_price | money_with_currency }}
+            {% else %}
+            {{ cart.total_price | money }}
+            {% endif %}
+           </span>
+        </div>
+
+          {%- if settings.cart_notes_enable -%}
+           
+              <div class='cart__block'>
+                <div class='cart_block__title h6'>
+                  <span>{{ 'cart.general.note' | t }}</span>
+                </div>
+                <div class='cart_block__content'>
+                  <textarea name="note" id="DrawerCartSpecialInstructions" class="cart-note__input" data-cart-notes placeholder='{{ "cart.general.note_placeholder" | t }}'>{{ cart.note }}</textarea>
+                </div>
+              </div>
+            {%- endif -%}
+
+
+        <button type="submit" name="checkout" class="Cart__Checkout btn btn--primary">
+          <span>{{- 'cart.general.checkout' | t -}}</span>
+        </button>
+
+
+        <button type="button" class="Cart__Checkout btn btn--transparent_secondary" data-action="close-drawer" data-drawer-id="sidebar-cart" >
+          <span>{{- 'cart.general.continue_shopping' | t -}}</span>
+         
+        </button>
+
+      </div>
+      {%- endunless -%}
+
+    </div>
+ 
+  </form>
+</div>

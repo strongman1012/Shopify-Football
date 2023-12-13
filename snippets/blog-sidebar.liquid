@@ -1,0 +1,207 @@
+<div class='blog-sidebar'>
+  
+
+  <span class='close-blog-sidebar'>
+    {% include 'icon' with 'close' %}
+  </span>
+
+  
+  
+  {% for block in section.blocks %}
+  {% assign sidebar_index = forloop.index %}
+
+  {% case block.type %}
+
+  {% when 'search' %}
+  <form class="search-form search-sidebar_form" action="{{ routes.search_url }}" method="get" role="search">
+    <div class="search-form__input-wrapper">
+
+                   <label for="blog-sidebar__search_input" class="visually-hidden"></label>
+
+      <input
+    id="blog-sidebar__search_input"
+             type="text"
+             name="q"
+             placeholder="{{ 'general.search.search' | t }}"
+             role="combobox"
+             aria-autocomplete="list"
+             aria-expanded="false"
+             aria-label="{{ 'general.search.search' | t }}"
+             aria-haspopup="listbox"
+             class="search-form__input search-bar__input"
+             data-base-url="{{ routes.search_url }}"
+             />
+      <input type="hidden" name="options[prefix]" value="last" aria-hidden="true" />
+      <div class="predictive-search-wrapper predictive-search-wrapper--drawer" data-predictive-search-mount="drawer"></div>
+    </div>
+
+    <button class="search-button__submit search-form__submit"
+            type="submit"
+            data-search-form-submit>
+      {% include 'icon' with 'search-loop' %}
+      <span class="icon__fallback-text">{{ 'general.search.submit' | t }}</span>
+    </button>
+  </form>
+
+  {% when 'links' %}
+
+  {% assign firstLevelMenu = linklists[block.settings.menu]%}
+  {% if firstLevelMenu.links != blank  %}
+  <div class="blog-sidebar__item category-filters-area-section">
+    <h5 class="blog-sidebar__block-title h4">
+      <span> {{firstLevelMenu.title}}</span>
+    </h5>
+    <div class="category-filters-area-list sidebar_advanced_menu " id="accordion_collection_{{sidebar_index}}" role="tablist" area_multiselectable="true">
+      {% for link in firstLevelMenu.links %}
+
+      {%- assign child_id = forloop.index -%}
+      {% if link.links.size > 0 %}
+      <div class="panel-heading collapse"
+           data-collapse-panel='{{link.title | escape | handle}}_{{child_id}}_collection_{{sidebar_index}}'>
+        {{link.title | escape }}
+      </div>
+      <div class="panel-collapse"  id="{{link.title | escape | handle}}_{{child_id}}_collection_{{sidebar_index}}" style='height:0px;'>
+        <ul class="panel-group-nav-list second-level-nav-list">
+          {% for child_link in link.links %}
+          {% if child_link.links.size > 0 %}
+          <li><a href="#{{child_link.handle | escape  | handle}}_{{child_id}}_collection_{{sidebar_index}}" 
+                 data-link-url="{{child_link.url}}" 
+                 class="dropdown-menu-links third_level_drop_link" 
+                 data-parent="#{{link.handle | escape | handle}}_{{child_id}}_collection_{{sidebar_index}}">
+            {{child_link.title | escape }} </a></li>
+          <div class="panel-collapse"  id="{{child_link.handle | escape | handle}}_{{child_id}}_collection_{{sidebar_index}}" >
+            <ul class="panel-group-nav-list third-level-nav-list">
+              {% for grand_child_link in child_link.links %}
+              <li><a href="{{grand_child_link.url}}" data-parent="#{{child_link.handle | escape | handle}}_collection_{{sidebar_index}}">{{grand_child_link.title | escape }}</a></li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% else %}
+          <li>
+            <a href="{{child_link.url}}" class="dropdown-menu-links">{{child_link.title | escape }}</a>
+          </li>
+          {% endif %}
+          {% endfor %}
+        </ul>
+      </div>
+      {% else %}
+      <div class="panel-heading"><a href="{{ link.url }}">{{ link.title | escape }}</a></div>
+      {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+
+  {%- when 'featured_posts' -%}
+  <div class="blog-sidebar__item blog-sidebar__item--posts" id="block-{{ block.id }}" {{ block.shopify_attributes }}>
+    {%- if block.settings.title != blank -%}
+    <p class="blog-sidebar__block-title heading h4">{{ block.settings.title | escape }}</p>
+    {%- endif -%}
+
+    <ol class="blog-sidebar__post-list {% if block.settings.show_ranking %}blog-sidebar__post-list--ranked{% endif %}">
+      {%- assign show_placeholder = true -%}
+
+      {%- for i in (1..5) -%}
+      {%- assign article_option = 'article_' | append: i -%}
+      {%- assign article = articles[block.settings[article_option]] -%}
+
+      {%- unless article.empty? -%}
+      <li class="blog-sidebar__post-item">
+        {%- if article.image -%}
+        <a href="{{ article.url }}" class="blog-sidebar__post-image-wrapper">
+          <div class="blog-sidebar__post-image-overflow">
+            <img src="{{ article.image | img_url: '100x80', crop: 'center', scale: 2 }}" 
+                 srcset="{{ article.image | img_url: '100x80', crop: 'center' }} 1x, {{ article.image | img_url: '100x80', crop: 'center', scale: 2 }} 2x"
+                 loading="lazy"
+                 width="{{article.image.width}}"
+                 height="{{article.image.height}}"
+                 alt="{{ article.image.alt | default: article.title }}" class="blog-sidebar__post-image">
+          </div>
+        </a>
+        {%- endif -%}
+
+        <div class="blog-sidebar__post-info">
+          <a class="blog-sidebar__post-title h6" href="{{ article.url }}">{{ article.title }}</a>
+
+          {%- if block.settings.show_date  or article.tags.size > 0 -%}
+          <div class="blog-sidebar__post-meta">
+            {%- if block.settings.show_date -%}
+            <span class="blog-sidebar__post-meta-item">{{ article.published_at | date: format: 'short_month_day_year' }}</span>
+            {%- endif -%}
+
+            {% if blog.comments_enabled? and article.comments_count > 0 and block.settings.show_comments %}
+            <div class='article__comment_info'>
+              <a href="{{ article.url }}#comments" class="article__comment-count">
+                {{ 'blogs.comments.comments_with_count' | t: count: article.comments_count }}
+              </a>
+            </div>
+            {% endif %}
+
+          </div>
+          {%- endif -%}
+        </div>
+      </li>
+
+      {%- assign show_placeholder = false -%}
+      {%- endunless -%}
+      {%- endfor -%}
+
+      {%- if show_placeholder -%}
+      {%- for i in (1..3) -%}
+      <li class="blog-sidebar__post-item">
+        {%- if article.image -%}
+        <a href="#" class="blog-sidebar__post-image-wrapper">
+          <div class="blog-sidebar__post-image-overflow">
+            {%- capture placeholder -%}{% cycle 'lifestyle-1', 'lifestyle-2' %}{%- endcapture -%}
+            {{ placeholder | placeholder_svg_tag: 'blog-sidebar__post-placeholder placeholder-svg' }}
+          </div>
+        </a>
+        {%- endif -%}
+
+        <div class="blog-sidebar__post-info">
+          <a class="blog-sidebar__post-title h6" href="#">{{ 'homepage.onboarding.article_title' | t }}</a>
+
+          {%- if block.settings.show_date -%}
+          <div class="blog-sidebar__post-meta">
+
+
+            {%- if block.settings.show_date -%}
+            <span class="blog-sidebar__post-meta-item">{{ 'now' | date: format: 'short_month_day_year' }}</span>
+            {%- endif -%}
+           
+
+          </div>
+          {%- endif -%}
+        </div>
+      </li>
+      {%- endfor -%}
+      {%- endif -%}
+    </ol>
+  </div>
+
+
+   {%- when 'categories' -%}
+  
+  {% if block.settings.show_tags %}
+  <div class="blog-sidebar__item blog-sidebar__categories" id="block-{{ block.id }}" {{ block.shopify_attributes }}>    
+    <p class="blog-sidebar__block-title heading h4">{{ 'blogs.sidebar.categories' | t  }}</p>
+    {% if blog.tags.size > 0 %}	
+      <ul>
+        {% if current_tags %}
+        <li><a href="{{ blog.url }}">{{ 'blogs.article.all_topics' | t }}</a>  </li>
+        {% endif %}
+        
+      {% for tag in blog.all_tags %}
+        <li> 
+          <a href="{{ blog.url }}/tagged/{{ tag | handleize }}" {% if current_tags contains tag %}class='selected'{% endif %}>{{ tag }}</a>
+        </li>
+      {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+  {% endif %}
+  
+  {% endcase %}
+  {% endfor %}
+</div>

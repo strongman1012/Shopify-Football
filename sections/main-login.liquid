@@ -1,0 +1,201 @@
+{% assign header_image = settings.customer_header_image %}
+{% assign header_heading =  'customer.login.title' | t  %}
+{% assign show_breadcrumbs = settings.show_customer_breadcrumbs %}
+{% assign show_heading = settings.show_customer_heading %}
+
+{% assign image_overlay_color = settings.customer_image_overlay_color %} 
+{% assign image_overlay_opacity = settings.customer_image_overlay_opacity %}
+
+{% if header_image != blank %}
+{% render 'custom_page_header' image: header_image, heading: header_heading, show_breadcrumbs: show_breadcrumbs, show_heading: show_heading, image_overlay_color: image_overlay_color, image_overlay_opacity: image_overlay_opacity %}
+{% endif %}
+
+
+<section id="section-{{ section.id }}" data-section-id="{{ section.id }}">
+  <div class="page-width">
+    <div class="grid">
+
+      <div class="grid__item medium-up--one-half medium-up--push-one-quarter">
+
+        <div class='customer-forms-wrapper'>
+          <div class="form-message form-message--success hide" id="ResetSuccess" tabindex="-1">
+            {{ 'customer.recover_password.success' | t }}
+          </div>
+
+          <div id="CustomerLoginForm" class="form-vertical">
+		
+            {% if header_image == blank %}
+            
+            {% if show_heading %}
+           <h1 id="LoginHeading" class="text-center h3">{{ 'customer.login.title' | t }}</h1>
+            {% endif %}
+            {% if show_breadcrumbs %}
+            <div class='account-breadcrumbs'>
+              <ol class="breadcrumbs__list">
+                <li class="breadcrumbs__item">
+                  <a class="breadcrumbs__link" href="{{ routes.root_url }}">{{ 'general.breadcrumbs.home' | t }}</a>
+                </li>
+                <li class="breadcrumbs__item">
+                  <span>{{ 'customer.login.account' | t }}</span>
+                </li>
+              </ol>
+            </div>
+            {% endif %}
+            
+            {% endif %}
+
+            {% form 'customer_login', novalidate: 'novalidate' %}
+
+            {%- if form.errors -%}
+            <div class="form-message form-message--error">
+              <h3 class="h3 form-message__title " tabindex="-1" data-form-status>{{ 'contact.form.error_heading' | t }}</h3>
+              {{ form.errors | default_errors }}
+            </div>
+            {%- endif -%}
+
+            <input
+                   type="email"
+                   name="customer[email]"
+                   id="CustomerEmail"
+                   autocomplete="email"
+                   autocorrect="off"
+                   autocapitalize="off"
+                   placeholder="{{ 'customer.login.email' | t }}"
+                   {%- if form.errors contains 'form' -%}
+                   class="input--error"
+                   aria-invalid="true"
+                   {%- endif -%}
+                   >
+
+            {% if form.password_needed %}
+            <input
+                   type="password"
+                   value=""
+                   name="customer[password]"
+                   id="CustomerPassword"
+                   placeholder="{{ 'customer.login.password' | t }}"
+                   {%- if form.errors contains 'form' -%}
+                   class="input--error"
+                   aria-invalid="true"
+                   {%- endif -%}
+                   >
+            {% endif %}
+            <button type="submit" class="btn  btn--primary btn--full btn--align-center ">
+              <span>{{ 'customer.login.sign_in' | t }}</span>
+            </button>
+
+
+            <div class="text-center">
+              {% if form.password_needed %}
+              <p><a href="#recover" id="RecoverPassword" class='link--primary'>{{ 'customer.login.forgot_password' | t }}</a></p>
+              <p><span>{{ 'customer.account.new_customer' | t }}</span>  <a href="{{ routes.account_register_url}}" class='link--primary'>{{ 'layout.customer.create_account' | t }}</a></p>
+              {% endif %}
+            </div>
+
+            {% endform %}
+          </div>
+
+          <div id="RecoverPasswordForm" class="hide">
+
+            <div class="text-center">
+
+               {% if header_image == blank %}
+            
+            {% if show_heading %}
+              
+              <h3 class="text-center">{{ 'customer.login.title' | t }}</h3>
+              {% endif %}
+              {% if show_breadcrumbs %}
+              <div class='account-breadcrumbs'>
+                <ol class="breadcrumbs__list">
+                  <li class="breadcrumbs__item">
+                    <a class="breadcrumbs__link" href="{{ routes.root_url }}">{{ 'general.breadcrumbs.home' | t }}</a>
+                  </li>
+                  <li class="breadcrumbs__item">
+                    <span>{{ 'customer.login.account' | t }}</span>
+                  </li>
+                </ol>
+              </div>
+			{% endif %}
+              
+               {% endif %}
+              
+              <h4 id="RecoverHeading">{{ 'customer.recover_password.title' | t }}</h4>
+              <p class='subtext'>{{ 'customer.recover_password.subtext' | t }}</p>
+            </div>
+
+            <div class="form-vertical">
+              {% form 'recover_customer_password' %}
+
+
+              {% if form.posted_successfully? %}
+              <span class="hide reset-password-success"></span>
+              {% endif %}
+
+              <input
+                     type="email"
+                     value=""
+                     name="email"
+                     id="RecoverEmail"
+                     placeholder="{{ 'customer.recover_password.email' | t }}"
+                     class="input-full{% if form.errors %} input--error{% endif %}"
+                     autocorrect="off"
+                     autocapitalize="off"
+                     {% if form.errors %}
+                     aria-invalid="true"
+                     aria-describedby="RecoverEmail-email-error"
+                     {%- endif -%}
+                     >
+              {%- if form.errors -%}
+              <span id="RecoverEmail-email-error" class="input-error-message">
+                <span class="visually-hidden">{{ 'general.accessibility.error' | t }} </span>
+                {% include 'icon-error' %}
+                <span>{{ form.errors.messages['form'] }}</span>
+              </span>
+              {%- endif -%}
+
+              <div class="text-center">
+                <div class="reset-password-buttons">
+                  <div class='btn-wrap'>
+                    <button type="submit"  class="btn btn--primary btn--full">
+                      <span>{{ 'customer.recover_password.submit' | t }}</span>
+                    </button>
+
+                  </div>
+                  <div class='btn-wrap'>
+                    <a href="#LoginHeading" id="HideRecoverPasswordLink" class='btn btn--full btn--secondary'>
+                      <span>{{ 'customer.recover_password.cancel' | t }}</span></a>
+                  </div>
+                </div>
+              </div>
+              {% endform %}
+            </div>
+
+          </div>
+
+          {% if shop.checkout.guest_login %}
+          <div class="text-center">
+            <hr class="hr--invisible">
+            <h3>{{ 'customer.login.guest_title' | t }}</h3>
+
+            {% form 'guest_login' %}
+            <input type="submit" class="btn" value="{{ 'customer.login.guest_continue' | t }}">
+            {% endform %}
+          </div>
+          {% endif %}
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+{% schema %}
+  {
+     "name": "t:sections.main-login.name",
+    "settings": []
+  }
+{% endschema %}

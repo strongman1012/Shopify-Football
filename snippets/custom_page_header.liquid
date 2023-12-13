@@ -1,0 +1,135 @@
+{% if image != blank %}
+
+<div class='custom_page_header_section 
+            {% if blog_show_date or blog_show_author %} article_custom_header_with_author_info {% endif %}
+            {% if show_collection_filters_toolbar != true and blog_show_date != true and  blog_show_author != true and show_breadcrumbs %} breadcrumbs_without_margin {% endif %}
+            '>
+
+  {%- capture image_id -%}CustomHeaderImage-{{ image.id }}{%- endcapture -%}
+  {%- capture image_wrapper_id -%}CustomHeaderImageWrapper-{{ image.id }}{%- endcapture -%}
+
+  {% render 'image-style', image: image, height: 500, wrapper_id: image_wrapper_id, img_id: image_id %}
+
+  <img class=""
+       srcset="{%- if image.width >= 375 -%}{{ image | img_url: '375x' }} 375w,{%- endif -%}
+               {%- if image.width >= 720 -%}{{ image | img_url: '720x' }} 750w,{%- endif -%}
+               {%- if image.width >= 1066 -%}{{ image | img_url: '1066x' }} 1066w,{%- endif -%}
+               {%- if image.width >= 1500 -%}{{ image | img_url: '1500x' }} 1500w,{%- endif -%}
+               {%- if image.width >= 1780 -%}{{ image | img_url: '1780x' }} 1780w,{%- endif -%}
+               {%- if image.width >= 2000 -%}{{ image | img_url: '2000x' }} 2000w,{%- endif -%}
+               {%- if image.width >= 2800 -%}{{ image | img_url: '2800x' }} 2800w{%- endif -%}"
+       src="{{ image | img_url: '750x' }}"
+       sizes="100vw"
+       loading="lazy"
+       alt="{{image.alt | default: heading }}"
+       width="{{ image.width }}"
+       height="{{ image.height }}"
+       style="object-position:{{ image.presentation.focal_point }};">
+  
+  <div class='custom_page_header_opacity'></div>
+
+  {% if heading != blank and show_heading or show_breadcrumbs %}
+  <div class="page-width">
+    {% if heading != blank and show_heading %}
+    <h1 class='h2 page_header_heading'>{{heading}}</h1>
+    {% endif %}
+
+    {% if show_breadcrumbs %}
+    {% render 'breadcrumbs' %}
+    {% endif %}
+    
+    
+    {% if show_collection_filters_toolbar %}
+    <div class='custom_header-filters-toolbar-block'>
+      <div class="filters-toolbar">
+
+        {% if filters_view_mode != 'no_sidebar' %}
+        <button type='button' class='btn btn--primary open_mobile_sidebar'><span>{{ 'collections.sidebar.mobile_open_button' | t }}</span></button>
+        {% endif %}
+        <button type="button" class="collection__layout-button {% if view_mode == 'grid' %}is-selected{% endif %}" aria-label="{{ 'collections.general.grid' | t }}" data-action="change-layout" data-layout-mode="grid">{% render 'icon', icon: 'grid' %}</button>
+        <button type="button" class="collection__layout-button {% if view_mode == 'list' %}is-selected{% endif %}" aria-label="{{ 'collections.general.list' | t }}" data-action="change-layout" data-layout-mode="list">{% render 'icon', icon: 'list' %}</button>
+
+        {% if sort_enable %}
+        <div class="toolbar_sort_by-block filters-toolbar__item-child">
+          {%- assign sort_by = collection.sort_by | default: collection.default_sort_by -%}
+          <label class="filters-toolbar__label select-label" for="SortBy">{{ 'collections.sorting.title' | t }}</label>
+          <div class="filters-toolbar__input-wrapper select-group">
+            <select name="sort_by" id="SortBy"
+                    class="filters-toolbar__input hidden"
+                    aria-describedby="a11y-refresh-page-message a11y-selection-message"
+                    data-default-sortby="{{ collection.default_sort_by }}"
+                    data-select-input
+                    >
+              {%- for option in collection.sort_options -%}
+              <option value="{{ option.value }}" {% if option.value == sort_by %}selected="selected"{% endif %}>{{ option.name }}</option>
+              {%- endfor -%}
+            </select>
+            {% render 'icon-chevron-down' %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+	{% endif %}
+
+{% if blog_show_date or blog_show_author %}
+    <div class='article-page'>
+      <div class='article_header_meta-info'>
+        <div class="article__grid-meta">
+          {% if blog_show_date %}
+          <span class="article__date">
+            {{ article.published_at | time_tag: format: 'date' }}
+          </span>
+          {% endif %}
+
+          {% if blog.comments_enabled? and article.comments_count > 0 %}
+          <div class='article__comment_info'>
+            <a href="{{ article.url }}#comments" class="article__comment-count">
+              {{ 'blogs.comments.comments_with_count' | t: count: article.comments_count }}
+            </a>
+          </div>
+          {% endif %}
+        </div>
+
+
+{% if blog_show_author %} 
+	{% render 'article_author_block' with: article:article %}
+{% endif %}
+
+      </div>
+    </div>
+{% endif %}
+
+      
+    
+  </div>
+  {% endif %}
+
+  <style>
+    .shopify-section-header {
+      position: absolute;
+      top: var(--announcement-bar-height);
+        }
+    .custom_page_header_opacity {
+      background: {{image_overlay_color}};
+      opacity: {{image_overlay_opacity}}%;
+    }
+  </style>
+
+
+</div>
+{% else %}
+{% if show_heading or show_breadcrumbs %}
+<div class="page-width">
+  <div class="section-header">
+    {% if heading != blank and show_heading %}
+    <h1 class=' h2 page_header_heading'>{{heading}}</h1>
+    {% endif %}
+    {% if show_breadcrumbs %}
+    {% render 'breadcrumbs' %}
+    {% endif %}
+
+  </div>
+</div>
+{% endif %}
+{% endif %}

@@ -1,0 +1,116 @@
+
+{%- unless template == 'index'  or template == '404' -%}
+{%- assign t = template | split: '.' | first -%}
+
+
+
+{% comment %}
+  A recursive loop to catch and filter out the different tag categories.
+  This is mainly for advanced tagging, but will also help us strip
+  out any tag categories from our tags (E.g. remove BRAND_ from BRAND_tag)
+{% endcomment %}
+{% if template contains 'collection' and collection.all_tags.size > 0 %}
+  {% assign categories = '' %}
+  {% for tag in collection.all_tags %}
+    {% if tag contains '_' %}
+      {% capture categories %}{% unless categories == blank  %}{{ categories }}|{% endunless %}{{ tag | split: '_' | first }}{% endcapture %}
+    {% endif %}
+  {% endfor %}
+  {% assign cat_array = categories | split: '|' | uniq %}
+{% endif %}
+
+
+<nav class="breadcrumbs" role="navigation" aria-label="breadcrumbs">
+  <ol class="breadcrumbs__list">
+    <li class="breadcrumbs__item">
+      <a class="breadcrumbs__link" href="{{ routes.root_url }}">{{ 'general.breadcrumbs.home' | t }}</a>
+    </li>
+    {%- case t -%}
+    {%- when 'page' -%}
+    <li class="breadcrumbs__item">
+      <a class="breadcrumbs__link" href="{{ page.url }}" aria-current="page">{{ page.title }}</a>
+    </li>
+    {%- when 'product' -%}
+    {%- if collection.url -%}
+    <li class="breadcrumbs__item">
+      {{ collection.title | link_to: collection.url }}
+    </li>
+    {%- endif -%}
+    <li class="breadcrumbs__item">
+      <a class="breadcrumbs__link" href="{{ product.url }}" aria-current="page">{{ product.title }}</a>
+    </li>
+    {%- when 'collection' and collection.handle -%}
+    {%- if current_tags -%}
+    
+    {% capture url %}/collections/{{ collection.handle }}{% endcapture %}
+     <li class="breadcrumbs__item">{{ collection.title | escape | link_to: url }}</li>
+    {% for tag in current_tags %}
+    {% assign is_advanced_tag = false %}
+    {% assign additional_tag = true %}
+    {% if forloop.first %}
+    {% assign additional_tag = false %}
+    {% endif %}
+
+
+    {% assign found_tag = false %}
+    {% assign found_tag_text = false %}
+
+    {% for cat_item in cat_array %}
+    {% unless cat_item == '' %}
+
+    {% if tag contains cat_item and tag != found_tag_text %}
+    {% assign is_advanced_tag = true %}
+    {% if additional_tag %}
+    <span>+</span>
+    {% endif %}
+    {% assign found_tag = true %}
+    {% assign found_tag_text = tag %}
+    <li class="breadcrumbs__item current_tag__item">
+      {{ tag | remove_first: cat_item | remove: '_' }}
+    </li>
+    {% endif %}
+    {% endunless %}
+    {% endfor %}
+
+    {% comment %}
+    We have a regular tag that wasn't printed, so print it now
+    {% endcomment %}
+    {% unless found_tag %}
+     <li class="breadcrumbs__item current_tag__item">{{ tag }}</li>
+    {% endunless %}
+
+    {% endfor %}
+    {%- else -%}
+    <li class="breadcrumbs__item">
+      <a class="breadcrumbs__link" href="{{ collection.url }}" aria-current="page">{{ collection.title }}</a>
+    </li>
+    {%- endif -%}
+    {%- when 'blog' -%}
+    {%- if current_tags -%}
+    <li class="breadcrumbs__item">
+      {{ blog.title | link_to: blog.url }}
+    </li>
+    <li class="breadcrumbs__item">
+      {%- capture tag_url -%}{{blog.url}}/tagged/{{ current_tags | join: "+" }}{%- endcapture -%}
+      <a class="breadcrumbs__link" href="{{ tag_url }}" aria-current="page">{{ current_tags | join: " + " }}</a>
+    </li>
+    {%- else -%}
+    <li class="breadcrumbs__item">
+      <a class="breadcrumbs__link" href="{{ blog.url }}" aria-current="page">{{ blog.title }}</a>
+    </li>
+    {%- endif -%}
+    {%- when 'article' -%}
+    <li class="breadcrumbs__item">
+      {{ blog.title | link_to: blog.url }}
+    </li>
+    <li class="breadcrumbs__item">
+      <a class="breadcrumbs__link" href="{{ article.url }}" aria-current="page">{{ article.title }}</a>
+    </li>
+    {%- else -%}
+    <li class="breadcrumbs__item">
+      <a class="breadcrumbs__link" href="{{ request.path }}" aria-current="page">{{ page_title }}</a>
+    </li>
+    {%- endcase -%}
+  </ol>
+</nav>
+{%- endunless -%}

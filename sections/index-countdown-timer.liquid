@@ -1,0 +1,335 @@
+{% assign timer_behaviour = section.settings.timer_behaviour %}
+{% assign overlay_behaviour = section.settings.overlay_behaviour %}
+
+
+<section id="section-{{ section.id }}" data-section-id="{{ section.id }}" data-section-type="index-countdown-timer" class='fade-in-animation overlay_behaviour_{{overlay_behaviour}}'>
+
+  {% assign image = section.settings.image %}
+  {% assign mobile_image = section.settings.mobile_image %}
+    {% assign content_side = section.settings.content_side %}
+  
+
+  <div class='section_bg'>
+ {% if image != blank %}  
+        <img 
+             class="section_bg_image {% if mobile_image != blank %} small--hide {% endif %}"
+             srcset="{%- if image.width >= 375 -%}{{ image | img_url: '375x' }} 375w,{%- endif -%}
+                {%- if image.width >= 720 -%}{{ image | img_url: '720x' }} 750w,{%- endif -%}
+                {%- if image.width >= 1066 -%}{{ image | img_url: '1066x' }} 1066w,{%- endif -%}
+             	{%- if image.width >= 1500 -%}{{ image | img_url: '1500x' }} 1500w,{%- endif -%}
+                {%- if image.width >= 1780 -%}{{ image | img_url: '1780x' }} 1780w,{%- endif -%}
+                {%- if image.width >= 2000 -%}{{ image | img_url: '2000x' }} 2000w,{%- endif -%}
+                {%- if image.width >= 2800 -%}{{ image | img_url: '2800x' }} 2800w{%- endif -%}"
+             src="{{ image | img_url: '750x' }}"
+             sizes="100vw"
+             loading="lazy"
+             width="{{ image.width }}"
+        	 height="{{ image.height }}"
+             alt="{{image.alt | default:  section.settings.title }}"
+             style="object-position:{{ image.presentation.focal_point }};">
+      
+      {% if mobile_image != blank %}
+        <img 
+             class="section_bg_image mobile_image medium-up--hide"
+             srcset="{%- if mobile_image.width >= 375 -%}{{ mobile_image | img_url: '375x' }} 375w,{%- endif -%}
+                {%- if mobile_image.width >= 720 -%}{{ mobile_image | img_url: '720x' }} 750w,{%- endif -%}
+                {%- if mobile_image.width >= 1066 -%}{{ mobile_image | img_url: '1066x' }} 1066w,{%- endif -%}
+             	{%- if mobile_image.width >= 1500 -%}{{ mobile_image | img_url: '1500x' }} 1500w{%- endif -%}"
+             src="{{ mobile_image | img_url: '535x' }}"
+             sizes="100vw"
+             loading="lazy"
+             width="{{ mobile_image.width }}"
+        	 height="{{ mobile_image.height }}"
+             alt="{{mobile_image.alt | default:  section.settings.title }}"
+             style="object-position:{{ mobile_image.presentation.focal_point }};">
+      {% endif %}
+           
+    
+    
+   {% else %}
+    <div class='section_bg_image'>
+      {% capture current %}{% cycle 1, 2 %}{% endcapture %}
+      {{ 'lifestyle-' | append: current | placeholder_svg_tag: 'placeholder-svg' }}
+    </div>
+    
+  {% endif %}
+  </div>
+
+    <div class='section_content'>
+    <div class="{% if overlay_behaviour == 'full' %} page-width {% else %}page-width-small {% endif %} content_side_{{content_side}}">
+      <div class='section_content__wrapper'>
+        <div class='section_main_content text-left '>
+          {% if section.settings.title != blank or  section.settings.subtitle != blank %}
+          <header class="section-header homepage_subtitle_style_{{settings.homepage_subtitle_color}}">
+            {% if section.settings.subtitle != blank  %}
+            <span class='h5'>{{ section.settings.subtitle  }}</span>
+            {% endif %}
+            {% if section.settings.title != blank  %}
+            <h2>{{ section.settings.title }}</h2>
+            {% endif %}
+
+            {% if section.settings.content != blank  %}
+            <div class='content'>{{ section.settings.content }}</div>
+            {% endif %}
+          </header>
+          {% endif %}
+          
+          <div class='countdown_timer' 
+               data-timer_behaviour="{{timer_behaviour}}"
+               data-time="{% if section.settings.timer_date != blank %}{{ section.settings.timer_date }}{% else %}0{% endif %}"> 
+            <div class="timer-time timer-days">
+              <span class="timer-value"></span>
+              <span class="timer-label h5">Days</span>
+            </div>
+            <span class="time-divider">:</span>
+            <div class="timer-time timer-hours">
+              <span class="timer-value"></span>
+              <span class="timer-label h5">Hours</span>
+            </div>
+            <span class=" time-divider">:</span>
+            <div class="timer-time timer-minutes">
+              <span class="timer-value"></span>
+              <span class="timer-label h5">Mins</span>
+            </div>
+            <span class="time-divider">:</span>
+            <div class="timer-time timer-seconds">
+              <span class="timer-value"></span>
+              <span class="timer-label h5">Secs</span>
+            </div>
+
+          </div>
+         
+          {% if section.settings.button_text != blank %}
+          <a class='btn countdown_timer_btn btn--{{section.settings.button_style }}' id='button-{{section.id}}' href='{{section.settings.button_url}}'> 
+            <span>{{ section.settings.button_text }}</span>
+              {% include 'icon' with 'tail-right' %}
+          </a>
+          {% endif %}
+
+
+
+        </div>
+      
+      </div>      
+    </div>
+  </div>
+
+  <style>
+    #section-{{ section.id }} {
+      color: {{ section.settings.text_color }};
+    }
+   #section-{{ section.id }}  .content * {
+     color: {{ section.settings.text_color }};
+   }
+       {% if settings.homepage_subtitle_color == 'match_header' %}
+      #section-{{ section.id }}  .section-header .h5 {
+      color: {{ section.settings.text_color }};
+    }
+    #section-{{ section.id }}  .section-header .h5:before {
+      background: {{ section.settings.text_color }};
+    }
+    {% endif %}
+    
+    #section-{{ section.id }}  .timer-value {
+      color: {{ section.settings.countdown_color }};
+    }
+  </style>
+  
+  <div class='section_overlay content_side_{{content_side}}'></div>
+  <div class='section_overlay_border_top content_side_{{content_side}}'></div>
+  <div class='section_overlay_border_bottom content_side_{{content_side}}'></div>
+  
+  
+  {% assign color_image_overlay = section.settings.color_image_overlay %}
+
+  {% if color_image_overlay == 'rgba(0,0,0,0)' or color_image_overlay == blank %}
+  {% assign color_image_overlay = settings.color_button %}
+  {% endif %}
+  
+  <style>
+    
+    #section-{{ section.id }}.overlay_behaviour_full .section_content .section_main_content:after,
+    #section-{{ section.id }} .section_overlay {
+      opacity: {{ section.settings.image_overlay_opacity }}% ;
+      background-color: {{ color_image_overlay }};
+    }
+  </style>
+  {% if overlay_behaviour == 'full' %}
+  <script>
+    document.querySelector('#shopify-section-{{section.id}}').classList.add('full_overlay');
+  </script>
+  {% endif %}
+</section>
+
+
+{% schema %}
+  {
+   "name":"t:sections.index-countdown-timer.name",
+	"class": "index-section bg_image_with_custom_content",
+    "settings": [
+{
+      "type": "select",
+      "id": "overlay_behaviour",
+      "label": "t:sections.index-countdown-timer.settings.overlay_behaviour.label",
+      "default": "split",
+      "options": [
+		   {
+          "label": "t:sections.index-countdown-timer.settings.overlay_behaviour.options__1.label",
+          "value": "split"
+        },
+		   {
+          "label": "t:sections.index-countdown-timer.settings.overlay_behaviour.options__2.label",
+          "value": "full"
+        }
+
+	]
+	},
+	{
+      "type": "select",
+      "id": "content_side",
+      "label": "t:sections.index-countdown-timer.settings.content_side.label",
+	"options": [
+		{
+          "value": "left",
+          "label": "t:sections.index-countdown-timer.settings.content_side.options__1.label"
+		},
+		{
+          "value": "right",
+          "label": "t:sections.index-countdown-timer.settings.content_side.options__2.label"
+		}		
+	],
+	"default":"left"
+	},
+		{
+		"type":"image_picker",
+		"id":"image",
+		"label":"t:sections.index-countdown-timer.settings.image.label"
+		},
+		{
+		"type":"image_picker",
+		"id":"mobile_image",
+		"label":"t:sections.index-countdown-timer.settings.mobile_image.label"
+		},
+	
+			{
+		"type":"text",
+		"id":"title",
+		"label":"t:sections.index-countdown-timer.settings.title.label",
+		"default":"Heading"
+		},
+		{
+		"type":"text",
+		"id":"subtitle",
+		"label":"t:sections.index-countdown-timer.settings.subtitle.label",
+		"default":"Subtitle"
+		},
+
+		{
+		"type":"richtext",
+		"id":"content",
+		"label":"t:sections.index-countdown-timer.settings.content.label",
+		"default":"<p>Content text</p>"
+		},
+		{
+		"type":"text",
+		"id":"timer_date",
+		"label":"t:sections.index-countdown-timer.settings.timer_date.label",
+		"info":"t:sections.index-countdown-timer.settings.timer_date.info"
+		},
+{
+      "type": "select",
+      "id": "timer_behaviour",
+      "label": "t:sections.index-countdown-timer.settings.timer_behaviour.label",
+      "default": "use_current_day",
+      "options": [
+		   {
+          "label": "t:sections.index-countdown-timer.settings.timer_behaviour.options__1.label",
+          "value": "use_current_day"
+        },
+		   {
+          "label": "t:sections.index-countdown-timer.settings.timer_behaviour.options__2.label",
+          "value": "show_zeros"
+        },
+		   {
+          "label": "t:sections.index-countdown-timer.settings.timer_behaviour.options__3.label",
+          "value": "hide"
+        }
+	]
+},
+	{
+      "type": "select",
+      "id": "button_style",
+      "label": "t:sections.index-countdown-timer.settings.button_style.label",
+      "default": "primary",
+      "options": [
+		   {
+          "label": "t:sections.index-countdown-timer.settings.button_style.options__1.label",
+          "value": "primary"
+        },
+		   {
+          "label": "t:sections.index-countdown-timer.settings.button_style.options__2.label",
+          "value": "secondary"
+        },
+		   {
+          "label": "t:sections.index-countdown-timer.settings.button_style.options__3.label",
+          "value": "white"
+        },
+		   {
+          "label": "t:sections.index-countdown-timer.settings.button_style.options__4.label",
+          "value": "transparent_primary"
+        },
+		   {
+          "label": "t:sections.index-countdown-timer.settings.button_style.options__5.label",
+          "value": "transparent_secondary"
+        }
+	]
+},
+		{
+		"type":"text",
+		"id":"button_text",
+		"label":"t:sections.index-countdown-timer.settings.button_text.label",
+		"default":"Button"
+		},
+		{
+		"type":"url",
+		"id":"button_url",
+		"label":"t:sections.index-countdown-timer.settings.button_url.label"
+		},
+		{
+		"type":"color",
+		"id":"text_color",
+		"label":"t:sections.index-countdown-timer.settings.text_color.label",
+		"default":"#000"
+		},
+		{
+		"type":"color",
+		"id":"countdown_color",
+		"label":"t:sections.index-countdown-timer.settings.countdown_color.label",
+		"default":"#000"
+		},
+
+	{
+        "type": "color",
+        "id": "color_image_overlay",
+       "label": "t:sections.index-countdown-timer.settings.color_image_overlay.label"
+	},
+      {
+        "type": "range",
+        "id": "image_overlay_opacity",
+       "label": "t:sections.index-countdown-timer.settings.image_overlay_opacity.label",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+       "unit": "t:sections.index-countdown-timer.settings.image_overlay_opacity.unit",
+        "default": 70
+      }
+	],
+
+	"presets": [
+	{
+	"name":"t:sections.index-countdown-timer.presets.name",
+	"category":"Custom sections"
+	}
+	]
+  }
+{% endschema %}

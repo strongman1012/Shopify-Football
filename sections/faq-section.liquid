@@ -1,0 +1,146 @@
+{% assign header_image = section.settings.header_image %}
+{% assign header_heading = page.title %}
+{% assign show_breadcrumbs = section.settings.show_breadcrumbs %}
+{% assign show_heading = section.settings.show_heading %}
+
+{% assign image_overlay_color = section.settings.image_overlay_color %} 
+{% assign image_overlay_opacity = section.settings.image_overlay_opacity %}
+{% render 'custom_page_header' image: header_image, heading: header_heading, show_breadcrumbs: show_breadcrumbs, show_heading: show_heading, image_overlay_color: image_overlay_color, image_overlay_opacity: image_overlay_opacity %}
+
+
+
+{% if section.settings.show_page_content %}
+<div class="page-width">
+  <div class="grid">
+    <div class="grid__item">
+      <div class="rte">
+        {{ page.content }}
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+
+<div id="faq_{{section.id}}" class='faq-section'>
+<div class="page-width-small" data-section-type="page-accordion" >
+	
+  {% if section.blocks.size > 0 %}
+  <div class='faq_accordion' id='accordion-{{ section.id }}'>
+    {% for block in section.blocks %}
+    {% if block.type == 'question' %}
+    <div class='accordion__block'>
+      <h5 class='question' data-id="{{block.id}}">
+        {% render 'icon' with "plus" %}
+        {% render 'icon' with "minus" %}
+        <span>{{ block.settings.question }}</span>
+
+      </h5>
+      <div class='answer'>
+        <div class='answer_content'>
+          {{ block.settings.answer}}
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class='heading_block section-header'>
+      {% if block.settings.subheading != blank %}
+        <span class='h5'>{{ block.settings.subheading  }}</span>
+      {% endif %}
+      {% if  block.settings.heading  != blank %}
+      <h2> {{ block.settings.heading }}</h2>
+      {% endif %}
+    </div>
+    {% endif %}
+    
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+
+</div>
+
+{% schema %}
+  {
+    "name": "t:sections.faq-section.name",
+	"class":"main-faq-section-wrapper",
+    "settings": [
+		{
+		"type":"image_picker",
+		"id":"header_image",
+		"label":"t:sections.faq-section.settings.header_image.label"
+		},
+		{
+		"type":"checkbox",
+		"id":"show_breadcrumbs",
+		"label":"t:sections.faq-section.settings.show_breadcrumbs.label",
+		"default": true
+		},
+		{
+		"type":"checkbox",
+		"id":"show_heading",
+		"label":"t:sections.faq-section.settings.show_heading.label",
+		"default": true
+		},
+{
+		"type":"checkbox",
+		"id":"show_page_content",
+		"label":"t:sections.faq-section.settings.show_page_content.label",
+		"default": true
+		},
+		{
+		"type":"color",
+		"id":"image_overlay_color",
+		"label":"t:sections.faq-section.settings.image_overlay_color.label",
+		"default": "#000"
+		},
+      {
+        "type": "range",
+        "id": "image_overlay_opacity",
+       "label": "t:sections.faq-section.settings.image_overlay_opacity.label",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+       "unit": "t:sections.faq-section.settings.image_overlay_opacity.unit",
+        "default": 40
+      }
+	],
+	"blocks": [
+		{	
+		"type":"heading",
+		"name":"t:sections.faq-section.blocks.heading.name",
+		"settings": [
+			{
+			"type":"text",
+			"id":"heading",
+			"label":"t:sections.faq-section.blocks.heading.settings.heading.label",
+			"default":"Heading"
+			},
+{
+			"type":"text",
+			"id":"subheading",
+			"label":"t:sections.faq-section.blocks.heading.settings.subheading.label"
+		}
+		]
+		},
+	{
+		"name":"t:sections.faq-section.blocks.question.name",
+		"type":"question",
+		"settings": [
+		{
+			"type":"text",
+			"id":"question",
+			"label":"t:sections.faq-section.blocks.question.settings.question.label",
+			"default":"Question title"
+		},
+		{
+			"type":"richtext",
+			"id":"answer",
+			"label":"t:sections.faq-section.blocks.question.settings.answer.label",
+		"default":"<p>Answer text</p>"
+		}
+		]
+	}
+	]
+  }
+{% endschema %}

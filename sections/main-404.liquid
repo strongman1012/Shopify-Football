@@ -1,0 +1,80 @@
+<div class="page-width-small">
+  <div class="empty-page-content text-left page-404-content ">
+    <h3> {% if section.settings.subtitle != blank %}{{ section.settings.subtitle }}{% else %}{{ 'general.404.suptitle' | t }}{% endif %} </h3>
+    <h1 class='mega-title--large mega-title'>{% if section.settings.title != blank %}{{ section.settings.title }}{% else %}{{ 'general.404.title' | t }}{% endif %}</h1>
+    {% if section.settings.text != blank %}{{ section.settings.text }}{% endif %}
+   <div class='btn_wrapper'>
+      {% if section.settings.button_1_text != blank and section.settings.button_1_link != blank %}
+     <a href="{{ section.settings.button_1_link }}" class="btn btn--primary"><span>{{ section.settings.button_1_text }}</span></a>
+      {% else %}
+     <a href="{{ routes.root_url }}" class="btn btn--primary"><span>{{ 'general.404.link' | t }}</span></a>
+      {% endif %}
+     
+      {% if section.settings.button_2_text != blank and section.settings.button_2_link != blank %}
+     <a href="{{ section.settings.button_2_link }}" class="btn btn--transparent_secondary"><span>{{ section.settings.button_2_text }}</span></a>
+      {% else %}
+     <a href="{{ routes.root_url }}" class="btn btn--transparent_secondary"><span>{{ 'general.404.contact_btn' | t }}</span></a>
+      {% endif %}
+    </div>
+    
+    {% if section.settings.show_social %}
+    {% include 'social-sharing' %} 
+    {% endif %}
+    
+    
+    <div class='page-404-footer'>
+    	 <small class="site-footer__copyright-content">&copy; {{ 'now' | date: "%Y" }}, {{ shop.name | link_to: routes.root_url }}</small>
+    </div>
+  </div>
+</div>
+
+
+{% schema %}
+  {
+    "name": "t:sections.page404.name",
+    "settings": [
+
+      {
+          "type": "text",
+          "id": "title",
+          "label": "t:sections.page404.settings.title.label"
+      },	
+      {
+          "type": "text",
+          "id": "subtitle",
+           "label": "t:sections.page404.settings.subtitle.label"
+      },
+      {
+          "type": "richtext",
+          "id": "text",
+            "label": "t:sections.page404.settings.text.label",
+		"default": "<p>The page you are looking for does not exist.</p>"
+      },
+	  {
+          "type": "text",
+          "id": "button_1_text",
+          "label": "t:sections.page404.settings.button_1_text.label"
+      },
+	  {
+          "type": "url",
+          "id": "button_1_link",
+           "label": "t:sections.page404.settings.button_1_link.label"
+      },
+	  {
+          "type": "text",
+          "id": "button_2_text",
+          "label": "t:sections.page404.settings.button_2_text.label"
+      },
+	  {
+          "type": "url",
+          "id": "button_2_link",
+          "label": "t:sections.page404.settings.button_2_link.label"
+      },
+	  {
+          "type": "checkbox",
+          "id": "show_social",
+         "label": "t:sections.page404.settings.show_social.label"
+      }
+    ]
+  }
+{% endschema %}

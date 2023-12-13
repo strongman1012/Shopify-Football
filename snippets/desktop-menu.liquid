@@ -1,0 +1,87 @@
+{%- comment -%}
+IMPLEMENTATION NOTE ABOUT MEGA MENUS: in Warehouse, on desktop, we have two different menu styles: one style where the first level is always
+visible, and a second style where the menu is displayed after hitting the "Menu" button.
+
+The mega menu logic is as a consequence quite difference: in the first style, the mega-menu is actually part of the second dropdown menu (as each level
+is displayed as a dropdown). However on the second style, the mega-menu is checked on the first level, as the first menu (which holds the mega-menu) is
+always visible.
+{%- endcomment -%}
+
+{%- assign mega_menus = section.blocks | map: 'settings' | map: 'menu_item' -%}
+
+{%- if section.settings.desktop_navigation_layout == 'condensed' -%}
+  {%- assign is_floating = true -%}
+{%- else -%}
+  {%- assign is_floating = false -%}
+{%- endif -%}
+
+
+{%- assign is_mega_menu = false -%}
+{%- assign downcase_title = menu.title | downcase | strip -%}
+
+{% for block in section.blocks %}
+{% if block.type == 'mega_menu' %}
+{%- assign mega_menu_setting_downcase = block.settings.menu_item | downcase | strip -%}
+{%- if mega_menu_setting_downcase == downcase_title -%}
+{%- assign is_mega_menu = true -%}
+{%- break -%}
+{%- endif -%}
+
+{% endif %}
+{% endfor %}
+
+
+
+{%- if is_floating == false and is_mega_menu -%}
+  {%- capture index_mega_menu -%}{{ index }}-mega-menu-0{%- endcapture -%}
+  {%- render 'mega-menu', is_floating: is_floating, mega_menu: menu, index: index_mega_menu -%}
+{%- else -%}
+  <ul id="dropdown-{{ index }}" class="nav-dropdown {% if is_floating %}nav-dropdown--floating {% if mega_menus.size > 0 %}nav-dropdown--fixed {% endif %}{% elsif menu.levels == 1 %}nav-dropdown--restrict{% endif %}" data-type="menu" aria-hidden="true">
+    {%- if is_floating -%}
+      {%- render 'icon', icon: 'nav-triangle-borderless' -%}
+    {%- endif -%}
+
+    {%- for link in menu.links -%}
+
+
+    
+
+      <li class="nav-dropdown__item {% if link.links.size > 0 %}has-mega-menu{% endif %} ">
+        {%- if link.links.size == 0 -%}
+        <a href="{{ link.url }}" class="nav-dropdown__link link" data-type="menuitem"><span>{{ link.title }}</span></a>
+        {%- else -%}
+          <a href="{{ link.url }}" class="nav-dropdown__link link" data-type="menuitem" aria-expanded="false" aria-haspopup="true">
+            <span>{{- link.title -}}</span>
+            {%- render 'icon', icon: 'chevron-right' -%}</a>
+
+            <ul id="sub_dropdown-{% increment nav_dropdown %}" class="nav-dropdown {% if is_floating %}nav-dropdown--floating{% endif %}" data-type="menu" aria-hidden="true">
+
+              {%- for sub_link in link.links -%}
+                <li class="nav-dropdown__item">
+                  {%- if sub_link.links.size == 0 -%}
+                  <a href="{{ sub_link.url }}" class="nav-dropdown__link link" data-type="menuitem"><span>{{ sub_link.title }}</span></a>
+                  {%- else -%}
+                    <a href="{{ sub_link.url }}" class="nav-dropdown__link link" data-type="menuitem" aria-expanded="false" aria-haspopup="true">
+                      <span>{{- sub_link.title -}}</span>
+                      {%- render 'icon', icon: 'chevron-right' -%}</a>
+
+                    <ul id="sub_sub_dropdown-{% increment nav_dropdown %}" class="nav-dropdown {% if is_floating %}nav-dropdown--floating{% endif %}" data-type="menu" aria-hidden="true">
+                     
+
+                      {%- for sub_sub_link in sub_link.links -%}
+                        <li class="nav-dropdown__item">
+                          <a href="{{ sub_sub_link.url }}" class="nav-dropdown__link link" data-type="menuitem">
+                            <span>{{ sub_sub_link.title }}</span>
+                          </a>
+                        </li>
+                      {%- endfor -%}
+                    </ul>
+                  {%- endif -%}
+                </li>
+              {%- endfor -%}
+            </ul>
+        {%- endif -%}
+      </li>
+    {%- endfor -%}
+  </ul>
+{%- endif -%}

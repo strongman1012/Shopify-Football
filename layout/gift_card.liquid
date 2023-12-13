@@ -1,0 +1,87 @@
+<!doctype html>
+<html class="no-js" lang="{{ request.locale.iso_code }}">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="{{ settings.color_button }}">
+  <link rel="canonical" href="{{ canonical_url }}">
+
+  <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.shopify.com" crossorigin>
+  <link rel="preconnect" href="https://monorail-edge.shopifysvc.com">
+
+  {%- assign header_font = settings.type_header_font -%}
+  {%- assign base_font = settings.type_base_font -%}
+  {%- assign base_font_bolder = base_font | font_modify: 'weight', 'bolder' -%}
+  {%- assign base_font_bold = base_font | font_modify: 'weight', 'bold' -%}
+  {%- assign base_font_italic = base_font | font_modify: 'style', 'italic' -%}
+  {%- assign base_font_bold_italic = base_font_bold | font_modify: 'style', 'italic' -%}
+
+  <link rel="preload" href="{{ 'core.css' | asset_url }}" as="style">
+  <link rel="preload" as="font" href="{{ header_font | font_url }}" type="font/woff2" crossorigin>
+  <link rel="preload" as="font" href="{{ base_font | font_url }}" type="font/woff2" crossorigin>
+  <link rel="preload" as="font" href="{{ base_font_bold | font_url }}" type="font/woff2" crossorigin>
+
+  {% if settings.favicon != blank %}
+    <link rel="shortcut icon" href="{{ settings.favicon | img_url: '32x32' }}" type="image/png">
+  {% endif %}
+
+  {%- assign formatted_initial_value = gift_card.initial_value | money_without_trailing_zeros: gift_card.currency -%}
+  {%- assign formatted_initial_value_stripped = formatted_initial_value | strip_html -%}
+  <title>{{ 'gift_cards.issued.title_html' | t: value: formatted_initial_value_stripped, shop: shop.name }}</title>
+
+  <meta name="description" content="{{ 'gift_cards.issued.subtext' | t }}">
+
+  {% include 'css-variables' %}
+
+  <style>
+    {{ header_font | font_face: font_display: 'swap' }}
+    {{ base_font | font_face: font_display: 'swap' }}
+    {{ base_font_bold | font_face: font_display: 'swap' }}
+    {{ base_font_bolder | font_face: font_display: 'swap' }}
+    {{ base_font_italic | font_face: font_display: 'swap' }}
+    {{ base_font_bold_italic | font_face: font_display: 'swap' }}
+  </style>
+
+  {{ 'core.css' | asset_url | stylesheet_tag }}
+
+  <link rel="stylesheet" href="{{ 'theme.css' | asset_url }}" type="text/css">
+  
+  {{ 'gift-card.css' | asset_url | stylesheet_tag }}
+
+  <script src="{{ 'vendor/qrcode.js' | shopify_asset_url }}" defer="defer"></script>
+  <script src="{{ 'gift-card.js' | asset_url }}" defer="defer"></script>
+
+  <script>
+    var theme = {
+      strings: {
+        qrImageAlt: {{ 'gift_cards.issued.qr_image_alt' | t | json }}
+      }
+    };
+  </script>
+
+  <script type="text/javascript">
+    if (window.MSInputMethodContext && document.documentMode) {
+      var scripts = document.getElementsByTagName('script')[0];
+      var polyfill = document.createElement("script");
+      polyfill.defer = true;
+      polyfill.src = "{{ 'ie11CustomProperties.min.js' | asset_url }}";
+      scripts.parentNode.insertBefore(polyfill, scripts);
+    }
+
+    document.documentElement.className = document.documentElement.className.replace('no-js', 'js');
+  </script>
+
+  {{ content_for_header }}
+</head>
+
+<body class="template-giftcard">
+  {{ content_for_layout }}
+  <ul class="visually-hidden" aria-hidden="true">
+    <li id="a11y-new-window-message">{{ 'general.accessibility.link_messages.new_window' | t }}</li>
+    <li id="a11y-external-message">{{ 'general.accessibility.link_messages.external' | t }}</li>
+    <li id="a11y-new-window-external-message">{{ 'general.accessibility.link_messages.new_window_and_external' | t }}</li>
+  </ul>
+</body>
+</html>

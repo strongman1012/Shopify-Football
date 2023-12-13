@@ -1,0 +1,119 @@
+{%- assign max_height = 250 -%}
+{%- assign grid_item_width = ' medium-up--one-quarter' -%}
+
+
+
+
+{%- if section.settings.show_product_recommendations -%}
+{%- if recommendations.performed -%}
+    {%- if recommendations.products_count > 0 -%}
+
+
+      {%  if recommendations.intent == 'related'  %}
+    {% assign products_per_row_mobile = section.settings.grid_mobile | times: 1 %}
+    
+    {% assign grid_item_mobile_width = 'small--one-whole' %}
+    {% if products_per_row_mobile  == 2 %}
+    {% assign grid_item_mobile_width = 'small--one-half' %}
+    {% endif %}
+
+      <div class=" product-recommendations__inner {% if products_per_row_mobile == 2 %} half_row_mobile {% endif %}">
+        {%- if section.settings.heading != blank -%}
+          <div class="section-header text-center">
+            <h2>{{ section.settings.heading | escape }}</h2>
+          </div>
+        {%- endif -%}
+        <div class="zoom-fade-animation grid grid--uniform grid--view-items {% if settings.align_height %} use_align_height {% else %} use_image_height {% endif %}">
+          {%- for product in recommendations.products -%}
+          {% include 'product-card-item', list: false, max_height: max_height, product: product, show_vendor: section.settings.show_vendor, products_per_row: 4 %}        
+          {%- endfor -%}
+        </div>
+      </div>
+
+        {%  elsif   recommendations.intent == 'complementary' %}
+
+         <div class="grid grid--uniform grid--view-items complementary_grid">
+      {%- for product in recommendations.products -%}
+              {% include 'product-card-item', isComplementary_product: true, list: true, max_height: max_height, product: product, show_vendor: false,products_per_row: 1 %}
+      {%  endfor %}
+         </div>
+
+        {%  endif %}
+      {%  endif %}
+  {%- else  -%}
+
+{% assign products_per_row_mobile = section.settings.grid_mobile | times: 1 %}
+
+{% assign grid_item_mobile_width = 'small--one-whole' %}
+{% if products_per_row_mobile  == 2 %}
+{% assign grid_item_mobile_width = 'small--one-half' %}
+{% endif %}
+
+    <div class="page-width zoom-fade-animation {% if products_per_row_mobile == 2 %} half_row_mobile {% endif %}" data-base-url="{{ routes.product_recommendations_url }}" data-product-id="{{ product.id }}" data-section-id="{{ section.id }}" data-section-type="product-recommendations"></div>
+  {%- endif -%}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.product-recommendations.name",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_product_recommendations",
+      "label": "t:sections.product-recommendations.settings.show_product_recommendations.label",
+      "info": "t:sections.product-recommendations.settings.show_product_recommendations.info",
+      "default": true
+    },
+ {
+      "type": "select",
+      "id": "grid_mobile",
+      "label": "t:sections.product-recommendations.settings.grid_mobile.label",
+	"options": [
+		{
+          "value": "1",
+          "label": "t:sections.product-recommendations.settings.grid_mobile.options__1.label"
+		},
+		{
+          "value": "2",
+          "label": "t:sections.product-recommendations.settings.grid_mobile.options__2.label"
+		}
+	],
+	"default":"1"
+	},
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.product-recommendations.settings.heading.label",
+      "default": {
+        "cs": "Mohlo by se vám také líbit",
+        "da": "Du vil muligvis også synes om",
+        "de": "Das könnte dir auch gefallen",
+        "en": "You may also like",
+        "es": "También te puede interesar",
+        "fi": "Saatat pitää myös näistä",
+        "fr": "Vous pourriez aimer également",
+        "it": "Potrebbero interessarti anche",
+        "ja": "あなたへのおすすめ",
+        "ko": "회원님도 좋아할 것입니다.",
+        "nb": "Kanskje du også liker",
+        "nl": "Wellicht vind je dit ook leuk",
+        "pl": "Może Ci się spodobać również",
+        "pt-BR": "Talvez você também goste de",
+        "pt-PT": "Também poderá gostar de",
+        "sv": "Du kanske också gillar",
+        "th": "คุณอาจจะชอบ",
+        "tr": "Şunlar da hoşunuza gidebilir:",
+        "vi": "Có thể bạn cũng thích",
+        "zh-CN": "您可能还喜欢",
+        "zh-TW": "您也可能喜歡"
+      }
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "t:sections.product-recommendations.settings.show_vendor.label",
+      "default": false
+    }
+  ]
+}
+{% endschema %}

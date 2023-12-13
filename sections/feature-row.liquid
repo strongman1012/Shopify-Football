@@ -1,0 +1,229 @@
+ {% assign section_width = section.settings.section_width %}
+
+<section id="section-{{ section.id }}" data-section-id="{{ section.id }}" data-section-type="feature-row" class="fade-in-animation">
+  <div class="{{section_width}} feature-row ">
+    {% capture image_layout %}
+    <div class="feature-row__item layout_{{section.settings.layout}}">
+      {% if section.settings.image != blank %}
+      {% capture img_id %}FeatureRowImage-{{ section.id }}{% endcapture %}
+      {% capture wrapper_id %}FeatureRowImageWrapper-{{ section.id }}{% endcapture %}
+      {% include 'image-style', image: section.settings.image, height: 940, wrapper_id: wrapper_id, img_id: img_id %}
+      <div id="{{ wrapper_id }}" class="feature-row__image-wrapper js">
+        <div style="padding-top:{{ 1 | divided_by: section.settings.image.aspect_ratio | times: 100}}%;">
+          <img id="{{ img_id }}"
+               class="feature-row__image"
+               srcset="{%- if section.settings.image.width >= 375 -%}{{ section.settings.image | img_url: '375x' }} 375w,{%- endif -%}
+                       {%- if section.settings.image.width >= 720 -%}{{ section.settings.image | img_url: '720x' }} 750w,{%- endif -%}
+                       {%- if section.settings.image.width >= 1066 -%}{{ section.settings.image | img_url: '1066x' }} 1066w,{%- endif -%}
+                       {%- if section.settings.image.width >= 1500 -%}{{ section.settings.image | img_url: '1500x' }} 1500w,{%- endif -%}
+                       {%- if section.settings.image.width >= 1780 -%}{{ section.settings.image | img_url: '1780x' }} 1780w{%- endif -%}"
+               src="{{ section.settings.image | img_url: '535x' }}"
+               sizes="100vw"
+               loading="lazy"
+               width="{{ section.settings.image.width }}"
+               height="{{ section.settings.image.height }}"
+               alt="{{ section.settings.image.alt | default: section.settings.title }}"
+               style="object-position:{{ section.settings.image.presentation.focal_point }};">
+        </div>
+      </div>
+
+      <noscript>
+        {{ section.settings.image | img_url: '600x600', scale: 2 | img_tag: section.settings.image.alt, 'feature-row__image' }}
+      </noscript>
+      {% else %}
+      {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+      {% endif %}
+    </div>
+    {% endcapture %}
+
+    <div class="feature-row">
+      {% if section.settings.layout == 'left' %}
+      {{ image_layout }}
+      {% endif %}
+
+      <div class="feature-row__item feature-row__text feature-row__text--{{ section.settings.layout }}">
+        {% if section.settings.title != blank %}
+        <h2 class="h3">{{ section.settings.title | escape }}</h2>
+        {% endif %}
+        {% if section.settings.text != blank %}
+        <div class="rte rte-setting featured-row__subtext">{{ section.settings.text }}</div>
+        {% endif %}
+        {% if section.settings.button_label != blank and section.settings.button_link != blank %}
+        {%- capture ariaLabel -%}
+        {{- section.settings.button_label -}}
+        {%- if section.settings.button_link.type == 'frontpage_link' -%}
+        : {{ 'homepage.general.title' | t -}}
+        {%- elsif section.settings.button_link.type == 'catalog_link' -%}
+        : {{ 'collections.catalog.title' | t -}}
+        {%- elsif section.settings.button_link.object.title -%}
+        : {{ section.settings.button_link.object.title -}}
+        {%- endif -%}
+        {%- endcapture -%}
+
+        <a href="{{ section.settings.button_link }}"
+           class="btn btn--{{section.settings.button_style}}"
+           aria-label="{{ ariaLabel }}">
+          <span>{{- section.settings.button_label | escape -}}</span>
+          {% include 'icon' with 'tail-right' %}
+        </a>
+        {% endif %}
+      </div>
+
+      {% if section.settings.layout == 'right' %}
+      {{ image_layout }}
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+
+{% schema %}
+{
+  "name": "t:sections.feature-row.name",
+  "class": "index-section feature-row-section",
+  "settings": [
+      {
+       "type":"select",
+       "id":"section_width",
+       "label":"t:sections.feature-row.settings.section_width.label",
+       "default":"page-width",
+       "options":[
+          {
+             "label":"t:sections.feature-row.settings.section_width.options__1.label",
+             "value":"page-width-full"
+          },
+          {
+             "label":"t:sections.feature-row.settings.section_width.options__2.label",
+             "value":"page-width"
+          },
+          {
+             "label":"t:sections.feature-row.settings.section_width.options__3.label",
+             "value":"page-width-small"
+          }
+         ]
+       },
+
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:sections.feature-row.settings.image.label"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "t:sections.feature-row.settings.layout.label",
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.feature-row.settings.layout.options__1.label"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.feature-row.settings.layout.options__2.label"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "t:sections.feature-row.settings.title.label",
+      "default": {
+        "cs": "Obrázek s textem",
+        "da": "Billede med tekst",
+        "de": "Foto mit Text",
+        "en": "Image with text",
+        "es": "Imagen con texto",
+        "fi": "Kuva tekstillä",
+        "fr": "Image avec texte",
+        "it": "Immagine con testo",
+        "ja": "テキスト付き画像",
+        "ko": "텍스트 포함 이미지",
+        "nb": "Bilde med tekst",
+        "nl": "Afbeelding met tekst",
+        "pl": "Obraz z tekstem",
+        "pt-BR": "Imagem com texto",
+        "pt-PT": "Imagem com texto",
+        "sv": "Bild med text",
+        "th": "รูปภาพพร้อมข้อความ",
+        "tr": "Metin içeren görsel",
+        "vi": "Hình ảnh có chữ",
+        "zh-CN": "带文本图片",
+        "zh-TW": "附文字的圖片"
+      }
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "t:sections.feature-row.settings.text.label",
+      "default": {
+        "cs": "<p>Zkombinujte velký text a obrázek, abyste zaměřili pozornost návštěvníků na zvolený produkt, kolekci či příspěvek na blogu. Pak můžete připojit podrobnosti o dostupnosti a stylu, nebo dokonce recenzi.</p>",
+        "da": "<p>Kombiner stor tekst med et billede for at give dit valgte produkt, din valgte kollektion eller dit valgte blogopslag fokus. Tilføj oplysninger om tilgængelighed, stil og eventuelt også en anmeldelse.</p>",
+        "de": "<p>Kombinieren Sie große Schrift mit einem Foto, um einen Fokus auf Ihr ausgewähltes Produkt, die Kategorie oder einen Blogpost zu legen. Sie können dann Details zur Verfügbarkeit und dem Style oder sogar eine Bewertung hinzufügen.</p>",
+        "en": "<p>Pair large text with an image to give focus to your chosen product, collection, or blog post. Add details on availability, style, or even provide a review.</p>",
+        "es": "<p>Vincula un texto largo con una imagen para dar visibilidad a tu producto, colección o artículo de blog seleccionados. Agrega detalles sobre disponibilidad, estilo, o incluso ofrece una reseña.</p>",
+        "fi": "<p>Korosta valitsemaasi tuotetta, kokoelmaa tai blogijulkaisua lisäämällä kuvaan suuri teksti. Lisää saatavuustiedot, määritä tyyli tai näytä vaikkapa arvostelu.</p>",
+        "fr": "<p>Ajoutez une image à un long paragraphe de texte pour mettre l'accent sur un produit de votre choix, une collection, ou un article de blog. Ajoutez des détails sur la disponibilité, le style, ou mettez un commentaire client en avant.</p>",
+        "it": "<p>Associa un testo di grandi dimensioni a un'immagine per dare importanza al prodotto, alla collezione o all'articolo del blog di tua scelta. Aggiungi dettagli sulla disponibilità, sullo stile o fornisci una recensione.</p>",
+        "ja": "<p>あなたが選んだ商品、コレクション、またはブログ記事に注目を集めるため、大きなテキストと画像を組み合わせます。可用性、スタイル、またはレビュー提供についての詳細を追加します。</p>",
+        "ko": "<p>이미지와 큰 텍스트를 짝지어 선택한 제품, 컬렉션, 블로그 게시판을 강조합니다. 사용 가능성, 스타일에 대한 자세한 정보를 추가하거나 리뷰를 제공합니다.</p>",
+        "nb": "<p>Koble stor tekst med et bilde for å drive fokus mot det valgte produktet, samlingen eller blogginnlegget. Legg til detaljer om tilgjengelighet, stil eller vis frem en vurdering.</p>",
+        "nl": "<p>Plaats een afbeelding bij grote stukken tekst om de aandacht op je gekozen product, collectie of blogpost te richten. Voeg details over beschikbaarheid en stijl toe of plaats een productrecensie.</p>",
+        "pl": "<p>Połącz duży tekst z obrazem, aby skierować uwagę na wybrany produkt, kolekcję lub post na blogu. Dodaj szczegóły dotyczące dostępności, stylu lub nawet dołącz recenzję.</p>",
+        "pt-BR": "<p>Emparelhe textos grandes com uma imagem para destacar o produto, a coleção ou o post do blog escolhido. Adicione informações sobre disponibilidade, estilo ou até mesmo uma avaliação.</p>",
+        "pt-PT": "<p>Associe um texto grande a uma imagem para dar ênfase ao produto, coleção ou publicação no blogue que escolheu. Adicione detalhes sobre disponibilidade, estilo ou uma avaliação.</p>",
+        "sv": "<p>Para ihop stor text med en bild för att ge fokus åt din valda produkt, kollektion eller blogginlägg. Lägg till information om tillgänglighet, stil eller tillhandahåll till och med en recension.</p>",
+        "th": "<p>จับคู่ข้อความขนาดใหญ่กับรูปภาพเพื่อให้ความสำคัญกับสินค้า คอลเลกชัน หรือโพสต์บล็อกที่คุณเลือก เพิ่มรายละเอียดเกี่ยวกับความพร้อม สไตล์ หรือแม้กระทั่งเขียนรีวิว</p>",
+        "tr": "<p>Geniş metni bir görselle eşleyerek seçtiğiniz ürüne, koleksiyona veya blog gönderisine dikkat çekin. Stok durumu, stil hakkındaki ayrıntıları ekleyin, hatta inceleme sağlayın.</p>",
+        "vi": "<p>Ghép nối văn bản lớn với hình ảnh để làm nổi bật sản phẩm, bộ sưu tập hoặc bài viết blog đã chọn. Thêm chi tiết về tình trạng còn hàng, kiểu hoặc đưa ra đánh giá.</p>",
+        "zh-CN": "<p>将大文本与图片配对，以便将焦点置于您选择的产品、产品系列或博客文章。添加有关可用性和样式的详细信息，甚至是提供评论。</p>",
+        "zh-TW": "<p>大型文字搭配圖片，以便強調特定產品、商品系列或部落格貼文。您可以加上各種有關可用性、樣式的資料，甚至可以提供使用心得。</p>"
+      }
+    },
+	{
+      "type": "select",
+      "id": "button_style",
+      "label": "t:sections.feature-row.settings.button_style.label",
+      "default": "primary",
+      "options": [
+		   {
+          "label": "t:sections.feature-row.settings.button_style.options__1.label",
+          "value": "primary"
+        },
+		   {
+          "label": "t:sections.feature-row.settings.button_style.options__2.label",
+          "value": "secondary"
+        },
+		   {
+          "label": "t:sections.feature-row.settings.button_style.options__3.label",
+          "value": "white"
+        },
+		   {
+          "label": "t:sections.feature-row.settings.button_style.options__4.label",
+          "value": "transparent_primary"
+        },
+		   {
+          "label": "t:sections.feature-row.settings.button_style.options__5.label",
+          "value": "transparent_secondary"
+        }
+	]
+},
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "t:sections.feature-row.settings.button_label.label"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "t:sections.feature-row.settings.button_link.label"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.feature-row.presets.name",
+ "category":"Custom Sections"
+    }
+  ]
+}
+{% endschema %}

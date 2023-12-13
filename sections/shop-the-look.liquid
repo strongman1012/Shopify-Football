@@ -1,0 +1,346 @@
+{% assign image = section.settings.image %}
+{% assign content_side = section.settings.content_side %}
+
+
+  {%- capture flickity_options -%}
+{
+  "prevNextButtons": false,
+  "wrapAround": false,
+  "dragThreshold": 15,
+ "cellAlign": "left",
+  "wrapAround": true,
+  "pauseAutoPlayOnHover": true,
+  "autoPlay": false,
+  "pageDots": true
+}
+{%- endcapture -%}
+
+
+
+<section id="section-{{ section.id }}" data-section-id="{{ section.id }}" data-section-type="shop-the-look" 
+         class='shop-the-look-section content_side_{{content_side}} fade-in-animation'  >
+
+
+  {% capture section_content%} 
+    {% if section.settings.title != blank or  section.settings.subtitle != blank %}
+    <header class="section-header homepage_subtitle_style_{{settings.homepage_subtitle_color}}">
+      {% if section.settings.subtitle != blank  %}
+     <span class='h5'>{{ section.settings.subtitle  }}</span>
+      {% endif %}
+      {% if section.settings.title != blank  %}
+      <h2>{{ section.settings.title }}</h2>
+      {% endif %}
+    
+    </header>
+    {% endif %}
+     {% if section.settings.content != blank  %}
+      <div class='content'>{{ section.settings.content }}</div>
+      {% endif %}
+    {% if section.settings.button_title != blank  %}
+    <a href='{{section.settings.button_url}}' class="content-btn btn btn--{{section.settings.button_style }}" >
+      <span>{{  section.settings.button_title }}</span>
+      {% include 'icon' with 'tail-right' %}
+    </a>
+    {% endif %}
+  {% endcapture %}
+
+
+  <div class='section_image_block'>
+        {% if image != blank %}
+          <img 
+               class="section_image_block__image"
+               srcset="{%- if image.width >= 375 -%}{{ image | img_url: '375x' }} 375w,{%- endif -%}
+                       {%- if image.width >= 720 -%}{{ image | img_url: '720x' }} 750w,{%- endif -%}
+                       {%- if image.width >= 1066 -%}{{ image | img_url: '1066x' }} 1066w,{%- endif -%}
+                       {%- if image.width >= 1500 -%}{{ image | img_url: '1500x' }} 1500w,{%- endif -%}
+                       {%- if image.width >= 1780 -%}{{ image | img_url: '1780x' }} 1780w,{%- endif -%}
+                       {%- if image.width >= 2000 -%}{{ image | img_url: '2000x' }} 2000w,{%- endif -%}
+                       {%- if image.width >= 2800 -%}{{ image | img_url: '2800x' }} 2800w{%- endif -%}"
+               src="{{ image | img_url: '750x' }}"
+               sizes="100vw"
+               loading="lazy"
+               width="{{ image.width }}"
+               height="{{ image.height }}"
+               alt="{{image.alt | default: section.settings.title }}"
+               style="object-position:{{ image.presentation.focal_point }};">
+        {% else %}
+          <div class='section_image_block__image'>
+            {% capture current %}{% cycle 1, 2 %}{% endcapture %}
+            {{ 'lifestyle-' | append: current | placeholder_svg_tag: 'placeholder-svg' }}
+          </div>
+        {% endif %}
+    
+      {% if section.blocks.size > 0 %}
+  
+    <div class='shop-the-look_overlay hotspot_size__{{section.settings.hotspot_size}}' >
+      {% for block in section.blocks %}
+      {%- assign product = all_products[block.settings.product] -%}
+
+      {%- if product == empty -%}
+      {%- continue -%}
+      {%- endif -%}
+
+      {%- assign product_horizontal_position = block.settings.product_horizontal_position -%}
+      {%- assign product_vertical_position = block.settings.product_vertical_position -%}
+
+      <span class="shop_the_look_dot" 
+            data-index="{{forloop.index0}}"
+            data-block-id="shop_the_look_product_{{ block.id }}" 
+            style="left: {{ product_horizontal_position }}%; top: {{ product_vertical_position }}%">
+      	{% render 'icon-saletag' %}
+      </span>
+
+      {% endfor %}
+    </div>
+  {% endif %}
+    
+  
+
+    
+  </div>
+
+
+  <div class='section_block_content'>
+
+    <div class='section_content__wrapper text-left {%  if section.blocks.size == 0 %} empty_section_content__wrapper {%  endif %} '>
+      <div class='static_block'>
+        {{section_content}}
+      </div>     
+    </div>
+    <div class='section_content_overlay '>  </div>    
+    
+    {% if section.blocks.size > 0 %}
+
+    <div class='shop_the_look_product_carousel {% if settings.align_height %} use_align_height {% else %} use_image_height {% endif %}' data-flickity_options='{{flickity_options}}'>
+    {%- assign max_height = 345 -%}
+    {% for block in section.blocks %}
+    {%- assign product = all_products[block.settings.product] -%}
+
+    {%- if product == empty -%}
+    {%- continue -%}
+    {%- endif -%}
+
+    <div class='shop_the_look_product'
+         id='shop_the_look_product_{{ block.id }}'
+         >
+      {% include 'product-card-item', list: false, max_height: max_height, product: product, show_vendor: section.settings.show_vendor, products_per_row: 3 %}
+    </div>
+    {% endfor %}
+    </div>
+    {% endif %}
+    
+  </div>
+
+    {% assign color_image_overlay = section.settings.color_image_overlay %}
+  
+  {% if color_image_overlay == 'rgba(0,0,0,0)' or color_image_overlay == blank %}
+  {% assign color_image_overlay = settings.color_button %}
+  {% endif %}
+  
+  
+  <style>
+
+    #section-{{ section.id }}  .content,
+    #section-{{ section.id }}  .section-header h2 {
+      color: {{ section.settings.text_color }};
+    }
+
+    {% if settings.homepage_subtitle_color == 'match_header' %}
+    #section-{{ section.id }}  .section-header .h5 {
+      color: {{ section.settings.text_color }};
+    }
+    #section-{{ section.id }}  .section-header .h5:before {
+      background: {{ section.settings.text_color }};
+    }
+    {% endif %}
+
+   
+    #section-{{ section.id }} .section_content_overlay {
+      opacity: {{ section.settings.image_overlay_opacity }}% ;
+      background-color: {{ color_image_overlay }};
+    }
+    
+  
+  </style>
+
+
+ 
+  
+ 
+</section>
+
+{% schema %}
+{
+  "name":"t:sections.shop-the-look.name",
+	"class": "index-section",
+    "settings": [
+		{
+		"type":"image_picker",
+		"id":"image",
+		"label":"t:sections.shop-the-look.settings.image.label"
+		},
+				{
+		"type":"text",
+		"id":"title",
+		"label":"t:sections.shop-the-look.settings.title.label",
+		"default":"Heading"
+		},
+		{
+		"type":"text",
+		"id":"subtitle",
+		"label":"t:sections.shop-the-look.settings.subtitle.label",
+		"default":"Subtitle"
+		},
+
+	{
+		"type":"text",
+		"id":"button_title",
+		"label":"t:sections.shop-the-look.settings.button_title.label"
+		},
+	{
+		"type":"url",
+		"id":"button_url",
+		"label":"t:sections.shop-the-look.settings.button_url.label"
+		},
+	{
+      "type": "select",
+      "id": "button_style",
+      "label": "t:sections.shop-the-look.settings.button_style.label",
+      "default": "primary",
+      "options": [
+		   {
+          "label": "t:sections.shop-the-look.settings.button_style.options__1.label",
+          "value": "primary"
+        },
+		   {
+          "label": "t:sections.shop-the-look.settings.button_style.options__2.label",
+          "value": "secondary"
+        },
+		   {
+          "label": "t:sections.shop-the-look.settings.button_style.options__3.label",
+          "value": "white"
+        },
+		   {
+          "label": "t:sections.shop-the-look.settings.button_style.options__4.label",
+          "value": "transparent_primary"
+        },
+		   {
+          "label": "t:sections.shop-the-look.settings.button_style.options__5.label",
+          "value": "transparent_secondary"
+        }
+	]
+},
+		{
+		"type":"richtext",
+		"id":"content",
+		"label":"t:sections.shop-the-look.settings.content.label",
+		"default":"<p>Content text</p>"
+		},		
+		{
+		"type":"color",
+		"id":"text_color",
+		"label":"t:sections.shop-the-look.settings.text_color.label",
+		"default":"#fff"
+		},
+	
+	{
+      "type": "select",
+      "id": "content_side",
+      "label": "t:sections.shop-the-look.settings.content_side.label",
+	"options": [
+		{
+          "value": "left",
+          "label": "t:sections.shop-the-look.settings.content_side.options__1.label"
+		},
+		{
+          "value": "right",
+          "label": "t:sections.shop-the-look.settings.content_side.options__2.label"
+		}		
+	],
+	"default":"left"
+	},
+	{
+        "type": "color",
+        "id": "color_image_overlay",
+       "label": "t:sections.shop-the-look.settings.color_image_overlay.label"
+},
+      {
+        "type": "range",
+        "id": "image_overlay_opacity",
+       "label": "t:sections.shop-the-look.settings.image_overlay_opacity.label",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+       "unit": "t:sections.shop-the-look.settings.image_overlay_opacity.unit",
+        "default": 70
+      },
+	{
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "t:sections.shop-the-look.settings.show_vendor.label",
+      "default": true
+    },
+
+	{
+      "type": "select",
+      "id": "hotspot_size",
+      "label": "t:sections.shop-the-look.settings.hotspot_size.label",
+      "default": "medium",
+      "options": [
+		   {
+          "label": "t:sections.shop-the-look.settings.hotspot_size.options__1.label",
+          "value": "small"
+        },
+		   {
+          "label": "t:sections.shop-the-look.settings.hotspot_size.options__2.label",
+          "value": "medium"
+        },
+		   {
+          "label": "t:sections.shop-the-look.settings.hotspot_size.options__3.label",
+          "value": "large"
+        }
+	]
+}
+
+	],
+	"blocks" : [
+	{
+		"type": "look",
+		"name": "t:sections.shop-the-look.blocks.name.label",
+		"settings" : [
+		{
+          "type": "product",
+          "id": "product",
+          "label": "t:sections.shop-the-look.blocks.settings.product.label"
+        },
+        {
+          "type": "range",
+          "id": "product_horizontal_position",
+           "label": "t:sections.shop-the-look.blocks.settings.product_horizontal_position.label",
+          "min": 5,
+          "max": 95,
+          "step": 1,
+          "unit": "%",
+          "default": 15
+        },
+        {
+          "type": "range",
+          "id": "product_vertical_position",
+          "label": "t:sections.shop-the-look.blocks.settings.product_vertical_position.label",
+          "min": 5,
+          "max": 95,
+          "step": 1,
+          "unit": "%",
+          "default": 15
+        }
+		]
+	}
+	],
+	"presets": [
+	{
+	"name":"t:sections.shop-the-look.presets.name",
+	"category":"Custom Sections"
+	}
+	]
+  }
+{% endschema %}

@@ -1,0 +1,124 @@
+{% comment %}
+Renders a list of product's price (regular, sale, unit)
+Accompanies product forms and meant to be updated dynamically
+Accepts:
+- variant: {Object} Variant Liquid object (optional)
+- product: {Object} Product Liquid object (optional)
+- show_vendor: {Boolean} Show the product's vendor depending on the section setting (optional)
+
+Usage:
+{% include 'product-price', variant: current_variant, product: product %}
+{% endcomment %}
+{%- liquid
+  if variant.title
+    assign compare_at_price = variant.compare_at_price
+    assign price = variant.price
+    assign available = variant.available
+  else
+    assign compare_at_price = 1999
+    assign price = 1999
+    assign available = true
+  endif
+
+
+if settings.currency_code_enable 
+  assign money_price = price | money_with_currency
+ else 
+   assign money_price = price | money
+ endif 
+
+-%}
+
+<div class="price
+            {% if available == false %} price--sold-out {% endif %}
+            {% if compare_at_price > price %} price--on-sale {% endif %}
+            {% if variant.unit_price_measurement %} price--unit-available {% endif %}"
+     data-price
+     >
+
+  {% if show_vendor and product %}
+  <div class="price__vendor">
+    <span class="visually-hidden">{{ 'products.product.vendor' | t }}</span>
+    {{ product.vendor }}
+  </div>
+  {% endif %}
+
+
+  {% unless product.price_max == 0 and settings.custom_price0_text != blank %}
+  <div class="price__pricing-group">
+    <div class="price__regular">
+      <span class="visually-hidden visually-hidden--inline">{{ 'products.product.regular_price' | t }}</span>
+      <span class="price-item price-item--regular" data-regular-price>
+        {% if price == 0 and settings.custom_price0_text != blank %}
+        <span class='custom_free_text'>
+          {{settings.custom_price0_text }}
+        </span>
+        {% else %}
+        {{ money_price }}
+        {% endif %}
+      </span>
+    </div>
+    <div class="price__sale">
+      <span class="visually-hidden visually-hidden--inline">{{ 'products.product.sale_price' | t }}</span>
+      <span class="price-item price-item--sale" data-sale-price>
+        {% if price == 0 and settings.custom_price0_text != blank %}
+        <span class='custom_free_text'>
+          {{settings.custom_price0_text }}
+        </span>
+        {% else %}
+        {{ money_price }}
+        {% endif %}
+      </span>
+
+      <span class="visually-hidden visually-hidden--inline">{{ 'products.product.regular_price' | t }}</span>
+
+      <s class="price-item price-item--regular" data-regular-price>
+        {% if settings.currency_code_enable %}
+        {{ compare_at_price | money_with_currency }}
+        {% else %}
+        {{ compare_at_price | money }}
+        {% endif %}
+      </s>
+
+    </div>
+    <div class="price__badges">
+      <span class="price__badge price__badge--sale" >
+        <span>{{ 'products.product.on_sale' | t }}</span>
+      </span>
+      <span class="price__badge price__badge--sold-out">
+        <span>{{ 'products.product.sold_out' | t }}</span>
+      </span>
+    </div>
+  </div>
+  <div class="price__unit">
+    <span class="visually-hidden visually-hidden--inline">{{ 'products.product.unit_price_label' | t }}</span>
+    <div class="price-unit-price">
+      {%- capture unit_price_separator -%}
+      <span >/</span><span class="visually-hidden">{{ 'general.accessibility.unit_price_separator' | t }}&nbsp;</span>
+      {%- endcapture -%}
+      {%- capture unit_price_base_unit -%}
+      <span data-unit-price-base-unit>
+        {%- if variant.unit_price_measurement -%}
+        {%- if variant.unit_price_measurement.reference_value != 1 -%}
+        {{- variant.unit_price_measurement.reference_value -}}
+        {%- endif -%}
+        {{ variant.unit_price_measurement.reference_unit }}
+        {%- endif -%}
+      </span>
+      {%- endcapture -%}
+
+      <span data-unit-price>
+        {% if settings.currency_code_enable %}
+        {{  variant.unit_price | money_with_currency }}
+        {% else %}
+        {{  variant.unit_price | money }}
+        {% endif %}
+      </span>{{- unit_price_separator -}}{{- unit_price_base_unit -}}
+    </div>
+  </div>
+  {% else %}
+  <span class='custom_free_text'>
+    {{settings.custom_price0_text }}
+  </span>
+  {% endunless %}
+</div>

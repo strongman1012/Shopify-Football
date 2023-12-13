@@ -1,0 +1,525 @@
+
+ {%- assign blog = blogs[section.settings.blog] -%}
+
+{% assign enable_carousel = section.settings.enable_carousel %}
+
+{% assign disabled_desktop_slider = false %}
+
+{% if blog.handle  != blank %}
+{% if  blog.articles.size <= section.settings.blogs_per_row   %}
+{% assign disabled_desktop_slider = true %}
+{% endif %}
+{% else %}
+{% if section.settings.post_limit == section.settings.blogs_per_row %}
+{% assign disabled_desktop_slider = true %}
+{% endif %}
+{% endif %}
+ 
+
+ {%- capture flickity_options -%}
+      {
+      "prevNextButtons": false,
+      "wrapAround": true,
+      "dragThreshold": 15,
+      "cellAlign": "left",
+      "pauseAutoPlayOnHover": true,
+      "autoPlay": {% if section.settings.enable_autoplay %}{{ section.settings.cycle_speed | times: 1000 }}{% else %}false{% endif %},
+      "pageDots": {% if section.settings.show_dots %}true{% else %}false{% endif %},
+    	"watchCSS" : {% if disabled_desktop_slider %}true{% else %}false{% endif %}
+      }
+    {%- endcapture -%}
+    
+
+{% capture placeholder_article %}
+  <article class='article_block' aria-labelledby="FeaturedBlogTitle-{{ forloop.index0 }}-{{ section.id }}">
+
+    <a href="#" class="article__link">
+      <div  class="article__grid-image-wrapper js">
+        <div class="article__grid-image-container"  data-image-loading-animation>
+          {% capture current %}{% cycle 1, 2, 3, 4, 5, 6 %}{% endcapture %}
+          {{ 'product-' | append: current | placeholder_svg_tag: 'placeholder-svg zoom-fade-animation-element' }}
+        </div>
+      </div>
+    </a> 
+
+    <div class='article_block_info'>
+  
+      {% if section.settings.blog_show_author %}
+      <span class="article__author text_name">
+        {{ 'homepage.onboarding.blog_author' | t }}
+      </span>   
+      {% endif %}
+
+      <h4 class="article__title" id="FeaturedBlogTitle-{{ forloop.index0 }}-{{ section.id }}">
+        {{ 'homepage.onboarding.blog_title' | t }}
+      </h4>
+
+      <div class="article__grid-meta">
+        {% if section.settings.blog_show_date %}
+        <span class="article__date">
+          {{ 'now' | date: "%s"  | time_tag: format: 'date' }}
+        </span>
+        {% endif %}
+
+        {% if blog.comments_enabled? and article.comments_count > 0 %}
+        <div class='article__comment_info'>
+          <a href="#" class="article__comment-count">
+            {{ 'blogs.comments.comments_with_count' | t: 0 }}
+          </a>
+        </div>
+        {% endif %}
+
+      </div>
+
+    </div>
+  </article>
+{% endcapture %}
+
+
+
+
+<section id="section-{{ section.id }}" data-section-id="{{ section.id }}" data-section-type="featured-blog" class="">
+  <div class="page-width">
+    {% if section.settings.title != blank  or section.settings.subtitle != blank %}
+    <header class="section-header text-center {% if disabled_desktop_slider %} disabled_desktop_slider {% endif %} homepage_subtitle_style_{{settings.homepage_subtitle_color}}">
+      {% if section.settings.subtitle != blank %}
+      <span class='h5'>{{ section.settings.subtitle  }}</span>
+      {% endif %}
+      {% if section.settings.title != blank %}
+      <h2>{{ section.settings.title | escape }}</h2>
+      {% endif %}
+
+
+      {% if section.settings.show_arrows and enable_carousel %}
+        <div class='slider_custom_arrows'>
+          <a href="javascript:void(0)" id='button_prev_{{section.id}}' class='button-prev btn btn--circle-arrow' aria-label="Previous" aria-describedby="button previous">
+            {% include 'icon' with 'tail-left' %}
+          </a>
+          <a href="javascript:void(0)" id='button_next_{{section.id}}' class='button-next btn btn--circle-arrow' aria-label="Next" aria-describedby="button next">
+            {% include 'icon' with 'tail-right' %}
+          </a>
+        </div>
+      {% endif %}
+
+    </header>
+    {% endif %}
+
+   
+
+ 
+    {% case section.settings.blogs_per_row %}
+    {% when 2 %}
+    {%- assign grid_item_width = 'medium-up--one-half' -%}
+    {% when 3 %}
+    {%- assign grid_item_width = 'medium-up--one-third' -%}
+    {% when 4 %}
+    {%- assign grid_item_width = 'medium-up--one-quarter' -%}
+    {% when 5 %}
+    {%- assign grid_item_width = 'medium-up--one-fifth' -%}
+    {% endcase %}
+
+
+    {% unless blog.articles_count == 0 or section.settings.blog == blank %}
+    {% if enable_carousel %}
+    <div class='zoom-fade-animation featured-blog__slider {% if disabled_desktop_slider %} disabled_desktop_slider {% endif %}' data-flickity-config='{{ flickity_options }}'>
+      {% for article in blog.articles limit: section.settings.post_limit %}
+      <div class="zoom-fade-animation-element-wrapper featured-blog__slide {{grid_item_width}}">
+        <article class='article_block' aria-labelledby="FeaturedBlogTitle-{{ forloop.index0 }}-{{ section.id }}">
+        
+            <a href="{{ article.url }}" class="article__link">
+              {% if article.image %}
+              {% capture img_id %}ArticleImage-{{ article.image.id }}{% endcapture %}
+              {% capture img_wrapper_id %}ArticleImageWrapper-{{ article.image.id }}{% endcapture %}
+
+             
+              <div id="{{ img_wrapper_id }}" class="article__grid-image-wrapper js">
+                <div class="article__grid-image-container">
+                  <img id="{{ img_id }}"
+                       class="article__grid-image zoom-fade-animation-element"
+                       srcset="{%- if article.image.width >= 375 -%}{{ article.image | img_url: '375x' }} 375w,{%- endif -%}
+                               {%- if article.image.width >= 720 -%}{{ article.image | img_url: '720x' }} 750w,{%- endif -%}
+                               {%- if article.image.width >= 1066 -%}{{ article.image | img_url: '1066x' }} 1066w,{%- endif -%}
+                               {%- if article.image.width >= 1500 -%}{{ article.image | img_url: '1500x' }} 1500w,{%- endif -%}
+                               {%- if article.image.width >= 1780 and section.settings.blogs_per_row < 4 -%}{{ article.image | img_url: '1780x' }} 1780w,{%- endif -%}
+                               {%- if article.image.width >= 2000 and section.settings.blogs_per_row < 3 -%}{{ article.image | img_url: '2000x' }} 2000w{%- endif -%}"
+                       src="{{ article.image | img_url: '535x' }}"
+                       sizes="(min-width: 750px) calc(100vw / {{ section.settings.blogs_per_row }}), 100vw"
+                       loading="lazy"
+                       width="{{ article.image.width }}"
+                       height="{{ article.image.height }}"
+                       alt="{{article.image.alt | default: article.title }}">
+                   {% render 'load_spinner' %}
+                </div>
+              </div>
+              <noscript>
+                <div class="article__grid-image-wrapper">
+                  {{ article | img_url: '345x345', scale: 2 | img_tag: article.title, 'article__grid-image' }}
+                </div>
+              </noscript>
+              {% endif %}
+
+            </a> 
+
+          <div class='article_block_info'>
+   
+          
+            {% if section.settings.blog_show_author %}
+            {% assign original_author_name = article.author %}
+
+            {% for i in (1..3) %}
+            {% capture custom_author_name_handle %}author_name_{{i}}{% endcapture %}
+            {% capture custom_author_logo_handle %}author_logo_{{i}}{% endcapture %}
+            {% capture custom_author_biography_handle %}author_biography_{{i}}{% endcapture %}
+
+            {% assign author_name = settings[custom_author_name_handle] %}
+            {% assign author_logo = settings[custom_author_logo_handle] %}
+            {% assign author_biography = settings[custom_author_biography_handle] %}
+
+            {% if author_name == original_author_name %}
+
+            <span class="article__author {% if author_logo == blank %} text_name {% endif %}">
+              {% if author_logo != blank %}
+              <img src='{{ author_logo | img_url:"150x" }}' 
+                   alt='{{article.author}}'
+                   srcset="{{ author_logo | img_url: '150x' }} 1x, {{ author_logo | img_url: '150x', scale: 2 }} 2x"
+                   loading="lazy"
+                   width="{{author_logo.width}}"
+                   height="{{author_logo.height}}"/>
+              {% else %}
+              {{ 'blogs.article.by_author' | t: author: article.author }}
+              {% endif %}
+            </span>   
+
+
+            {% break %}
+            {% endif %}
+            {% endfor %}
+            {% endif %}
+            
+            
+
+            <a href="{{ article.url }}" class="h4 article__title" id="FeaturedBlogTitle-{{ forloop.index0 }}-{{ section.id }}">
+              {{ article.title }}
+            </a>
+
+            <div class="article__grid-meta">
+              {% if section.settings.blog_show_date %}
+              <span class="article__date">
+                {{ article.published_at | time_tag: format: 'date' }}
+              </span>
+              {% endif %}
+
+              {% if blog.comments_enabled? and article.comments_count > 0 %}
+              <div class='article__comment_info'>
+                <a href="{{ article.url }}#comments" class="article__comment-count">
+                  {{ 'blogs.comments.comments_with_count' | t: count: article.comments_count }}
+                </a>
+              </div>
+              {% endif %}
+
+            </div>
+
+          </div>
+        </article>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <ul class="zoom-fade-animation grid grid--uniform grid--blog">
+      {% for article in blog.articles limit: section.settings.post_limit %}
+      <li class="grid__item {{grid_item_width}} zoom-fade-animation-element-wrapper">
+        <article class='article_block' aria-labelledby="FeaturedBlogTitle-{{ forloop.index0 }}-{{ section.id }}">
+            <a href="{{ article.url }}" class="article__link">
+              {% if article.image %}
+              {% capture img_id %}ArticleImage-{{ article.image.id }}{% endcapture %}
+              {% capture img_wrapper_id %}ArticleImageWrapper-{{ article.image.id }}{% endcapture %}
+
+             
+              <div id="{{ img_wrapper_id }}" class="article__grid-image-wrapper js">
+                <div class="article__grid-image-container">
+                  <img id="{{ img_id }}"
+                       class="article__grid-image zoom-fade-animation-element" 
+                       srcset="{%- if article.image.width >= 375 -%}{{ article.image | img_url: '375x' }} 375w,{%- endif -%}
+                               {%- if article.image.width >= 720 -%}{{ article.image | img_url: '720x' }} 750w,{%- endif -%}
+                               {%- if article.image.width >= 1066 -%}{{ article.image | img_url: '1066x' }} 1066w,{%- endif -%}
+                               {%- if article.image.width >= 1500 -%}{{ article.image | img_url: '1500x' }} 1500w,{%- endif -%}
+                               {%- if article.image.width >= 1780 and section.settings.blogs_per_row < 4 -%}{{ article.image | img_url: '1780x' }} 1780w,{%- endif -%}
+                               {%- if article.image.width >= 2000 and section.settings.blogs_per_row < 3 -%}{{ article.image | img_url: '2000x' }} 2000w{%- endif -%}"
+                       src="{{ article.image | img_url: '535x' }}"
+                       sizes="(min-width: 750px) calc(100vw / {{ section.settings.blogs_per_row }}), 100vw"
+                       loading="lazy"
+                       width="{{ article.image.width }}"
+                       height="{{ article.image.height }}"
+                       alt="{{article.image.alt}}">
+                   {% render 'load_spinner' %}
+                </div>
+              </div>
+              <noscript>
+                <div class="article__grid-image-wrapper">
+                  {{ article | img_url: '345x345', scale: 2 | img_tag: article.title, 'article__grid-image' }}
+                </div>
+              </noscript>
+              {% endif %}
+
+            
+            </a>
+          
+           <div class='article_block_info'>
+             
+             
+             {% if section.settings.blog_show_author %}
+             {% assign original_author_name = article.author %}
+
+             {% for i in (1..3) %}
+             {% capture custom_author_name_handle %}author_name_{{i}}{% endcapture %}
+             {% capture custom_author_logo_handle %}author_logo_{{i}}{% endcapture %}
+             {% capture custom_author_biography_handle %}author_biography_{{i}}{% endcapture %}
+
+             {% assign author_name = settings[custom_author_name_handle] %}
+             {% assign author_logo = settings[custom_author_logo_handle] %}
+             {% assign author_biography = settings[custom_author_biography_handle] %}
+
+             {% if author_name == original_author_name %}
+
+            <span class="article__author {% if author_logo == blank %} text_name {% endif %}">
+               {% if author_logo != blank %}
+               <img src='{{ author_logo | img_url:"150x" }}'
+                    alt='{{article.author}}'
+                    srcset="{{ author_logo | img_url: '150x' }} 1x, {{ author_logo | img_url: '150x', scale: 2 }} 2x"
+                    loading="lazy"
+                    width="{{author_logo.width}}"
+                    height="{{author_logo.height}}"/>
+               {% else %}
+               {{ 'blogs.article.by_author' | t: author: article.author }}
+               {% endif %}
+             </span>   
+
+
+             {% break %}
+             {% endif %}
+             {% endfor %}
+             {% endif %}
+            
+
+             <a href="{{ article.url }}" class="article__title h4" id="FeaturedBlogTitle-{{ forloop.index0 }}-{{ section.id }}">
+                {{ article.title }}
+             </a>
+             
+          
+
+            <div class="article__grid-meta">
+              {% if section.settings.blog_show_date %}
+              <span class="article__date">
+                {{ article.published_at | time_tag: format: 'date' }}
+              </span>
+              {% endif %}
+
+              {% if blog.comments_enabled? and article.comments_count > 0 %}
+              <div class='article__comment_info'>
+                <a href="{{ article.url }}#comments" class="article__comment-count">
+                  {{ 'blogs.comments.comments_with_count' | t: count: article.comments_count }}
+                </a>
+              </div>
+              {% endif %}
+
+            </div>
+          </div>
+        </article>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% else %}
+    {% if enable_carousel %}
+    
+    <div class="zoom-fade-animation featured-blog__slider {% if disabled_desktop_slider %} disabled_desktop_slider {% endif %}" data-flickity-config='{{ flickity_options }}'>
+      {% for i in (1..section.settings.post_limit) %}
+      <div class="zoom-fade-animation-element-wrapper featured-blog__slide {{grid_item_width}}">
+        {{ placeholder_article }}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="zoom-fade-animation grid grid--uniform grid--blog">
+      {% for i in (1..section.settings.post_limit) %}
+      <li class="zoom-fade-animation-element-wrapper grid__item {{grid_item_width}}">
+        {{ placeholder_article }}
+      </li>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% endunless %}
+
+    {% if section.settings.show_view_all and section.settings.button_text != blank %}
+    <div class="text-center">
+      <a href="{{ blog.url }}" class="btn btn--{{section.settings.button_style}}" aria-label="{{ 'blogs.article.view_all_blogs' | t }}">
+        <span>{{ section.settings.button_text }}</span>
+        {% include 'icon' with 'tail-right' %}
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+
+{% schema %}
+{
+  "name": "t:sections.featured-blog.name",
+  "class": "index-section featured-blog-section",
+  "settings": [
+
+    {
+      "type": "text",
+      "id": "title",
+      "label": "t:sections.featured-blog.settings.title.label",
+      "default": {
+        "cs": "Příspěvky na blogu",
+        "da": "Blogopslag",
+        "de": "Blogposts",
+        "en": "Blog posts",
+        "es": "Entradas del blog",
+        "fi": "Blogijulkaisut",
+        "fr": "Articles de blog",
+        "it": "Articoli del blog",
+        "ja": "ブログ記事",
+        "ko": "블로그 게시물",
+        "nb": "Blogginnlegg",
+        "nl": "Blogberichten",
+        "pl": "Posty na blogu",
+        "pt-BR": "Posts do blog",
+        "pt-PT": "Publicações no blogue",
+        "sv": "Blogginlägg",
+        "th": "โพสต์บล็อก",
+        "tr": "Blog gönderileri",
+        "vi": "Bài viết blog",
+        "zh-CN": "博客文章",
+        "zh-TW": "部落格文章"
+      }
+    },
+{
+      "type": "text",
+      "id": "subtitle",
+		"label":"t:sections.featured-blog.settings.subtitle.label",
+		"default":"Subheading"
+},
+    {
+      "id": "blog",
+      "type": "blog",
+      "label": "t:sections.featured-blog.settings.blog.label"
+    },
+ {
+      "type": "checkbox",
+      "id": "enable_carousel",
+		"label":"t:sections.featured-blog.settings.enable_carousel.label"
+},
+
+      {
+         "type":"checkbox",
+         "id":"enable_autoplay",
+         "label":"t:sections.featured-blog.settings.enable_autoplay.label",
+         "default":false
+      },
+	{
+      "type": "range",
+      "id": "cycle_speed",
+      "min": 1,
+      "max": 8,
+      "step": 1,
+      "unit": "t:sections.featured-blog.settings.cycle_speed.unit",
+      "label": "t:sections.featured-blog.settings.cycle_speed.label",
+      "default": 5
+    },
+ {
+      "type": "checkbox",
+      "id": "show_dots",
+		"label":"t:sections.featured-blog.settings.show_dots.label",
+		"default": true
+	},
+ {
+         "type":"checkbox",
+         "id":"show_arrows",
+         "label":"t:sections.featured-blog.settings.show_arrows.label",
+         "default":true
+      },
+    {
+      "type": "range",
+      "id": "post_limit",
+      "label": "t:sections.featured-blog.settings.post_limit.label",
+      "min": 3,
+      "max": 12,
+      "step": 1,
+      "default": 4
+    },
+	 {
+      "type": "range",
+      "id": "blogs_per_row",
+      "label": "t:sections.featured-blog.settings.blogs_per_row.label",
+ 	"min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 4
+},
+      {
+        "type": "checkbox",
+        "id": "blog_show_author",
+        "label": "t:sections.featured-blog.settings.blog_show_author.label",
+        "default": true
+      },
+    {
+      "type": "checkbox",
+      "id": "blog_show_date",
+      "label": "t:sections.featured-blog.settings.blog_show_date.label",
+      "default": true
+    },
+	
+    {
+      "type": "checkbox",
+      "id": "show_view_all",
+      "label": "t:sections.featured-blog.settings.show_view_all.label",
+      "default": false
+    },
+ 	{
+      "type": "text",
+      "id": "button_text",
+      "label": "t:sections.featured-blog.settings.button_text.label"
+    },
+{
+      "type": "select",
+      "id": "button_style",
+      "label": "t:sections.featured-blog.settings.button_style.label",
+      "default": "primary",
+      "options": [
+		   {
+          "label": "t:sections.featured-blog.settings.button_style.options__1.label",
+          "value": "primary"
+        },
+		   {
+          "label": "t:sections.featured-blog.settings.button_style.options__2.label",
+          "value": "secondary"
+        },
+		   {
+          "label": "t:sections.featured-blog.settings.button_style.options__3.label",
+          "value": "white"
+        },
+		   {
+          "label": "t:sections.featured-blog.settings.button_style.options__4.label",
+          "value": "transparent_primary"
+        },
+		   {
+          "label": "t:sections.featured-blog.settings.button_style.options__5.label",
+          "value": "transparent_secondary"
+        }
+	]
+}
+  ],
+  "presets": [
+    {
+      "name": "t:sections.featured-blog.presets.name",
+    "category":"Custom sections",
+      "settings": {
+        "post_limit": 4
+      }
+    }
+  ]
+}
+{% endschema %}

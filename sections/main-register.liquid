@@ -1,0 +1,114 @@
+{% assign header_image = settings.customer_header_image %}
+{% assign header_heading =    'customer.register.title' | t  %}
+{% assign show_breadcrumbs = settings.show_customer_breadcrumbs %}
+{% assign show_heading = settings.show_customer_heading %}
+
+{% assign image_overlay_color = settings.customer_image_overlay_color %} 
+{% assign image_overlay_opacity = settings.customer_image_overlay_opacity %}
+
+{% if header_image != blank %}
+{% render 'custom_page_header' image: header_image, heading: header_heading, show_breadcrumbs: show_breadcrumbs, show_heading: show_heading, image_overlay_color: image_overlay_color, image_overlay_opacity: image_overlay_opacity %}
+{% endif %}
+
+<section id="section-{{ section.id }}" data-section-id="{{ section.id }}">
+  <div class="page-width">
+    <div class="grid">
+      <div class="grid__item medium-up--one-half medium-up--push-one-quarter">
+
+        <div class='customer-forms-wrapper'>
+          <div class="form-vertical">
+
+            {% if header_image == blank %}
+            {% if show_heading %}
+           <h1 class="text-center h3">{{ 'customer.register.title' | t }}</h1>
+			{% endif %}
+            {% if show_breadcrumbs %}
+            <div class='account-breadcrumbs'>
+              <ol class="breadcrumbs__list">
+                <li class="breadcrumbs__item">
+                  <a class="breadcrumbs__link" href="{{ routes.root_url }}">{{ 'general.breadcrumbs.home' | t }}</a>
+                </li>
+                <li class="breadcrumbs__item">
+                  <span>{{ 'customer.register.create_account' | t }}</span>
+                </li>
+              </ol>
+            </div>
+            {% endif %}
+
+            {% endif %}
+
+            {%- assign formId = 'RegisterForm' -%}
+            {% form 'create_customer', id: formId, novalidate: 'novalidate' %}
+            {% include 'form-status', form: form, form_id: formId %}
+
+            <input type="text" name="customer[first_name]" id="{{ formId }}-FirstName" {% if form.first_name %}value="{{ form.first_name }}"{% endif %} autocomplete="given-name" placeholder="{{ 'customer.register.first_name' | t }}">
+
+            <input type="text" name="customer[last_name]" id="{{ formId }}-LastName" {% if form.last_name %}value="{{ form.last_name }}"{% endif %} autocomplete="family-name" placeholder="{{ 'customer.register.last_name' | t }}">
+
+            <input
+                   type="email"
+                   name="customer[email]"
+                   id="{{ formId }}-email"
+                   class="{% if form.errors contains 'email' %} input--error{% endif %}"
+                   {% if form.email %} value="{{ form.email }}"{% endif %}
+                   autocorrect="off"
+                   autocapitalize="off"
+                   autocomplete="email"
+                   aria-required="true"
+                   placeholder="{{ 'customer.register.email' | t }}"
+                   {%- if form.errors contains 'email' -%}
+                   class="input--error"
+                   aria-invalid="true"
+                   aria-describedby="{{ formId }}-email-error"
+                   {%- endif -%}
+                   >
+            {%- if form.errors contains 'email' -%}
+            <span id="{{ formId }}-email-error" class="input-error-message">
+              <span class="visually-hidden">{{ 'general.accessibility.error' | t }} </span>
+              {% include 'icon-error' %}
+              <span>{{ form.errors.translated_fields['email'] | capitalize }} {{ form.errors.messages['email'] }}.</span>
+            </span>
+            {%- endif -%}
+
+            <input
+                   type="password"
+                   name="customer[password]"
+                   id="{{ formId }}-password"
+                   class="{% if form.errors contains 'password' %} input--error{% endif %}"
+                   aria-required="true"
+                   {%- if form.errors contains 'password' -%}
+                   class="input--error"
+                   aria-invalid="true"
+                   aria-describedby="{{ formId }}-password-error"
+                   {%- endif -%}
+                   placeholder="{{ 'customer.register.password' | t }}"
+                   >
+            {%- if form.errors contains 'password' -%}
+            <span id="{{ formId}}-password-error" class="input-error-message">
+              {% include 'icon-error' %}
+              <span>{{ form.errors.translated_fields['password'] | capitalize }} {{ form.errors.messages['password'] }}.</span>
+            </span>
+            {%- endif -%}
+
+            <p class="text-center">
+              <button type="submit"  class="btn btn--full btn--primary btn--align-center "><span>{{ 'customer.register.submit' | t }}</span></button>
+            </p>
+            <div class="text-center">
+              <p>{{ 'customer.register.have_an_account' | t }}  <a href="{{ routes.account_login_url }}" class='link--primary'>{{ 'customer.register.login' | t }}</a></p>
+            </div>
+
+            {% endform %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+{% schema %}
+  {
+     "name": "t:sections.main-register.name",
+    "settings": []
+  }
+{% endschema %}

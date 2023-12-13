@@ -1,0 +1,77 @@
+{% assign original_author_name = article.author %}
+
+{% assign show_default_author_info = true %}
+
+
+{% for i in (1..3) %}
+{% capture custom_author_name_handle %}author_name_{{i}}{% endcapture %}
+{% capture custom_author_logo_handle %}author_logo_{{i}}{% endcapture %}
+{% capture custom_author_biography_handle %}author_biography_{{i}}{% endcapture %}
+
+{% assign author_name = settings[custom_author_name_handle] %}
+{% assign author_logo = settings[custom_author_logo_handle] %}
+{% assign author_biography = settings[custom_author_biography_handle] %}
+
+{% if author_name == original_author_name %}
+{% assign show_default_author_info = false %}
+
+{% if show_border %}
+    <hr aria-hidden="true">
+{% endif %}
+
+
+
+    {% if article_footer_block %}
+    <div class='author'>
+      {% if author_logo != blank %}
+      <span class="article__author-image">
+        <img srcset="{{ author_logo | img_url: '150x' }} 1x, {{ author_logo | img_url: '150x', scale: 2 }} 2x"
+             src='{{ author_logo | img_url:"150x" }}' 
+             loading="lazy"
+             width="{{author_logo.width}}"
+             height="{{author_logo.height}}"
+             alt='{{original_author_name}}' />
+      </span>
+      {% endif %}
+      <div class='author_info'>
+        <span class='author_name'>{{ original_author_name }}</span>
+
+        {% if author_biography != blank %}
+        <div class='author_biography'>
+          {{author_biography}} 
+        </div>
+        {% endif %}
+
+      </div>
+    </div>
+    {% else %}
+    <div class='author'>
+      <div class='author_info'>
+        <span class='author_label'> {{ 'blogs.article.author_label' | t }}</span>
+        <span class='author_name'>{{ original_author_name }}</span>
+      </div>
+      {% if author_logo != blank %}
+      <span class="article__author-image">
+        <img srcset="{{ author_logo | img_url: '150x' }} 1x, {{ author_logo | img_url: '150x', scale: 2 }} 2x"
+             src='{{ author_logo | img_url:"150x" }}'
+             alt='{{original_author_name}}'
+             loading="lazy"
+             width="{{author_logo.width}}"
+             height="{{author_logo.height}}"/>
+      </span>
+      {% endif %}
+
+    </div>
+    {% endif %}
+
+	{% break %}
+  {% endif %}
+{% endfor %}
+
+{% if show_default_author_info %}
+
+<span class="article__author  text_name default_author_info">
+  {{ 'blogs.article.by_author' | t: author: article.author }}
+</span>
+
+{% endif %}

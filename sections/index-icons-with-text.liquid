@@ -1,0 +1,164 @@
+<section id="section-{{ section.id }}" data-section-id="{{ section.id }}" data-section-type="index-icons-with-text">
+  <div class="page-width-small">
+    {% if section.settings.title != blank or section.settings.subtitle != blank %}
+    <header class="section-header text-center homepage_subtitle_style_{{settings.homepage_subtitle_color}}">
+      {% if section.settings.subtitle != blank %}
+     <span class='h5'>{{ section.settings.subtitle  }}</span>
+      {% endif %}
+
+      {% if section.settings.title != blank %}
+      <h2>{{ section.settings.title }}</h2>
+      {% endif %}
+    </header>
+    {% endif %}
+    
+    {% if section.blocks.size > 0 %}
+    <div class='zoom-fade-animation icon-with-text--blocks'>
+      {% for block in section.blocks %}
+        {% assign link = block.settings.link %}      
+        <div class='icon-with-text--block zoom-fade-animation-element-wrapper'>
+          {% if link != blank %}
+        <a href='{{link}}' class='icon-with-text--block_link'>
+          {% endif %}
+          <div class='block_icon'>
+            
+            {% assign custom_image = block.settings.image %}
+            
+            {% if custom_image != blank %}
+            
+            <img src='{{ custom_image | img_url:"200x"}}' 
+                 alt='{{ custom_image.alt | default:  block.settings.title }}' 
+                 srcset="{{ custom_image | img_url: '200x' }} 1x, {{ custom_image | img_url: '200x', scale: 2 }} 2x"
+                 loading="lazy"
+                 width="{{ custom_image.width}}"
+                 class='zoom-fade-animation-element'
+                 height="{{ custom_image.height}}"
+                 style="object-position:{{ custom_image.presentation.focal_point }};">
+            
+            {% else %}
+            <span class='zoom-fade-animation-element'>
+              <load-icon name="{{ block.settings.custom_icon }}"></load-icon>
+            </span>
+            
+            {% comment %}
+            {% capture current %}{% cycle 1, 2, 3, 4, 5, 6 %}{% endcapture %}
+            {{ 'product-' | append: current | placeholder_svg_tag: 'placeholder-svg' }}
+            {% endcomment %}
+            {% endif %}
+
+          </div>
+          <div class='block_info'>
+            <span class='h4'>{{ block.settings.title}}</span>
+            {% if block.settings.content != blank %}
+            <div class='block_content'>
+              {{block.settings.content}}
+            </div>
+            {% endif %}
+          </div>
+          {% if link != blank %}
+      	  </a>
+          {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  
+  {% assign icon_color = section.settings.icon_color %}
+ {% if icon_color == 'rgba(0,0,0,0)' %}
+  {% assign icon_color = settings.color_button %}
+  {% endif %}
+  <style>
+    #section-{{section.id}} .block_icon svg {
+      color: {{ icon_color }};
+    }
+  </style>
+</section>
+
+  <script type="module" src="{{ 'dynamic-icon.js' | asset_url }}"></script>
+
+
+
+{% schema %}
+{
+   "name":"t:sections.index-icons-with-text.name",
+   "class":"index-section",
+   "settings":[
+      {
+         "type":"text",
+         "id":"title",
+         "label":"t:sections.index-icons-with-text.settings.title.label",
+		"default":"Heading"
+      },
+  	{
+         "type":"text",
+         "id":"subtitle",
+         "label":"t:sections.index-icons-with-text.settings.subtitle.label",
+		"default":"SubHeading"
+			
+      },
+
+ {
+         "type":"color",
+         "id":"icon_color",
+         "label":"t:sections.index-icons-with-text.settings.icon_color.label"
+}
+   ],
+   "blocks":[
+      {
+         "type":"block",
+         "name":"t:sections.index-icons-with-text.blocks.block.name",
+         "settings":[
+
+	{
+                    "type": "text",
+                    "id": "custom_icon",
+                    "label": "t:sections.index-icons-with-text.blocks.block.settings.custom_icon.label",
+					"info": "t:sections.index-icons-with-text.blocks.block.settings.custom_icon.info",
+                    "default": "star"
+                },
+
+            {
+               "type":"image_picker",
+               "id":"image",
+               "label":"t:sections.index-icons-with-text.blocks.block.settings.image.label"
+            },
+            {
+               "type":"text",
+               "id":"title",
+               "label":"t:sections.index-icons-with-text.blocks.block.settings.title.label",
+				"default":"Title"
+            },
+            {
+               "type":"richtext",
+               "id":"content",
+               "label":"t:sections.index-icons-with-text.blocks.block.settings.content.label",
+				"default":"<p>Content text</p>"
+            },
+			 {
+               "type":"url",
+               "id":"link",
+               "label":"t:sections.index-icons-with-text.blocks.block.settings.link.label"
+            }
+         ]
+      }
+   ],
+   "presets":[
+      {
+         "name":"t:sections.index-icons-with-text.presets.name",
+         "category":"Custom Sections",
+		"blocks": [
+        {
+          "type": "block"
+        },
+ {
+          "type": "block"
+        },
+ {
+          "type": "block"
+        }
+      ]
+      }
+   ]
+}
+{% endschema %}

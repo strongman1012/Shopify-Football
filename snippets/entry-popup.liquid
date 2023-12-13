@@ -1,0 +1,164 @@
+{% if settings.show_entry_popup %}
+
+{% assign showFormLabels = settings.entry_popup_showFormLabels %}
+
+
+
+<div class='entry_popup_wrapper'>
+  <div  class="entry-modal"  data-delay="{{ settings.popup_delay }}"
+       data-cookie="{{settings.popup_return}}" 
+       id="EntryModal" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="entry-popup   {% if settings.popup_logo == blank %} only_description_content {% endif %}">
+      <div class="modal-dialog">
+        <div class="modal-content {% if settings.popup_image_position == 'left'%} flex-revers{% endif %}">
+          <div class="description-content">
+            <div class="modal-header no_border">
+              <button class="modal_close_btn" aria-label="{{ 'general.popup.close' | t }}">
+                {% render 'icon' with 'close' %}
+              </button>
+
+
+              <h3 class="modal-title text-center" id="myModalLabel">{{ settings.entry_popup_heading | escape }}</h3>
+            </div>
+            <div class="modal-body no_padding">
+              {{ settings.entry_popup_top_text }}
+              {% if settings.entry_popup_newsletter %}
+              <div>
+                
+                {%- assign formId = 'EntryPopupContactForm' -%}
+
+                {% form 'customer', id: formId,  class: 'contact-form form-single-field' %}
+                {%- if form.posted_successfully? -%}
+                <p class="form-message form-message--success" tabindex="-1" data-form-status>
+                  {{ 'general.newsletter_form.confirmation' | t }}
+                </p>
+                {%- endif -%}
+                
+                  {%- if form.errors contains 'email' -%}
+                <span id="{{ formId }}-email-error" class="input-error-message">
+                  <span class="visually-hidden">{{ 'general.accessibility.error' | t }} </span>
+                  {% render 'icon-error' %}
+                  <span>{{ form.errors.translated_fields['email'] | capitalize }} {{ form.errors.messages['email'] }}.</span>
+                </span>
+                {%- endif -%}
+
+
+
+                <input type="hidden" name="contact[tags]" value="newsletter">
+                
+                
+                {% if showFormLabels %}
+                <div class="input-group">
+                  <input type="text"
+                         name="contact[first_name]"
+                         id="{{ formId }}-first-name"
+                         class="Form__Input  input-group__field{% if form.errors %} input--error{% endif %}"
+                         value=""
+                         placeholder="{{ 'general.newsletter_form.first_name_placeholder' | t }}"
+                         aria-label="{{ 'general.newsletter_form.first_name_placeholder' | t }}"
+                         aria-required="true"
+                         autocorrect="off"
+                         autocapitalize="off"
+                         {% if form.errors %}
+                         aria-invalid="true"
+                         aria-describedby="{{ formId }}-name-error"
+                         data-form-status
+                         {% endif %}
+                         >
+
+                </div>
+                <div class="input-group">
+                  <input type="text"
+                         name="contact[last_name]"
+                         id="{{ formId }}-last-name"
+                         class="Form__Input  input-group__field{% if form.errors %} input--error{% endif %}"
+                         value=""
+                         placeholder="{{ 'general.newsletter_form.last_name_placeholder' | t }}"
+                         aria-label="{{ 'general.newsletter_form.last_name_placeholder' | t }}"
+                         aria-required="true"
+                         autocorrect="off"
+                         autocapitalize="off"
+                         {% if form.errors %}
+                         aria-invalid="true"
+                         aria-describedby="{{ formId }}-name-error"
+                         data-form-status
+                         {% endif %}
+                         >
+                </div>
+                {% endif %}
+                
+                <div class="input-group {% if form.errors %} input-group--error{% endif %}">
+                  <input type="email"
+                         name="contact[email]"
+                         id="{{ formId }}-email"
+                         class="Form__Input  input-group__field{% if form.errors %} input--error{% endif %}"
+                         value="{{ form.email }}"
+                         placeholder="{{ 'general.newsletter_form.email_placeholder' | t }}"
+                         aria-label="{{ 'general.newsletter_form.email_placeholder' | t }}"
+                         aria-required="true"
+                         autocorrect="off"
+                         autocapitalize="off"
+                         {% if form.errors %}
+                         aria-invalid="true"
+                         aria-describedby="{{ formId }}-email-error"
+                         data-form-status
+                         {% endif %}
+                         >
+
+                </div>
+
+                <span class="input-group__btn-wrapper">
+                  <button type="submit" class="btn btn--primary" name="commit">
+                    <span>{{ 'general.newsletter_form.submit' | t }}</span>
+                    {% render 'icon' with 'tail-right' %}
+
+                  </button>
+                </span>
+
+
+
+              
+                {% endform %}
+              </div>
+              {% endif %}
+              {% if settings.entry_popup_social %}
+              <ul class="social-list">
+                {% render 'social-profiles' %}
+              </ul>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="image-content">
+            {% if settings.popup_logo != blank %}
+            {% assign popup_logo = settings.popup_logo %}
+            <img 
+                 class="popup_logo"
+                 srcset="{%- if popup_logo.width >= 375 -%}{{ popup_logo | img_url: '375x' }} 375w,{%- endif -%}
+                         {%- if popup_logo.width >= 720 -%}{{ popup_logo | img_url: '720x' }} 750w,{%- endif -%}
+                         {%- if popup_logo.width >= 1066 -%}{{ popup_logo | img_url: '1066x' }} 1066w,{%- endif -%}
+                         {%- if popup_logo.width >= 1500 -%}{{ popup_logo | img_url: '1500x' }} 1500w,{%- endif -%}
+                         {%- if popup_logo.width >= 1780 -%}{{ popup_logo | img_url: '1780x' }} 1780w,{%- endif -%}
+                         {%- if popup_logo.width >= 2000 -%}{{ popup_logo | img_url: '2000x' }} 2000w,{%- endif -%}
+                         {%- if popup_logo.width >= 2800 -%}{{ popup_logo | img_url: '2800x' }} 2800w{%- endif -%}"
+                 src="{{ popup_logo | img_url: '750x' }}"
+                 sizes="100vw"
+                 loading="lazy"
+                 width="{{ popup_logo.width }}"
+                 height="{{ popup_logo.height }}"
+                 alt="{{popup_logo.alt | default: settings.entry_popup_heading }}"
+                 style="object-position:{{ popup_logo.presentation.focal_point }};"> 
+            {% else %}
+            {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+            {% endif %}
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<link rel="stylesheet" href="{{ 'photoswipe.css' | asset_url }}" type="text/css">
+<link rel="stylesheet" href="{{ 'default-skin.css' | asset_url }}" type="text/css">
+{% endif %}

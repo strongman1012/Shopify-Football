@@ -1,0 +1,81 @@
+{% assign section_width = section.settings.section_width %}
+
+<section id="section-{{ section.id }}" data-section-id="{{ section.id }}" data-section-type="custom-content" class='fade-in-animation'>
+
+<div class="{{section_width}} custom-section">
+
+  
+   {% if section.settings.title != blank or  section.settings.subtitle != blank %}
+  <header class="section-header homepage_subtitle_style_{{settings.homepage_subtitle_color}}">
+    {% if section.settings.subtitle != blank  %}
+  <span class='h5'>{{ section.settings.subtitle  }}</span>
+    {% endif %}
+    {% if section.settings.title != blank  %}
+    <h2>{{ section.settings.title }}</h2>
+    {% endif %}
+  </header>
+  {% endif %}
+  
+  {% if section.settings.custom_liquid != blank %}
+    {{ section.settings.custom_liquid }}
+  {% endif %}
+  
+</div>
+</section>
+
+
+
+{% schema %}
+  {
+    "name": "t:sections.custom-liquid.name",
+"class": "index-section",
+    "settings": [
+      {
+       "type":"select",
+       "id":"section_width",
+       "label":"t:sections.custom-liquid.settings.section_width.label",
+       "default":"page-width",
+       "options":[
+          {
+             "label":"t:sections.custom-liquid.settings.section_width.options__1.label",
+             "value":"page-width-full"
+          },
+          {
+             "label":"t:sections.custom-liquid.settings.section_width.options__2.label",
+             "value":"page-width"
+          },
+          {
+             "label":"t:sections.custom-liquid.settings.section_width.options__3.label",
+             "value":"page-width-small"
+          }
+         ]
+       },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "t:sections.custom-liquid.settings.title.label",
+	"default":"Heading"
+    },
+	{
+	"type":"text",
+	"id":"subtitle",
+	"label":"t:sections.custom-liquid.settings.subtitle.label",
+	"default":"Subheading"
+	},
+
+ 	{
+      "type": "liquid",
+      "id": "custom_liquid",
+      "label": "t:sections.custom-liquid.settings.custom_liquid.label"
+    }
+
+		],
+  "presets": [
+    {
+      "name": "t:sections.custom-liquid.presets.name",
+		"category":"Custom sections"
+}
+  ]
+  }
+{% endschema %}
+

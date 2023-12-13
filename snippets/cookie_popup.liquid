@@ -1,0 +1,24 @@
+{%- if settings.enable_cookie_popup  -%}
+<div class='cookie_popup_wrapper'>
+  <aside class="cookie_popup" 
+         id="Cookie_popup"
+         aria-hidden="true">
+    <button class="modal_close_btn" aria-label="{{ 'general.popup.close' | t }}">
+      {% render 'icon' with 'close' %}
+    </button>
+
+    {%- if settings.cookie_popup_content != blank -%}
+    <div class="modal_content">
+      {{ settings.cookie_popup_content }}
+    </div>
+    {%- endif -%}
+    <span class='btn btn--primary modal_submit_btn accept_cookie_popup'>
+      <span>{{ 'general.popup.accept' | t }}</span>
+      {% render 'icon' with 'tail-right' %}
+    </span>
+
+
+  </aside>
+</div>
+
+{%- endif -%}

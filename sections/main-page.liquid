@@ -1,0 +1,65 @@
+{% assign header_image = section.settings.header_image %}
+{% assign header_heading = page.title %}
+{% assign show_breadcrumbs = section.settings.show_breadcrumbs %}
+
+{% assign image_overlay_color = section.settings.image_overlay_color %} 
+{% assign image_overlay_opacity = section.settings.image_overlay_opacity %}
+{% render 'custom_page_header' image: header_image, heading: header_heading, show_breadcrumbs: show_breadcrumbs, show_heading: true, image_overlay_color: image_overlay_color, image_overlay_opacity: image_overlay_opacity %}
+
+
+
+{% if section.settings.show_page_content %}
+<div class="page-width">
+  <div class="grid">
+    <div class="grid__item medium-up--five-sixths medium-up--push-one-twelfth">
+
+      <div class="rte">
+        {{ page.content }}
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+
+{% schema %}
+{
+     "name": "t:sections.main-page-section.name",
+    "settings": [
+			{
+		"type":"image_picker",
+		"id":"header_image",
+		"label":"t:sections.main-page-section.settings.header_image.label"
+		},
+{
+		"type":"color",
+		"id":"image_overlay_color",
+		"label":"t:sections.main-page-section.settings.image_overlay_color.label",
+		"default": "#000"
+		},
+      {
+        "type": "range",
+        "id": "image_overlay_opacity",
+       "label": "t:sections.main-page-section.settings.image_overlay_opacity.label",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+       "unit": "t:sections.main-page-section.settings.image_overlay_opacity.unit",
+        "default": 40
+      },
+		{
+		"type":"checkbox",
+		"id":"show_breadcrumbs",
+		"label":"t:sections.main-page-section.settings.show_breadcrumbs.label",
+		"default": true
+		},
+{
+		"type":"checkbox",
+		"id":"show_page_content",
+		"label":"t:sections.main-page-section.settings.show_page_content.label",
+		"default": true
+		}
+
+]
+  }
+{% endschema %}

@@ -1,0 +1,341 @@
+
+{% assign image = section.settings.image %}
+{% assign mobile_image = section.settings.image_mobile %}
+{% assign image_style = section.settings.image_style %}
+
+<section id="section-{{ section.id }}" data-section-id="{{ section.id }}" data-section-type="quotes" class='fade-in-animation {% if image != blank or mobile_image != blank %} section_with_bg {% endif %}' >
+   
+   <div class='section_bg image_style_{{image_style}}'>
+	{% if image != blank %}
+        <img 
+             class="section_bg_image {% if mobile_image != blank %} small--hide {% endif %}"
+             srcset="{%- if image.width >= 375 -%}{{ image | img_url: '375x' }} 375w,{%- endif -%}
+                {%- if image.width >= 720 -%}{{ image | img_url: '720x' }} 750w,{%- endif -%}
+                {%- if image.width >= 1066 -%}{{ image | img_url: '1066x' }} 1066w,{%- endif -%}
+             	{%- if image.width >= 1500 -%}{{ image | img_url: '1500x' }} 1500w,{%- endif -%}
+                {%- if image.width >= 1780 -%}{{ image | img_url: '1780x' }} 1780w,{%- endif -%}
+                {%- if image.width >= 2000 -%}{{ image | img_url: '2000x' }} 2000w,{%- endif -%}
+                {%- if image.width >= 2800 -%}{{ image | img_url: '2800x' }} 2800w{%- endif -%}"
+             src="{{ image | img_url: '750x' }}"
+             sizes="100vw"
+             loading="lazy"
+             width="{{ image.width }}"
+        	 height="{{ image.height }}"
+            alt="{{image.alt | default: section.settings.title }}"
+            style="object-position:{{ image.presentation.focal_point }};">
+      
+      {% if mobile_image != blank %}
+        <img 
+             class="section_bg_image mobile_image medium-up--hide"
+             srcset="{%- if mobile_image.width >= 375 -%}{{ mobile_image | img_url: '375x' }} 375w,{%- endif -%}
+                {%- if mobile_image.width >= 720 -%}{{ mobile_image | img_url: '720x' }} 750w,{%- endif -%}
+                {%- if mobile_image.width >= 1066 -%}{{ mobile_image | img_url: '1066x' }} 1066w,{%- endif -%}
+             	{%- if mobile_image.width >= 1500 -%}{{ mobile_image | img_url: '1500x' }} 1500w{%- endif -%}"
+             src="{{ mobile_image | img_url: '535x' }}"
+             sizes="100vw"
+             loading="lazy"
+             width="{{ mobile_image.width }}"
+        	 height="{{ mobile_image.height }}"
+             alt="{{mobile_image.alt | default: section.settings.title }}"
+            style="object-position:{{ mobile_image.presentation.focal_point }};">
+      {% endif %}
+           
+   
+    
+	  {% endif %}
+  </div>
+  
+
+  {%- capture flickity_options -%}
+{
+  "prevNextButtons": false,
+  "wrapAround": false,
+  "dragThreshold": 15,
+ "cellAlign": "left",
+  "wrapAround": true,
+  "pauseAutoPlayOnHover": true,
+  "autoPlay": {% if section.settings.enable_autoplay %}{{ section.settings.cycle_speed | times: 1000 }}{% else %}false{% endif %},
+  "pageDots": {% if section.settings.show_dots %}true{% else %}false{%endif %}
+}
+{%- endcapture -%}
+  
+    <div class="page-width" >
+
+      {% if section.settings.title != blank %}
+      <div class="section-header text-left homepage_subtitle_style_{{settings.homepage_subtitle_color}}">
+        {% if section.settings.subtitle != blank  %}
+       <span class='h5'>{{ section.settings.subtitle  }}</span>
+        {% endif %}
+        {% if section.settings.title != blank %}
+        <h2>{{ section.settings.title  }}</h2>
+        {% endif %}
+
+        {% if section.settings.show_arrows %}
+        <div class='slider_custom_arrows'>
+          <a href="javascript:void(0)" id='button_prev_{{section.id}}' class='button-prev btn btn--circle-arrow' aria-label="Previous" aria-describedby="button previous">
+            {% include 'icon' with 'tail-left' %}
+          </a>
+          <a href="javascript:void(0)" id='button_next_{{section.id}}' class='button-next btn btn--circle-arrow' aria-label="Next" aria-describedby="button next">
+            {% include 'icon' with 'tail-right' %}
+          </a>
+        </div>
+        {% endif %}
+        
+      </div>
+      {% endif %}
+
+
+
+  </div>
+  <div class='testimonials_row'>
+
+    <div class='zoom-fade-animation testimonials_slider' data-flickity-config='{{ flickity_options }}'>
+      {% for block in section.blocks %}
+      <div class='testimonial_block zoom-fade-animation-element-wrapper'>
+        {% if block.settings.image != blank %}
+        <div class='author_image'>
+          <img src='{{ block.settings.image | img_url:"200x"}}' 
+               srcset="{{ block.settings.image | img_url: '200x' }} 1x, {{ block.settings.image | img_url: '200x', scale: 2 }} 2x"
+               loading="lazy"
+               width="{{block.settings.image.width}}"
+               height="{{block.settings.image.height}}"
+               class='zoom-fade-animation-element'
+               alt='{{block.settings.image.alt | default: block.settings.title }}'/>
+           {% render 'load_spinner' %}
+        </div>
+        {% endif %}
+        {% if block.settings.title != blank %}
+        <span class='title h4'>{{ block.settings.title }} </span>
+        {% endif %}
+        {% if block.settings.quote != blank %}
+        <div class='quote'> {{ block.settings.quote  }}</div>
+        {% endif %}
+        {% if block.settings.author != blank %}
+        <p class='author_name h6'>{{ block.settings.author }} </p>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+  <style>
+    #section-{{ section.id }} .section-header  h2 {
+      color: {{ section.settings.title_color }};
+    }
+    #section-{{ section.id }} .homepage_subtitle_style_match_header .h5 {
+      color: {{ section.settings.title_color }};
+    }
+     #section-{{ section.id }}  .homepage_subtitle_style_match_header .h5:before {
+      background: {{ section.settings.text_color }};
+    }
+  </style>
+
+</section>
+
+
+{% schema %}
+{
+  "name": "t:sections.quotes.name",
+  "class": "quotes-section index-section",
+  "settings": [
+{
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:sections.quotes.settings.image.label"
+},
+{
+      "type": "image_picker",
+      "id": "image_mobile",
+      "label": "t:sections.quotes.settings.image_mobile.label"
+},
+{
+      "type": "select",
+      "id": "image_style",
+      "label": "t:sections.quotes.settings.image_style.label",
+		"options": [
+		{
+		"label": "t:sections.quotes.settings.image_style.options__1.label",
+			"value":"right"
+		},
+		{
+		"label": "t:sections.quotes.settings.image_style.options__2.label",
+			"value":"full"
+		}
+	],
+	"default":"right"
+},
+
+    {
+      "type": "text",
+      "id": "title",
+      "label": "t:sections.quotes.settings.title.label",
+      "default": {
+        "cs": "Ohlasy",
+        "da": "Udtalelser",
+        "de": "Testimonials",
+        "en": "Testimonials",
+        "es": "Testimonios",
+        "fi": "Suositukset",
+        "fr": "Témoignages",
+        "it": "Testimonial",
+        "ja": "お客様の声",
+        "ko": "추천",
+        "nb": "Tilbakemeldinger fra kunder",
+        "nl": "Getuigenissen",
+        "pl": "Referencje",
+        "pt-BR": "Depoimentos",
+        "pt-PT": "Depoimentos",
+        "sv": "Kundberättelser",
+        "th": "เสียงชื่นชมจากลูกค้า",
+        "tr": "Kullanıcı görüşleri",
+        "vi": "Chứng thực",
+        "zh-CN": "感言", 
+        "zh-TW": "推薦文"
+      }
+    },
+{
+      "type": "text",
+      "id": "subtitle",
+      "label": "t:sections.quotes.settings.subtitle.label",
+		"default":"Subtitle"
+},
+{
+      "type": "color",
+      "id": "title_color",
+      "label": "t:sections.quotes.settings.title_color.label",
+		"default":"#000"
+},
+{
+      "type": "checkbox",
+      "id": "show_dots",
+      "label": "t:sections.quotes.settings.show_dots.label",
+	"default":true
+},
+{
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "t:sections.quotes.settings.show_arrows.label",
+		"default":true
+},
+ {
+         "type":"checkbox",
+         "id":"enable_autoplay",
+         "label":"t:sections.quotes.settings.enable_autoplay.label",
+         "default":true
+      },
+	{
+      "type": "range",
+      "id": "cycle_speed",
+      "min": 1,
+      "max": 8,
+      "step": 1,
+      "unit": "t:sections.quotes.settings.cycle_speed.unit",
+      "label": "t:sections.quotes.settings.cycle_speed.label",
+      "default": 5
+    }
+  ],
+  "blocks": [
+    {
+      "type": "quote",
+      "name": "t:sections.quotes.blocks.quote.name",
+      "settings": [
+
+
+		{
+      "type": "text",
+      "id": "title",
+      "label": "t:sections.quotes.blocks.quote.settings.title.label",
+		"default":"Review heading"
+},
+        {
+          "type": "richtext",
+          "id": "quote",
+          "label": "t:sections.quotes.blocks.quote.settings.quote.label",
+          "default": {
+            "cs": "<p>Přidejte recenze a ohlasy zákazníků, které vyjadřují jejich spokojenost s vaším obchodem.</p>",
+            "da": "<p>Tilføj kundeanmeldelser og udtalelser for at fremhæve din butiks tilfredse kunder.</p>",
+            "de": "<p>Kunden-Reviews und Testimonials, die Kundenzufriedenheit beweisen.</p>",
+            "en": "<p>Add customer reviews and testimonials to showcase your store’s happy customers.</p>",
+            "es": "<p>Agrega las reseñas y los testimonios de los clientes para mostrar a los clientes satisfechos de tu tienda.</p>",
+            "fi": "<p>Lisää asiakasarviointeja ja suositteluja esimerkeiksi myymäläsi tyytyväisistä asiakkaista.</p>",
+            "fr": "<p>Ajoutez des avis et témoignages pour mettre en avant vos clients satisfaits.</p>",
+            "it": "<p>Aggiungi recensioni e testimonianze sul tuo negozio per dimostrare che i clienti sono soddisfatti.</p>",
+            "ja": "<p>あなたのストアの幸せなお客様を紹介するために、カスタマーレビューとお客様の声を追加してください。</p>",
+            "ko": "<p>고객 리뷰 및 추천을 추가하여 스토어에 만족한 고객을 보여주십시오.</p>",
+            "nb": "<p>Legg til kundeomtaler og anbefalinger for å vise frem butikkens glade kunder.</p>",
+            "nl": "<p>Voeg beoordelingen van klanten en testimonials toe om te laten zien dat je klanten tevreden zijn.</p>",
+            "pl": "<p>Dodaj opinie i referencje od klientów, aby pokazać zadowolenie klientów Twojego sklepu.</p>",
+            "pt-BR": "<p>Adicione comentários e depoimentos para dar destaque aos clientes satisfeitos com a sua loja.</p>",
+            "pt-PT": "<p>Adicione análises e testemunhos para mostrar os clientes felizes da sua loja.</p>",
+            "sv": "<p>Lägg till kundrecensioner och berättelser för att visa upp din butiks nöjda kunder.</p>",
+            "th": "<p>เพิ่มรีวิวและเสียงชื่นชมจากลูกค้าเพื่อนำเสนอลูกค้าที่ได้รับความพึงพอใจจากร้านค้า</p>",
+            "tr": "<p>Müşteri değerlendirmeleri ve kullanıcı görüşleri ekleyerek mağazanızdan memnun kalan müşterileri gösterin.</p>",
+            "vi": "<p>Thêm đánh giá và chứng thực từ khách hàng để chứng minh khách hàng hài lòng với cửa hàng.</p>",
+            "zh-CN": "<p>添加客户评论和感言，以展示对您的商店满意的客户。</p>",
+            "zh-TW": "<p>新增顧客評論和推薦文，展示對您商店滿意之顧客。</p>"
+          }
+        },
+        {
+          "type": "text",
+          "id": "author",
+          "label": "t:sections.quotes.blocks.quote.settings.author.label",
+          "default": {
+            "cs": "Jméno autora",
+            "da": "Forfatterens navn",
+            "de": "Name des Autors",
+            "en": "Author's name",
+            "es": "Nombre del autor",
+            "fi": "Kirjoittajan nimi",
+            "fr": "Nom de l'auteur",
+            "it": "Nome dell'autore",
+            "ja": "筆者の名前",
+            "ko": "작성자 이름",
+            "nb": "Forfatterens navn",
+            "nl": "Naam auteur",
+            "pl": "Nazwisko autora",
+            "pt-BR": "Nome do autor",
+            "pt-PT": "Nome do autor",
+            "sv": "Författarens namn",
+            "th": "ชื่อผู้เขียน",
+            "tr": "Yazar adı",
+            "vi": "Tên tác giả",
+            "zh-CN": "作者姓名",
+            "zh-TW": "作者名稱"
+          }
+        },
+		{
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:sections.quotes.blocks.quote.settings.image.label"
+}
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.quotes.presets.name",
+      "category": "Custom Sections",
+      "blocks": [
+        {
+          "type": "quote"
+        },
+        {
+          "type": "quote"
+        },
+        {
+          "type": "quote"
+        },
+		 {
+          "type": "quote"
+        },
+	 {
+          "type": "quote"
+        },
+	 {
+          "type": "quote"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

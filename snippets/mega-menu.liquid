@@ -1,0 +1,130 @@
+{%- if section.settings.desktop_navigation_layout == 'condensed' -%}
+  {%- assign is_condensed = true -%}
+{%- else -%}
+  {%- assign is_condensed = false -%}
+{%- endif -%}
+
+{%- assign downcase_title = mega_menu.title | downcase | strip -%}
+{%- assign mega_menu_block = nil -%}
+
+{%- for block in section.blocks -%}
+  {%- assign downcase_block_menu_item = block.settings.menu_item | downcase | strip -%}
+
+  {%- if downcase_block_menu_item == downcase_title -%}
+    {%- assign mega_menu_block = block -%}
+    {%- break -%}
+  {%- endif -%}
+{%- endfor -%}
+
+<div id="dropdown-{{ index }}" class="mega-menu" data-type="menu" aria-hidden="true" {{ mega_menu_block.shopify_attributes }}>
+  {%- capture mega_menu_inner -%}
+    {%- assign should_center = false -%}
+
+   
+   {%  if mega_menu.links.size <= 4 and mega_menu_block.settings.image_1 == blank or mega_menu_block.settings.image_1 == blank  and  mega_menu.links.size == 6 %}
+      {%- assign should_center = true -%}
+     {%  endif %}
+   
+
+    {%- assign has_two_images = false -%}
+
+    {%- if mega_menu_block.settings.image_1 != blank and mega_menu_block.settings.image_2 != blank -%}
+      {%- assign has_two_images = true -%}
+    {%- endif -%}
+
+    {%- assign mega_menu_classes = 'mega-menu__inner--left' -%}
+
+    {%- if should_center and mega_menu.links.size <= 4 -%}
+      {%- if has_two_images -%}
+        {%- assign mega_menu_classes = 'mega-menu__inner--center' -%}
+      {%- else -%}
+        {%- assign mega_menu_classes = 'mega-menu__inner--center mega-menu__inner--large' -%}
+      {%- endif -%}
+    {%- endif -%}
+
+
+ 
+    <div class="mega-menu__inner {{ mega_menu_classes }}  {%  if mega_menu_block.settings.image_1 == blank and mega_menu_block.settings.image_2 == blank  and should_center == false and mega_menu.links.size >= 6 %} mega-menu__inner--large {%  endif %}">
+      {%- if mega_menu.links.size > 0 -%}
+        {%- capture mega_menu_columns -%}
+          <div class='mega_menu_columns__wrapper'>
+          {%- for link in mega_menu.links -%}
+            <div class="mega-menu__column">
+              <span class="mega-menu__title heading">{{ link.title }}</span>
+
+              {%- if link.links.size > 0 -%}
+                <ul class="mega-menu__linklist">
+                  {%- for sub_link in link.links -%}
+                    <li class="mega-menu__item">
+                      <a href="{{ sub_link.url }}" class="mega-menu__link link"><span>{{ sub_link.title }}</span></a>
+                    </li>
+                  {%- endfor -%}
+                </ul>
+              {%- endif -%}
+            </div>
+          {%- endfor -%}
+          </div>
+        {%- endcapture -%}
+
+     
+          {{- mega_menu_columns -}}
+      {%- endif -%}
+
+      {%- if mega_menu_block.settings.image_1 != blank -%}
+        <a href="{{ mega_menu_block.settings.image_1_link | default: '#' }}" class="mega-menu__promo">
+          <div class="mega-menu__image-wrapper">
+            <div class="aspect-ratio" style="padding-bottom: {{ 100.0 | divided_by: mega_menu_block.settings.image_1.aspect_ratio }}%">
+              <img class="image--blur-up" 
+                   src="{{ mega_menu_block.settings.image_1 | img_url: '535x' }}" 
+                   srcset="{%- if mega_menu_block.settings.image_1.width >= 375 -%}{{ mega_menu_block.settings.image_1 | img_url: '375x' }} 375w,{%- endif -%}
+                           {%- if mega_menu_block.settings.image_1.width >= 720 -%}{{ mega_menu_block.settings.image_1 | img_url: '720x' }} 750w,{%- endif -%}
+                           {%- if mega_menu_block.settings.image_1.width >= 1066 -%}{{ mega_menu_block.settings.image_1 | img_url: '1066x' }} 1066w,{%- endif -%}
+                           {%- if mega_menu_block.settings.image_1.width >= 1500 -%}{{ mega_menu_block.settings.image_1 | img_url: '1500x' }} 1500w{%- endif -%}"
+                   sizes="(min-width: 750px) 300px, 100vw"
+                   loading="lazy"
+                   width="{{ mega_menu_block.settings.image_1.width }}"
+                   height="{{ mega_menu_block.settings.image_1.height }}" 
+                   alt="{{ mega_menu_block.settings.image_1.alt | default: link.title }}"
+                   style="object-position:{{ mega_menu_block.settings.image.presentation.focal_point }};">
+            </div>
+          </div>
+
+          <span class="mega-menu__image-heading heading h4">{{ mega_menu_block.settings.image_1_heading | escape }}</span>
+          <p class="mega-menu__image-text">{{ mega_menu_block.settings.image_1_text | escape }}</p>
+        </a>
+      {%- endif -%}
+
+      {%- if mega_menu_block.settings.image_2 != blank -%}
+        <a href="{{ mega_menu_block.settings.image_2_link | default: '#' }}" class="mega-menu__promo">
+          <div class="mega-menu__image-wrapper">
+            <div class="aspect-ratio" style="padding-bottom: {{ 100.0 | divided_by: mega_menu_block.settings.image_2.aspect_ratio }}%">
+              <img class="image--blur-up" 
+                   src="{{ mega_menu_block.settings.image_2 | img_url: '535x' }}" 
+                   srcset="{%- if mega_menu_block.settings.image_2.width >= 375 -%}{{ mega_menu_block.settings.image_2 | img_url: '375x' }} 375w,{%- endif -%}
+                           {%- if mega_menu_block.settings.image_2.width >= 720 -%}{{ mega_menu_block.settings.image_2 | img_url: '720x' }} 750w,{%- endif -%}
+                           {%- if mega_menu_block.settings.image_2.width >= 1066 -%}{{ mega_menu_block.settings.image_2 | img_url: '1066x' }} 1066w,{%- endif -%}
+                           {%- if mega_menu_block.settings.image_2.width >= 1500 -%}{{ mega_menu_block.settings.image_2 | img_url: '1500x' }} 1500w{%- endif -%}"
+                   sizes="(min-width: 750px) 300px, 100vw"
+                   loading="lazy"
+                   width="{{ mega_menu_block.settings.image_2.width }}"
+                   height="{{ mega_menu_block.settings.image_2.height }}" 
+                   alt="{{ mega_menu_block.settings.image_2.alt | default: link.title }}"
+                   style="object-position:{{ mega_menu_block.settings.image_2.presentation.focal_point }};">
+            </div>
+          </div>
+
+          <span class="mega-menu__image-heading heading h4">{{ mega_menu_block.settings.image_2_heading | escape }}</span>
+          <p class="mega-menu__image-text">{{ mega_menu_block.settings.image_2_text | escape }}</p>
+        </a>
+      {%- endif -%}
+    </div>
+  {%- endcapture -%}
+
+  {%- if is_condensed -%}
+    {{- mega_menu_inner -}}
+  {%- else -%}
+    <div class="page-width">
+      {{- mega_menu_inner -}}
+    </div>
+  {%- endif -%}
+</div>

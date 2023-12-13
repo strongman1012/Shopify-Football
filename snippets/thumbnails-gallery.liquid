@@ -1,0 +1,12 @@
+{% assign enable_alts = false %}
+
+{% if product.media.size > 1 %}
+<div class="thumbnails-wrapper">
+  <div class="product-single__thumbnails product-single__thumbnails-{{ section.id }} {% if enable_thumbnail_slides == true %} thumbnails-slider {% else %} thumbnails-grid {% endif %} " 
+       data-thumb_flickity_options='{{thumb_flickity_options}}' >
+    {% for media in product.media %}
+	    {% include 'thumb_media' %}
+    {% endfor %}
+  </div>
+</div>
+{% endif %}

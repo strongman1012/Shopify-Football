@@ -1,0 +1,52 @@
+
+{% if pagination_mode != 'standart'%}
+<div id="AjaxinatePagination" {% if pagination_mode == 'scroll' %} hidden {% endif %}>
+  {% if paginate.next %}
+  <center>
+    <a class='btn btn--secondary' href="{{ paginate.next.url }}">
+      <span>{{ 'general.pagination.load_more' | t }}</span>
+    </a>
+  </center>
+  {% endif %}
+</div>
+{% else %}
+<ul class="list--inline pagination">
+  {%- if paginate.previous-%}
+  <li>
+    <a href="{{ paginate.previous.url }}">
+      {% render 'icon' with 'chevron-left' %}
+      {{ 'general.pagination.previous' | t }}
+    </a>
+  </li>   
+  {%- endif -%}
+
+
+  {%- for part in paginate.parts -%}
+  {%- if part.is_link -%}
+  <li>
+    <a href="{{ part.url }}">
+      <span class="visuallyhidden">page</span> {{ part.title }}
+    </a>
+  </li>
+  {%- else -%}
+  {%- if part.title == paginate.current_page -%}
+  <li class="active" aria-current="page">
+    {{ part.title }}
+  </li>
+  {%- else -%}
+  <li>
+    {{ part.title }}
+  </li>
+  {%- endif -%}
+  {%- endif -%}
+  {%- endfor -%}
+
+  {%- if paginate.next -%}
+  <li>
+    <a href="{{ paginate.next.url }}">
+      {{ 'general.pagination.next' | t }}
+      {% render 'icon' with 'chevron-right' %}            </a>
+  </li>
+  {%- endif -%}
+</ul>
+{% endif %}

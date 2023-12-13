@@ -1,0 +1,310 @@
+{%- assign display_map = false -%}
+{%- assign onboarding = false -%}
+{%- assign bg_image = section.settings.background_image -%}
+
+{%- if section.settings.api_key == blank and bg_image == blank -%}
+  {%- assign onboarding = true -%}
+{%- endif -%}
+{%- if section.settings.api_key != blank and section.settings.map_address -%}
+  {%- assign display_map = true -%}
+{%- endif -%}
+
+{% assign removeBottomMargin = section.settings.removeBottomMargin %}
+
+
+<link rel="stylesheet" href="{{ 'map-section.css' | asset_url }}" type="text/css">
+
+<style>
+  {% if bg_image.src != blank %}
+  #MapSection--{{ section.id }} .map-section__image {
+    object-position: {{bg_image.presentation.focal_point }};
+    object-fit: cover;
+  }
+  {% endif %}
+ 
+</style>
+
+
+<div id="MapSection--{{ section.id }}"
+     class="map-section fade-in-animation
+           {% if display_map %}map-section--display-map{% endif %}
+           {% if onboarding == true %}map-section--onboarding{% endif %}"
+     data-section-id="{{ section.id }}"
+     data-map_style="{{section.settings.map_style}}"
+     data-section-type="map">
+  <div class="page-width map-section__wrapper">
+    <div class="map-section__content-wrapper">
+      <div class="map-section__content">
+        <h2 class="visually-hidden visually-hidden--static">{{ 'sections.map.section_heading' | t }}</h2>
+        {% if section.settings.heading != blank %}
+          <h3 class="h4">{{ section.settings.heading | escape }}</h3>
+        {% endif %}
+        {% if section.settings.address != blank %}
+          <div class="rte-setting">{{ section.settings.address }}</div>
+          {% if section.settings.map_address != blank and section.settings.button_text != blank %}
+            <p>
+              <a href="https://maps.google.com?daddr={{ section.settings.map_address | escape }}"
+                 class="btn btn--{{section.settings.button_style}} map_section__directions-btn"
+                 target="_blank"
+                 rel="noopener"
+                 aria-describedby="a11y-new-window-external-message"
+              >
+               {% include 'icon-pin' %}
+                <span>{{ section.settings.button_text | escape }}</span>
+              </a>
+            </p>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+    <div class="map-section__background-wrapper">
+      {% if bg_image != blank %}  
+        <img 
+             class="map-section__image  "
+             srcset="{%- if bg_image.width >= 375 -%}{{ bg_image | img_url: '375x' }} 375w,{%- endif -%}
+                {%- if bg_image.width >= 720 -%}{{ bg_image | img_url: '720x' }} 750w,{%- endif -%}
+                {%- if bg_image.width >= 1066 -%}{{ bg_image | img_url: '1066x' }} 1066w,{%- endif -%}
+             	{%- if bg_image.width >= 1500 -%}{{ bg_image | img_url: '1500x' }} 1500w,{%- endif -%}
+                {%- if bg_image.width >= 1780 -%}{{ bg_image | img_url: '1780x' }} 1780w,{%- endif -%}
+                {%- if bg_image.width >= 2000 -%}{{ bg_image | img_url: '2000x' }} 2000w,{%- endif -%}
+                {%- if bg_image.width >= 2800 -%}{{ bg_image | img_url: '2800x' }} 2800w{%- endif -%}"
+             src="{{ bg_image | img_url: '750x' }}"
+             sizes="100vw"
+             loading="lazy"
+             width="{{ bg_image.width }}"
+        	 height="{{ bg_image.height }}"
+             alt="{{bg_image.alt | default: section.settings.heading }}"
+             style="object-position:{{ bg_image.presentation.focal_point }};">
+      
+        <noscript>
+          <div class="map-section__image" style="background-image: url({{ bg_image | img_url: 'x800', crop: 'top' }});"></div>
+        </noscript>
+      {% elsif onboarding == true %}
+        <div class="placeholder-background">
+          {{ 'lifestyle-2' | placeholder_svg_tag: 'placeholder-svg' }}
+        </div>
+      {% endif %}
+      {% if display_map %}
+        <div class="map-section__container"
+             id="Map-{{ section.id }}"
+             data-map
+             data-address-setting="{{ section.settings.map_address | escape }}"
+             data-api-key="{{ section.settings.api_key }}">
+        </div>
+        <div class="map-section__overlay" data-map-overlay></div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+
+<script src="{{ 'map-section.js' | asset_url }}"></script>
+
+{% if removeBottomMargin %}
+<style>
+  #shopify-section-{{ section.id }} {
+    margin-bottom:0;
+    padding-bottom:0;
+  }
+</style>
+  {% endif %}
+
+
+{% schema %}
+{
+  "name": "t:sections.map.name",
+  "class": "index-section index-section--flush-medium-up",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.map.settings.header__1.content"
+    },
+    {
+      "id": "heading",
+      "type": "text",
+      "label": "t:sections.map.settings.heading.label",
+      "default": {
+        "cs": "Náš obchod",
+        "da": "Vores butik",
+        "de": "Unser Laden",
+        "en": "Our store",
+        "es": "Nuestra tienda",
+        "fi": "Kauppamme",
+        "fr": "Notre boutique",
+        "it": "Il nostro negozio",
+        "ja": "私たちのストア",
+        "ko": "스토어",
+        "nb": "Vår butikk",
+        "nl": "Onze winkel",
+        "pl": "Nasz sklep",
+        "pt-BR": "Nossa loja",
+        "pt-PT": "A nossa loja",
+        "sv": "Vår butik",
+        "th": "ร้านค้าของเรา",
+        "tr": "Mağazamız",
+        "vi": "Cửa hàng của chúng tôi",
+        "zh-CN": "我们的商店",
+        "zh-TW": "我們的商店"
+      }
+    },
+    {
+      "id": "address",
+      "type": "richtext",
+      "label": "t:sections.map.settings.address.label",
+      "default": {
+        "cs": "<p>Název ulice 123<br>Praha, Česká republika</p><p>Po–Pá 10:00–21:00<br>So 11:00–21:00<br>Ne 11:00–17:00</p>",
+        "da": "<p>123 Fake St.<br>Toronto, Canada</p><p>mandag-fredag, 10.00- 21.00<br>lørdag 11.00-21.00&lt;br&gt;søndag 11.00-17.00</p>",
+        "de": "<p>Musterstraße 123<br>12345 Musterstadt</p><p>Mo - Fr, 10 - 21 Uhr<br>Samstag, 11 - 21 Uhr<br>Sonntag, Ruhetag</p>",
+        "en": "<p>123 Fake St.<br>Toronto, Canada</p><p>Mon - Fri, 10am - 9pm<br>Saturday, 11am - 9pm<br>Sunday, 11am - 5pm</p>",
+        "es": "<p>123 Fake St. <br> Toronto, Canadá</p><p>Lun - Vie, 10 a.m. - 9 p.m. <br> Sábados, de 11 am a 09 pm <br> Domingos, de 11 am a 05 pm</p>",
+        "fi": "<p>Esimerkkikatu 5<br>Helsinki, Suomi</p><p>Maanantai–perjantai klo 10–21<br>Lauantai klo 11–21<br>Sunnuntai klo 11–17</p>",
+        "fr": "<p>123 5e Avenue<br>Toronto, Canada</p><p>Lundi au vendredi, 10 h 00 à 21 h 00<br>Samedi, 11 h 00 à 21 h 00<br>Dimanche, fermé",
+        "it": "<p>123 Fake St.<br>Toronto, Canada</p><p>Lun-Ven, 10:00 - 21:00<br>Sabato, 11:00 - 21:00<br>Domenica, 11:00 - 17:00</p>",
+        "ja": "<p>123 Fake St.<br>Toronto, Canada</p><p>月曜日～金曜日、午前10時〜午後9時<br>土曜日、午前11時〜午後9時<br>日曜日、午前11時〜午後5時</p>",
+        "ko": "<p>캐나다, <br>토론토 페이크 스트리트123</p><p>월요일 - 금요일, 오전 10시 - 오후 9시<br>토요일, 11시 - 오후 5시</p>",
+        "nb": "<p>Eksempelgaten 123<br>Oslo, Norge</p><p>Man – Fre, 10 – 21<br>Lørdag, 11 – 21<br>Søndag, 11–17</p>",
+        "nl": "<p>Dorpsweg 1<br>Arnhem, Nederland</p><p>ma - vr, 10:00 - 21:00<br>zaterdag, 11:00 - 21:00<br>zondag, 11:00 - 17:00</p>",
+        "pl": "<p>ul. Przykładowa 123<br>Warszawa, Polska</p><p>Pon - Pt 10:00 - 21:00<br>Sobota 11:00 - 21:00<br>Niedziela 11:00 - 17:00</p>",
+        "pt-BR": "<p>123 Rua Inventada<br> São Paulo, Brasil</p><p>Seg. - Sex., 10h às 21h <br> Sábado, 11h às 21h <br> Domingo, 11h às 17h</p>",
+        "pt-PT": "<p>Rua Imaginária, 123<br>Lisboa, Portugal</p><p>Seg. - Sex., 10h - 21h<br> Sábado, 11h - 21h<br>Domingo, 11h - 17h</p>",
+        "sv": "<p>Exempelgatan 123<br>Stockholm, Sverige</p><p>Mån - Fre, 10.00 - 21.00<br>Lördag, 11.00 - 21.00<br>Söndag, 11.00 - 17.00</p>",
+        "th": "<p>123 Fake St.<br>Toronto, Canada</p><p>จ. - ศ. 10:00 น. - 21:00 น.<br>วันเสาร์ 11:00 น. - 21:00 น.<br>วันอาทิตย์ 11:00 น. - 17:00 น.</p>",
+        "tr": "<p>123 Fake St.<br>Toronto, Kanada</p><p>Pzt - Cum, 10:00-21:00<br>Cumartesi, 11:00-21:00<br>Pazar, 11:00-17:00</p>",
+        "vi": "<p>123 Fake St.<br>Toronto, Canada</p><p>Thứ Hai - Thứ Sáu, 10SA - 9CH<br>Thứ Bảy, 11SA - 9CH<br>Chủ nhật, 11SA - 5CH</p>",
+        "zh-CN": "<p>123 Fake St.<br>Toronto, Canada</p><p>周一至周五上午 10 点至晚上 9 点<br>周六上午 11 点至晚上 9 点<br>周日上午 11 点至下午 5 点</p>",
+        "zh-TW": "<p>加拿大多倫多<br>假設範例街 123 號</p><p>星期一 - 星期五，上午 10 點 - 下午 9 點<br>星期六，上午 11 點 - 下午 9 點<br>星期日，上午 11 點 - 下午 5 點</p>"
+      }
+    },
+    {
+      "id": "map_address",
+      "type": "text",
+      "label": "t:sections.map.settings.map_address.label",
+      "info": "t:sections.map.settings.map_address.info",
+      "default": {
+        "cs": "301 Front St W, Toronto",
+        "da": "301 Front St W, Toronto",
+        "de": "4141 Pierre-de Coubertin Ave, Montreal",
+        "en": "301 Front St W, Toronto",
+        "es": "301 Front St W, Toronto",
+        "fi": "301 Front St W, Toronto",
+        "fr": "Arsenalo g. 5, Vilnius",
+        "it": "301 Front St W, Toronto",
+        "ja": "301 Front St W, Toronto",
+        "ko": "토론토, 프론트 스트리트 W 301",
+        "nb": "301 Front St W, Toronto",
+        "nl": "301 Front St W, Toronto",
+        "pl": "301 Front St W, Toronto",
+        "pt-BR": "Av. Paulista, 1234, São Paulo",
+        "pt-PT": "301 Front St W, Toronto",
+        "sv": "301 Front St W, Toronto",
+        "th": "301 Front St W, Toronto",
+        "tr": "301 Front St W, Toronto",
+        "vi": "301 Front St W, Toronto",
+        "zh-CN": "301 Front St W, Toronto",
+        "zh-TW": "301 Front St W, Toronto"
+      }
+    },
+    {
+      "id": "button_text",
+      "type": "text",
+      "label": "t:sections.map.settings.button_text.label",
+      "default": {
+        "cs": "Zjistit trasu",
+        "da": "Få vejledninger",
+        "de": "Wegbeschreibung bekommen",
+        "en": "Get directions",
+        "es": "Recibir instrucciones",
+        "fi": "Hae ohjeet",
+        "fr": "Obtenir un itinéraire",
+        "it": "Richiedi direzioni",
+        "ja": "道順を知る",
+        "ko": "길 찾기",
+        "nb": "Få beskrivelse",
+        "nl": "Krijg aanwijzingen",
+        "pl": "Uzyskaj wskazówki",
+        "pt-BR": "Obter direções",
+        "pt-PT": "Obter direções",
+        "sv": "Få hjälp",
+        "th": "ถามเส้นทาง",
+        "tr": "Yol tarifi al",
+        "vi": "Nhận chỉ dẫn",
+        "zh-CN": "获取指示",
+        "zh-TW": "取得路線"
+      }
+    },
+	{
+      "type": "select",
+      "id": "button_style",
+      "label": "t:sections.map.settings.button_style.label",
+      "default": "primary",
+      "options": [
+		   {
+          "label": "t:sections.map.settings.button_style.options__1.label",
+          "value": "primary"
+        },
+		   {
+          "label": "t:sections.map.settings.button_style.options__2.label",
+          "value": "secondary"
+        },
+		   {
+          "label": "t:sections.map.settings.button_style.options__3.label",
+          "value": "white"
+        },
+		   {
+          "label": "t:sections.map.settings.button_style.options__4.label",
+          "value": "transparent_primary"
+        },
+		   {
+          "label": "t:sections.map.settings.button_style.options__5.label",
+          "value": "transparent_secondary"
+        }
+	]
+},
+    {
+      "type": "header",
+      "content": "t:sections.map.settings.header__2.content"
+    },
+    {
+      "id": "api_key",
+      "type": "text",
+      "label": "t:sections.map.settings.api_key.label",
+      "info": "t:sections.map.settings.api_key.info"
+    },
+	{
+      "type": "select",
+      "id": "map_style",
+      "label": "t:sections.map.settings.map_style.label",
+      "default": "light",
+      "options": [
+		   {
+          "label": "t:sections.map.settings.map_style.options__1.label",
+          "value": "light"
+        },
+		   {
+          "label": "t:sections.map.settings.map_style.options__2.label",
+          "value": "dark"
+        }
+	]
+},
+
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "t:sections.map.settings.background_image.label",
+      "info": "t:sections.map.settings.background_image.info"
+    },
+	{
+		"type":"checkbox",
+		"id":"removeBottomMargin",
+		"label": "t:sections.map.settings.removeBottomMargin.label",
+		"info": "t:sections.map.settings.removeBottomMargin.info"
+	}
+  ],
+  "presets": [
+    {
+      "name": "t:sections.map.presets.name",
+      "category":"Custom Sections"
+    }
+  ]
+}
+{% endschema %}

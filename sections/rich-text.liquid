@@ -1,0 +1,272 @@
+{% assign content_width = section.settings.content_width %}
+{% assign bg_image = section.settings.bg_image %}
+{% assign bg_image_mobile = section.settings.bg_image_mobile %}
+{% assign bg_color = section.settings.bg_color %}
+{% assign rte_icon = section.settings.rte_icon %}
+{% assign section_color = section.settings.section_color %}
+
+<section id="section-{{ section.id }}" data-section-id="{{ section.id }}" data-section-type="rich-text" class="fade-in-animation">
+  <div class='rich-text ' {% if bg_color != blank or  bg_color != 'rgba(0,0,0,0)' %}style='background-color: {{bg_color}}; {% endif %}'>
+
+    <style>
+      {% if section_color != blank %}
+
+      #shopify-section-{{section.id}} {
+        color: {{section_color}};
+      }
+      #shopify-section-{{section.id}} p {
+        color:inherit;
+      }
+       .section-header .h5:before,
+      .section-header h5:before {
+      	background:   {{section_color}};
+      }
+      
+      {% else %}
+           .section-header .h5:before,
+      .section-header h5:before {
+      	background:   var(--color-text);
+      }
+      {% endif %}
+
+     
+      {% if rte_icon != blank %}
+      #section-{{ section.id }} .rte_icon {
+        max-width:  {{ section.settings.rte_icon_width }}px;
+      }
+      {% endif %}
+    </style>
+
+
+    {% if bg_image != blank %}
+    <div class='section_bg'> 
+      <img 
+           class="section_bg_image {% if mobile_image != blank %} small--hide {% endif %}"
+           srcset="{%- if bg_image.width >= 375 -%}{{ bg_image | img_url: '375x' }} 375w,{%- endif -%}
+                   {%- if bg_image.width >= 720 -%}{{ bg_image | img_url: '720x' }} 750w,{%- endif -%}
+                   {%- if bg_image.width >= 1066 -%}{{ bg_image | img_url: '1066x' }} 1066w,{%- endif -%}
+                   {%- if bg_image.width >= 1500 -%}{{ bg_image | img_url: '1500x' }} 1500w,{%- endif -%}
+                   {%- if bg_image.width >= 1780 -%}{{ bg_image | img_url: '1780x' }} 1780w,{%- endif -%}
+                   {%- if bg_image.width >= 2000 -%}{{ bg_image | img_url: '2000x' }} 2000w,{%- endif -%}
+                   {%- if bg_image.width >= 2800 -%}{{ bg_image | img_url: '2800x' }} 2800w{%- endif -%}"
+           src="{{ bg_image | img_url: '750x' }}"
+           sizes="100vw"
+           loading="lazy"
+           width="{{ bg_image.width }}"
+           height="{{ bg_image.height }}"
+           alt="{{ bg_image.alt | default: section.settings.section_title }}"
+           style="object-position:{{ bg_image.presentation.focal_point }};">
+
+      {% if bg_image_mobile != blank %}
+      <img 
+           class="section_bg_image mobile_image medium-up--hide"
+           srcset="{%- if bg_image_mobile.width >= 375 -%}{{ bg_image_mobile | img_url: '375x' }} 375w,{%- endif -%}
+                   {%- if bg_image_mobile.width >= 720 -%}{{ bg_image_mobile | img_url: '720x' }} 750w,{%- endif -%}
+                   {%- if bg_image_mobile.width >= 1066 -%}{{ bg_image_mobile | img_url: '1066x' }} 1066w,{%- endif -%}
+                   {%- if bg_image_mobile.width >= 1500 -%}{{ bg_image_mobile | img_url: '1500x' }} 1500w{%- endif -%}"
+           src="{{ bg_image_mobile | img_url: '535x' }}"
+           sizes="100vw"
+           loading="lazy"
+           width="{{ bg_image_mobile.width }}"
+           height="{{ bg_image_mobile.height }}"
+           alt="{{bg_image_mobile.alt | default: section.settings.section_title }}"
+          style="object-position:{{ bg_image_mobile.presentation.focal_point }};">
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="page-width-small">
+      <div class='rich-text-wrapper' style='max-width: {{content_width}}%;'>
+        <div class="grid">
+          <div class="grid__item">
+
+
+            {% if rte_icon != blank %}
+            <div class='rte_icon'>
+
+              <img src='{{rte_icon | img_url:"300x"}}' 
+                   srcset="{{ rte_icon | img_url: '300x' }} 1x, {{ rte_icon | img_url: '300x', scale: 2 }} 2x"
+                   loading="lazy"
+                   width="{{rte_icon.width}}"
+                   height="{{rte_icon.height}}"
+                   alt='{{rte_icon.alt | default: section.settings.section_title }}' />
+
+            </div>
+            {% endif %}
+
+
+
+            {% if section.settings.section_title != blank %}
+            <div class="rich-text__heading--{{ section.settings.text_size }} text-center section-header">
+
+              {% if section.settings.subtitle != blank  %}
+              <span class='h5'>{{ section.settings.subtitle  }}</span>
+              {% endif %}
+			{% if section.settings.section_title != blank %}
+              <h2 class="h3">{{ section.settings.section_title | escape }}</h2>
+              {% endif %}
+            </div>
+            {% endif %}
+            {% if section.settings.text != blank %}
+            <div class="rich-text__text--{{ section.settings.text_size }} rte-setting text-left">{{ section.settings.text }}</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+{% schema %}
+{
+  "name": "t:sections.rich-text.name",
+  "class": "index-section",
+  "settings": [
+      {
+      "type": "select",
+      "id": "content_width",
+      "label": "t:sections.rich-text.settings.content_width.label",
+	"options": [
+		{
+          "value": "100",
+          "label": "t:sections.rich-text.settings.content_width.options__1.label"
+		},
+		{
+          "value": "75",
+          "label": "t:sections.rich-text.settings.content_width.options__2.label"
+		},
+		{
+          "value": "50",
+          "label": "t:sections.rich-text.settings.content_width.options__3.label"
+		}
+	],
+	"default":"100"
+	},
+{
+      "type": "image_picker",
+      "id": "bg_image",
+		"label":"t:sections.rich-text.settings.bg_image.label"
+},
+{
+      "type": "image_picker",
+      "id": "bg_image_mobile",
+		"label":"t:sections.rich-text.settings.bg_image_mobile.label"
+},
+{
+      "type": "color",
+      "id": "bg_color",
+		"label":"t:sections.rich-text.settings.bg_color.label"
+},
+{
+      "type": "color",
+      "id": "section_color",
+		"label":"t:sections.rich-text.settings.section_color.label"
+},
+{
+      "type": "image_picker",
+      "id": "rte_icon",
+		"label":"t:sections.rich-text.settings.rte_icon.label"
+},
+{
+        "type": "range",
+        "id": "rte_icon_width",
+		"label":"t:sections.rich-text.settings.rte_icon_width.label",
+        "min": 30,
+        "max": 500,
+        "step": 5,
+		"unit":"t:sections.rich-text.settings.rte_icon_width.unit",
+        "default": 100
+      },
+   {
+      "type": "text",
+      "id": "section_title",
+      "label": "t:sections.rich-text.settings.section_title.label",
+      "default": {
+        "cs": "Informujte o své značce",
+        "da": "Fortæl om dit brand",
+        "de": "Rede über deine Marke",
+        "en": "Talk about your brand",
+        "es": "Habla de tu marca",
+        "fi": "Kerro brändistäsi",
+        "fr": "Parlez de votre marque",
+        "it": "Parla del tuo brand",
+        "ja": "あなたのブランドについて語る",
+        "ko": "브랜드에 대해 이야기하기",
+        "nb": "Snakk om merkevaren din",
+        "nl": "Vertel over je merk",
+        "pl": "Opowiedz o swojej marce",
+        "pt-BR": "Fale sobre a sua marca",
+        "pt-PT": "Fale sobre a sua marca",
+        "sv": "Prata om ditt varumärke",
+        "th": "พูดถึงแบรนด์ของคุณ",
+        "tr": "Markanızdan bahsedin",
+        "vi": "Chia sẻ về thương hiệu của bạn",
+        "zh-CN": "介绍您的品牌",
+        "zh-TW": "描述您的品牌"
+      }
+    },
+		{
+		"type":"text",
+		"id":"subtitle",
+      "label": "t:sections.rich-text.settings.subtitle.label"
+	},
+
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "t:sections.rich-text.settings.text.label",
+      "default": {
+        "cs": "<p>Informujte zákazníky prostřednictvím tohoto textu o své značce. Zároveň můžete popsat některý z produktů, oznámit důležité informace nebo přivítat zákazníky ve svém obchodě.</p>",
+        "da": "<p>Brug denne tekst til at dele oplysninger om dit brand med dine kunder. Beskriv et produkt, del meddelelser, eller byd kunder velkommen til din butik.</p>",
+        "de": "<p>Nutzen Sie diesen Text, um Infos über Ihre Marke mitzuteilen. Beschreiben Sie ein Produkt, kündigen Sie etwas an oder heißen Sie Kunden willkommen.</p>",
+        "en": "<p>Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store.</p>",
+        "es": "<p>Usa este texto para compartir información sobre tu marca con tus clientes. Describe un producto, comparte anuncios o recibe clientes en tu tienda.</p>",
+        "fi": "<p>Tämän tekstin avulla voit jakaa brändiäsi koskevia tietoja asiakkaille. Kuvaile tuotetta, jaa ilmoituksia tai toivota asiakkaat tervetulleiksi kauppaasi.</p>",
+        "fr": "<p>Utilisez ce texte pour partager des informations sur votre marque. Décrivez un produit, partagez des annonces, ou souhaitez la bienvenue à vos clients.</p>",
+        "it": "<p>Utilizza questo testo per condividere le informazioni sul tuo brand con i tuoi clienti. Descrivi un prodotto, condividi gli annunci o dai il benvenuto ai clienti nel tuo negozio.</p>",
+        "ja": "<p>このテキストを使用して、あなたのブランドに関する情報をお客様と共有します。商品を説明したり、告知の共有をしたり、あるいはあなたのストアのお客様を歓迎します。</p>",
+        "ko": "<p>이 텍스트를 사용하여 고객과 브랜드에 대한 정보를 공유하십시오. 제품 설명, 공지 사항 공유 또는 고객의 스토어 방문을 환영합니다.</p>",
+        "nb": "<p>Bruk denne teksten for å dele informasjon om merkevaren med kundene dine. Beskriv et produkt, del kunngjøringer eller ønsk kunder velkommen til butikken din.</p>",
+        "nl": "<p>Gebruik deze tekst om informatie over je merk te delen met je klanten. Beschrijf een product, deel aankondigingen of verwelkom klanten in je winkel.</p>",
+        "pl": "<p>Użyj tego tekstu, aby udostępnić klientom informacje o swojej marce. Opisz produkt, udostępnij ogłoszenia lub przywitaj klientów w swoim sklepie.</p>",
+        "pt-BR": "<p>Use este texto para compartilhar informações sobre sua marca com seus clientes. Descreva um produto, compartilhe novidades ou receba os clientes em sua loja.</p>",
+        "pt-PT": "<p>Utilize este texto para partilhar informações sobre a sua marca com seus clientes. Descreva um produto, partilhe comunicados ou receba clientes na sua loja.</p>",
+        "sv": "<p>Använd den här texten för att dela information om ditt varumärke med dina kunder. Beskriv en produkt, dela meddelanden eller välkomna kunder till din butik.</p>",
+        "th": "<p>ใช้ข้อความนี้ในการแชร์ข้อมูลเกี่ยวกับแบรนด์ของคุณกับลูกค้าของคุณ อธิบายคุณสมบัติของสินค้า แชร์ประกาศ หรือต้อนรับลูกค้าสู่ร้านค้าของคุณ</p>",
+        "tr": "<p>Müşterilerinizle markanız hakkında bilgi paylaşmak için bu metni kullanın. Ürün açıklaması girin, duyuru paylaşın veya mağazanıza gelen müşterileri karşılayın.</p>",
+        "vi": "<p>Sử dụng văn bản này để chia sẻ thông tin về thương hiệu của bạn với khách hàng. Mô tả sản phẩm, chia sẻ thông báo hoặc chào mừng khách hàng tới cửa hàng của bạn.</p>",
+        "zh-CN": "<p>使用此文本与您的客户分享有关您品牌的信息。描述产品、分享公告或欢迎客户访问您的商店。</p>",
+        "zh-TW": "<p>您可以用這段文字和顧客分享品牌資訊、描述產品、分享公告，或歡迎顧客光臨您的商店。</p>"
+      }
+    },
+    {
+      "type": "select",
+      "id": "text_size",
+      "label": "t:sections.rich-text.settings.text_size.label",
+      "default": "medium",
+      "options": [
+        {
+          "label": "t:sections.rich-text.settings.text_size.options__1.label",
+          "value": "small"
+        },
+        {
+          "label": "t:sections.rich-text.settings.text_size.options__2.label",
+          "value": "medium"
+        },
+        {
+          "label": "t:sections.rich-text.settings.text_size.options__3.label",
+          "value": "large"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.rich-text.presets.name",
+      "category": "Custom Sections"
+    }
+  ]
+}
+{% endschema %}

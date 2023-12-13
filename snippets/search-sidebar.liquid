@@ -1,0 +1,180 @@
+{%- assign color_label = 'color,colour,couleur,colore,farbe,색,色,カラー,färg,farve' | split: ',' -%}
+
+
+{% assign visible_filters = true %}
+{% if filters_view_mode == 'off_canvas_sidebar' %}
+{% assign visible_filters = false %}
+{% endif %}
+
+{% assign filters_size = search.filters | size %}
+{% if filters_size > 0 %}
+<div class='collection-sidebar'>
+
+  <span class='close-collection-sidebar'>
+    {% include 'icon' with 'close' %}
+  </span>
+
+  <div class="category-filters-area">
+ 
+    {% assign active_values_size = 0 %}
+    {% for filter_value in search.filters %}
+    
+    
+	{% if filter_value.active_values.size > 0 %}
+    {% assign active_values_size = active_values_size | plus: 1 %}
+    {% endif %}
+    {% endfor %}
+
+    {% if active_values_size > 0 %}
+    <div class="active-filters">
+      <a href="{{ routes.search_url }}?q={{ search.terms }}" class="active-filters__clear">{{ 'general.search.sidebar.clear_all' | t }}</a>
+    </div>
+    {% endif %}
+
+   
+   
+    <form class="filter-form">
+      
+       <input type="hidden" name="q" value="{{ search.terms }}">
+      
+      {%- for filter in search.filters -%}
+      {% assign downcase_filter_label = filter.label  | downcase %}
+
+
+      {%- if color_label contains downcase_filter_label  -%}
+      {%- assign show_color_swatch = true -%}
+      {%- else -%}
+      {%- assign show_color_swatch = false -%}
+      {%- endif -%}
+
+
+      <div class="category-filters-area-section">
+        <span class="category-filters-section-title h4 {% if visible_filters %} active {% endif %}">
+          <span>{{  filter.label }}</span>
+          {% include 'icon' with 'angle-down' %}
+        </span>
+
+
+
+
+        <ul class=" category-filters-area-list advanced-filters {% if visible_filters %} active {% endif %}">
+
+
+          {%- case filter.type -%}
+          {%- when 'list' -%}
+
+          {%- for filter_value in filter.values -%}
+          {% assign activeFilter = false %}
+          {% for activeFilter in filter.active_values %}
+          {% if activeFilter.label == filter_value.label %}
+          {% assign activeFilter = true %}
+          {% endif %}
+          {% endfor %}
+
+          <li class=" {% if activeFilter %} active-filter  {% endif %} advanced-filter {% if show_color_swatch %} colored_filter_link {% endif %}" 
+              data-group="{{ downcase_filter_label }}" 
+              data-handle="{{ filter_value.value | handle }}">
+
+            <input type="checkbox"
+                   name="{{ filter_value.param_name }}"
+                   value="{{ filter_value.value }}"
+                   id="Filter-{{ filter.label }}-{{ forloop.index }}"
+                   {% if filter_value.active -%}checked{%- endif %}
+                    {% if filter_value.count == 0 and filter_value.active == false -%}disabled{%- endif %}
+                  >
+
+            {% if show_color_swatch %}
+            <div class="tooltip_filters">{{ filter_value.value }}</div>
+            <label for='Filter-{{ filter.label }}-{{ forloop.index }}' 
+                  style="{% render 'color_swatch_customization', default_value: filter_value.value %}"
+                   >            </label> 
+            {% endif %}
+
+            <a href='javascript: void(0);' class='check_filter_value'>{{filter_value.label }} ({{ filter_value.count }}) </a>
+          </li>
+          {%- endfor -%}
+
+          {%- when 'price_range' -%}
+
+
+          {%- assign min_value = filter.min_value.value | default: 0.0 | divided_by: 100.0 -%}
+          {%- assign max_value = filter.max_value.value | default: filter.range_max | divided_by: 100.0 -%}
+          {%- assign range_max = filter.range_max | divided_by: 100.0 | ceil -%}
+
+          <li class="advanced-filter">
+
+
+            <div class="filter-group-display__price-range">
+              <div class="filter-group-display__price-range-from filter-group-display__price-range-block">
+
+                <label for="Filter-{{ filter.min_value.param_name  }}-{{ forloop.index }}" class="visually-hidden">{{ 'collections.sidebar.label_min_price' | t }}</label>
+
+                <input name="{{ filter.min_value.param_name }}"
+                       class='filter-group-display__price-range-input'
+                       id="Filter-{{ filter.min_value.param_name  }}-{{ forloop.index }}"
+                       {% if filter.min_value.value -%}
+                       value="{{ min_value | ceil }}"
+                       {%- endif %}
+                	  type="number"
+                       placeholder="0"
+                       min="0"
+                       max="{{ max_value | ceil }}"
+                       >
+              </div>
+              <div class='filter-group-display__price-divider'>-</div>
+              <div class="filter-group-display__price-range-to filter-group-display__price-range-block">
+
+                <label for="Filter-{{ filter.max_value.param_name  }}-{{ forloop.index }}" class="visually-hidden">{{ 'collections.sidebar.label_max_price' | t }}</label>
+
+                <input name="{{ filter.max_value.param_name }}"
+                       class='filter-group-display__price-range-input'
+                       id="Filter-{{ filter.max_value.param_name  }}-{{ forloop.index }}"
+                       {% if filter.max_value.value -%}
+                       value="{{  max_value | ceil  }}"
+                       {%- endif %}
+                  type="number"
+                       placeholder="{{  max_value | ceil  }}"
+                       min="0"
+                       max="{{ range_max  }}"
+                       >
+              </div>
+            </div>
+
+            <div class='price_range_container'>     
+
+
+              <input  class="price_range"
+                     type="range" 
+                     data-name="{{ filter.min_value.param_name }}"
+                     value="{{ filter.min_value.value | times: 1 | divided_by: 100.0  | ceil }}"
+                     min="0"
+                     max="{{ filter.range_max | divided_by: 100.0  | ceil  }}"   step="1" >
+              <input  class="price_range"
+                     type="range" 
+                     data-name="{{ filter.max_value.param_name }}"
+                     min="0"
+                     max="{{ filter.range_max  | times: 1  | divided_by: 100.0  | ceil }}"   step="1"
+                     value="{{ filter.max_value.value | times: 1   | divided_by: 100.0  | ceil }}"
+                     >
+            </div>
+
+
+          </li>
+          {%- endcase -%}         
+        </ul>
+
+
+        <a href="javascript: void(0);" class="show_more_options" data-default-text="{{ 'general.search.sidebar.show_all_html' | t: category:  filter.label  }}">
+          <span>{{ 'general.search.sidebar.show_all_html' | t:  category:  filter.label }}</span>
+        </a>
+      </div>
+
+
+
+      {%- endfor -%}
+    </form>
+  
+
+  </div>
+</div>
+{% endif %}

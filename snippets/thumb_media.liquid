@@ -1,0 +1,75 @@
+{%- assign media_alt = media.alt -%}
+
+{%- assign downcase_group_option = '' -%}
+{%- assign downcase_group_value = '' -%}
+
+{%- if media.alt contains '#' -%}
+{%- assign is_media_group = true -%}
+{%- assign alt_parts = media.alt | split: '#' -%}
+
+{%- comment -%}
+If the custom ALT tag contains two parts (for instance "My custom alt # color_blue") then the first part is actually used
+as a custom ALT tag
+{%- endcomment -%}
+
+
+{%- if alt_parts.size == 2 and alt_parts.first != blank -%}
+{%- assign media_alt = alt_parts.first | strip -%}
+{%- else -%}
+{%- assign media_alt = product.title -%}
+{%- endif -%}
+
+{%- assign media_group_parts = alt_parts.last | split: '_' -%}
+
+{%- assign downcase_group_option = media_group_parts.first | strip | downcase -%}
+{%- assign downcase_group_value = media_group_parts.last | strip | downcase -%}
+
+{%- for option in product.options -%}
+{%- assign downcase_option = option | downcase -%}
+{%- if downcase_option == downcase_group_option -%}
+{% assign enable_alts = true %}
+{% break %}
+{% endif %}
+{% endfor %}
+{%- endif -%}
+
+
+
+<div class="product-single__thumbnails-block" data-thumb-index="{{ forloop.index0 }}" 
+     {% if enable_alts %}
+     data-media-option-name="{{downcase_group_option}}"
+     data-media-option-value="{{downcase_group_value}}"
+     {% endif %}
+      {% if media.media_type == 'image' %} product-image-media {% endif %}
+     >
+
+  <div class='thumbnails-block_wrapper'>
+    {%- capture thumbnailAlt -%}
+    {%- if media.media_type == 'video' or media.media_type == 'external_video' -%}
+    {{ 'sections.featured_product.video_thumbnail_alt' | t: imageAlt: media.alt | escape }}
+    {%- elsif media.media_type == 'model' -%}
+    {{ 'sections.featured_product.model_thumbnail_alt' | t: imageAlt: media.alt | escape }}
+    {%- else -%}
+    {{ 'sections.featured_product.gallery_thumbnail_alt' | t: imageAlt: media.alt | escape }}
+    {%- endif -%}
+    {%- endcapture -%}
+
+    <img class="product-single__thumbnail-image" 
+         src="{{ media.preview_image | img_url: '400x', scale: 2 }}" 
+         srcset="{{ media.preview_image | img_url: '400x' }} 1x, {{ media.preview_image | img_url: '400x', scale: 2 }} 2x"
+         loading="lazy"
+         width="{{media.preview_image.width}}"
+         height="{{media.preview_image.height}}"
+         alt="{{ thumbnailAlt }}">
+    {%- if media.media_type == 'video' or media.media_type =='external_video' -%}
+    <div class="product-single__thumbnail-badge">
+      {% include 'icon-video-badge-full-color' %}
+    </div>
+    {%- endif -%}
+    {%- if media.media_type == 'model' -%}
+    <div class="product-single__thumbnail-badge">
+      {% include 'icon-3d-badge-full-color' %}
+    </div>
+    {%- endif -%}
+  </div>
+</div>

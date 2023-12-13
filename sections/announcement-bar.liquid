@@ -1,0 +1,135 @@
+{%- if section.settings.enable_bar -%}
+ 
+
+{%- capture flickity_options -%}
+{
+  "prevNextButtons": {% if section.settings.show_arrows and section.blocks.size > 1 %}true{% else %}false{% endif %},
+  "wrapAround": true,
+  "dragThreshold": 15,
+ "cellAlign": "left",
+  "pauseAutoPlayOnHover": true,
+  "autoPlay": {% if section.settings.enable_autoplay %}{{ section.settings.cycle_speed | times: 1000 }}{% else %}false{% endif %},
+  "pageDots": false
+}
+{%- endcapture -%}
+
+
+<section id="section-{{ section.id }}" data-section-id="{{ section.id }}" data-section-type="announcement-bar">
+  <div class="AnnouncementBar">
+    <div class="AnnouncementBar__Wrapper">
+
+      {% if section.blocks.size > 0 %}
+      <div class='AnnouncementBar__Slider' data-flickity-config='{{ flickity_options }}' >
+        {% for block in section.blocks %}
+        <div class='AnnouncementBar__Content'>
+          {%- if block.settings.link -%}
+          <a href="{{ block.settings.link }}">{{ block.settings.content }}</a>
+          {%- else -%}
+          {{ block.settings.content  }}
+          {%- endif -%} 
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    {% if section.settings.show_close_option %}
+    <a href='javascript:void(0)' class='AnnouncementBar__close_button' aria-label="{{ 'sections.header.close_announcement_bar' | t }}">
+      {% include 'icon-close' %}
+    </a>
+    {% endif %}
+  </div>
+</section>
+
+<style>
+  #section-{{ section.id }} {
+    background: {{ section.settings.background }};
+    color: {{ section.settings.text_color }};
+  }
+  #section-{{ section.id }} * {
+    color: {{ section.settings.text_color }};	
+  }
+</style>
+{%- endif -%}
+
+<script>
+  if(document.querySelector('[data-section-type="announcement-bar"]')) {
+  document.documentElement.style.setProperty('--announcement-bar-height', document.querySelector('[data-section-type="announcement-bar"]').offsetHeight + 'px');
+  }
+</script>
+
+
+
+{% schema %}
+{
+   "name":"t:sections.announcement-bar.name",
+  "class":"shopify-section-announcement-bar",
+   "max_blocks": 5,
+   "settings":[
+      {
+         "type":"checkbox",
+         "id":"enable_bar",
+         "label":"t:sections.announcement-bar.settings.enable_bar.label",
+         "default":true
+      },
+      {
+         "type":"color",
+         "id":"background",
+         "label":"t:sections.announcement-bar.settings.background.label",
+         "default":"#000000"
+      },
+      {
+         "type":"color",
+         "id":"text_color",
+         "label":"t:sections.announcement-bar.settings.text_color.label",
+         "default":"#ffffff"
+      },
+      {
+         "type":"checkbox",
+         "id":"show_close_option",
+         "label":"t:sections.announcement-bar.settings.show_close_option.label",
+         "default":true
+      },
+      {
+         "type":"checkbox",
+         "id":"show_arrows",
+         "label":"t:sections.announcement-bar.settings.show_arrows.label",
+         "default":true
+      },
+      {
+         "type":"checkbox",
+         "id":"enable_autoplay",
+         "label":"t:sections.announcement-bar.settings.enable_autoplay.label",
+         "default":true
+      },
+	{
+      "type": "range",
+      "id": "cycle_speed",
+      "min": 1,
+      "max": 8,
+      "step": 1,
+      "unit": "t:sections.announcement-bar.settings.cycle_speed.unit",
+      "label": "t:sections.announcement-bar.settings.cycle_speed.label",
+      "default": 5
+    }
+   ],
+   "blocks":[
+      {
+         "type":"block",
+         "name":"t:sections.announcement-bar.blocks.block.name",
+         "settings":[
+            {
+               "type":"richtext",
+               "id":"content",
+               "label":"t:sections.announcement-bar.blocks.block.settings.content.label",
+				"default":"<p>Announcement bar text</p>"
+            },
+            {
+               "type":"url",
+               "id":"link",
+               "label":"t:sections.announcement-bar.blocks.block.settings.link.label"
+            }
+         ]
+      }
+   ]
+}
+{% endschema %}

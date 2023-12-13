@@ -1,0 +1,141 @@
+{% comment %}
+  Renders a media element for the product gallery.
+  Media types include: image, video, external_video and model.
+  Accepts:
+  - media: {Object} Media Liquid object (required)
+  - featured_media: {Object} Media Liquid object (required) - featured media of a given product or variant
+  - height: {Number} Maximum height of the gallery (required)
+  - image_zoom_size: {String} Size of the zoomed image (e.g., '1024x1024') (required for media type image)
+  - enable_image_zoom: {Boolean} Image zoom setting (required for media type image)
+  - image_scale:  {String} Image scale (e.g., '2') (required for media type image)
+
+  Usage:
+  {%- for media in product.media -%}
+    {% include 'media', media: media, featured_media: featured_media, height: height %}
+  {%- endfor -%}
+
+  {%- for media in product.media -%}
+    {% include 'media', media: media, featured_media: featured_media, height: height,
+   	 image_zoom_size: product_image_zoom_size, image_scale: product_image_scale %}
+  {%- endfor -%}
+{% endcomment %}
+
+{% capture media_class %}product-featured-media{% endcapture %}
+{% capture media_wrapper_id %}{{ media_id }}-wrapper{% endcapture %}
+
+{%- comment -%}
+  Load different poster image sizes depending on the product layout
+{%- endcomment -%}
+{% capture image_size %}{{ height }}x{{ height }}{% endcapture %}
+
+
+
+
+{%- assign media_alt = media.alt -%}
+
+{%- assign downcase_group_option = '' -%}
+{%- assign downcase_group_value = '' -%}
+
+{%- if media.alt contains '#' -%}
+{%- assign is_media_group = true -%}
+{%- assign alt_parts = media.alt | split: '#' -%}
+
+{%- comment -%}
+If the custom ALT tag contains two parts (for instance "My custom alt # color_blue") then the first part is actually used
+as a custom ALT tag
+{%- endcomment -%}
+
+{%- if alt_parts.size == 2 and alt_parts.first != blank -%}
+{%- assign media_alt = alt_parts.first | strip -%}
+{%- else -%}
+{%- assign media_alt = product.title -%}
+{%- endif -%}
+
+{%- assign media_group_parts = alt_parts.last | split: '_' -%}
+
+{%- assign downcase_group_option = media_group_parts.first | strip | downcase -%}
+{%- assign downcase_group_value = media_group_parts.last | strip | downcase -%}
+
+  {%- for option in product.options -%}
+  {%- assign downcase_option = option | downcase -%}
+    {%- if downcase_option == downcase_group_option -%}
+      {% assign enable_alts = true %}
+      {% break %}
+    {% endif %}
+  {% endfor %}
+{%- endif -%}
+
+
+<div 
+    class="product-single__media-wrapper js"
+     {% if enable_alts %}
+     data-media-option-name="{{downcase_group_option}}"
+     data-media-option-value="{{downcase_group_value}}"
+     {% endif %}
+     {% if media.media_type == 'image' %} product-image-media {% endif %}
+    {% if media.media_type == 'video' or media.media_type == 'external_video' %} data-product-media-type-video data-enable-video-looping="{{ section.settings.enable_video_looping }}"{% endif %}
+    {% if media.media_type == 'model' %} data-product-media-type-model{% endif %}
+    {% if media.media_type == 'external_video' %} data-video-id="{{ media.external_id }}"{% endif %}
+    data-product-single-media-wrapper
+    data-media-id="{{ section.id }}-{{ media.id }}"
+   >
+  {% case media.media_type %}
+    {% when 'image' %}
+      {% capture zoom_media_id %}ImageZoom-{{ section.id }}-{{ media.id }}{% endcapture %}
+     
+      <div
+     
+        style="padding-top:{{ 1 | divided_by: media.preview_image.aspect_ratio | times: 100}}%;"
+           class="product-single__media image_type {% if product.media.size > 1 %} product-single__media--has-thumbnails{% endif %}"
+           data-image-width='{{media.width}}'
+           data-image-height='{{media.height}}'
+           data-image-id="{{media.id}}"
+           data-image-url='{{ media | img_url:"2000x" }}'
+
+       >
+        <img 
+             class="feature-row__image {{ media_class }}"
+             srcset="{%- if media.preview_image.width >= 375 -%}{{ media.preview_image | img_url: '375x' }} 375w,{%- endif -%}
+                     {%- if media.preview_image.width >= 720 -%}{{ media.preview_image | img_url: '720x' }} 750w,{%- endif -%}
+                     {%- if media.preview_image.width >= 1066 -%}{{ media.preview_image | img_url: '1066x' }} 1066w,{%- endif -%}
+                     {%- if media.preview_image.width >= 1500 -%}{{ media.preview_image | img_url: '1500x' }} 1500w,{%- endif -%}
+                     {%- if media.preview_image.width >= 1780 and section.settings.media_size == 'medium' -%}{{ media.preview_image | img_url: '1780x' }} 1780w,{%- endif -%}
+                     {%- if media.preview_image.width >= 2000 and section.settings.media_size == 'large' -%}{{ media.preview_image | img_url: '2000x' }} 2000w,{%- endif -%}
+                     {%- if media.preview_image.width >= 2800 and section.settings.media_size == 'full' -%}{{ media.preview_image | img_url: '2800x' }} 2800w{%- endif -%}"
+             src="{{ media.preview_image | img_url: '535x' }}"
+             sizes="(min-width: 750px) {% if section.settings.media_size == 'medium' %}600px
+                    {% elsif section.settings.media_size == 'large' %}800px
+                    {% elsif section.settings.media_size == 'full' %}100vw{% endif %}, 100vw"
+             loading="lazy"
+             width="{{ media.preview_image.width }}"
+             height="{{ media.preview_image.height }}"
+	          alt="{{ media_alt| escape }}"
+          {% if featured_media == media and request.page_type == 'product' %} onload="window.performance.mark('pursuit:product:image_visible');"{% endif %}>
+      </div>
+    {% when 'external_video' %}
+      <div class="product-single__media"
+     data-media-host="{{ media.host }}"
+        style="padding-top: {{ 1 | divided_by: media.aspect_ratio | times: 100 }}%;">
+        {{ media | external_video_tag }}
+      </div>
+    {% when 'video' %}
+  
+    {% assign video_id = 'product_video_' | append: media.id %}
+  
+      <div class="product-single__media product-single__media--video product-single__media--{{ media.id }}" 
+        data-media-host="{{ media.host }}"
+        style="padding-top: {{ 1 | divided_by: media.aspect_ratio | times: 100 }}%;">
+        {{ media | video_tag: class: 'media-video', image_size: image_size, id: video_id }}
+      </div>
+    {% when 'model' %}
+      <div class="product-single__media" style="padding-top: 100%">
+        {{ media | model_viewer_tag: image_size: image_size, reveal: 'interaction', toggleable: true, data-model-id: media.id }}
+      </div>
+    {% else %}
+      <div class="product-single__media" style="padding-top: {{ 1 | divided_by: media.aspect_ratio | times: 100 }}%;">
+        {{ media | media_tag: class: 'media-item', image_size: image_size }}
+      </div>
+  {% endcase %}
+</div>
+
+

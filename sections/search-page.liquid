@@ -1,0 +1,282 @@
+<link rel="stylesheet" href="{{ 'collection-page.css' | asset_url }}" type="text/css">
+
+{% paginate search.results by 10 %}
+
+{% assign pagination_mode = section.settings.pagination_mode %}
+{% assign filters_view_mode = section.settings.search_layout %}
+{% assign searchTerms = search.terms | split: "AND" | first  | remove: "*" %}
+
+
+
+{% assign header_image = section.settings.header_image %}
+
+ {% if search.performed == false %}
+{% assign header_heading =  'general.search.title' | t  %} 
+{% else %}
+{% assign header_heading =  'general.search.results_with_count' | t: terms: searchTerms, count: search.results_count %}
+{% endif %}
+
+{% assign show_breadcrumbs = false %}
+
+{% assign image_overlay_color = section.settings.image_overlay_color %}
+{% assign image_overlay_opacity = section.settings.image_overlay_opacity %}
+
+{% if header_image != blank %}
+{% render 'custom_page_header' image: header_image, heading: header_heading, show_breadcrumbs: show_breadcrumbs, show_heading: true, image_overlay_color: image_overlay_color, image_overlay_opacity: image_overlay_opacity %}
+{% endif %}
+
+
+
+
+<div data-section-id="{{ section.id }}" data-section-type="search-template" data-pagination_mode="{{pagination_mode}}">
+
+
+  <div class="page-width">
+
+
+    <div class='Search_Section filters_view_mode_{{filters_view_mode}} {% if search.results_count == 0  %} EmptySearch_Section {% endif %}'>
+
+
+      {% if filters_view_mode != 'no_sidebar'  and search.results.size > 0 %}
+      {% include 'search-sidebar'  filters_view_mode: filters_view_mode %}
+      {% endif %}
+
+      <div class='search-page-wrapper'>
+
+
+        {% if header_image == blank %}
+        {% if search.performed == false %}
+        <div class="text-center">
+          <h1 class="h2">{{ 'general.search.title' | t }}</h1>
+        </div>
+        {% else %}
+        <div class="text-center">
+          <h1 class="h2">
+            <span class="visually-hidden">{{ 'general.search.heading' | t: count: search.results_count }}:</span>
+            {{ 'general.search.results_with_count' | t: terms: searchTerms, count: search.results_count }}
+          </h1>
+        </div>
+        {% endif %}
+        {% endif %}
+        
+        
+        <div class="grid">
+          <div class="grid__item medium-up--six-tenths medium-up--push-two-tenths">
+            {% if search.performed and search.results_count == 0 %}
+            <div class="rte search--no-results-found text-center">
+              <p>{{ 'general.search.no_results' | t }}</p>
+            </div>
+            {% endif %}
+            <form action="{{ routes.search_url }}" method="get" role="search" class="search-form search-page-form">
+              <div class="input-group input-group--nowrap">
+                <div class="input-group__field input-group__field--connected search-form__input-wrapper">
+            <label for="search-form__input_{{ section.id }}" class="visually-hidden"></label>
+                  <input
+                        id="search-form__input_{{ section.id }}"
+                         type="search"
+                         name="q"
+                         value="{{ searchTerms | escape }}"
+                         placeholder="{{ 'general.search.placeholder' | t }}"
+                         role="combobox"
+                         aria-autocomplete="list"
+                         aria-expanded="false"
+                         aria-label="{{ 'general.search.placeholder' | t }}"
+                         aria-haspopup="listbox"
+                         class="search-form__input"
+                         data-base-url="{{ routes.search_url }}"
+                         />
+
+                  <input type="hidden" name="options[prefix]" value="last" aria-hidden="true" />
+    
+
+
+
+
+                </div>
+
+                <button type="submit" class="search-button__submit" aria-label="{{ 'general.search.submit' | t }}" data-search-page-predictive-search-submit>
+                  {% include 'icon-search' %}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+
+
+        {% if search.performed %}
+
+
+        <h2 class="visually-hidden">{{ 'general.search.heading' | t: count: search.results_count }}</h2>
+
+        {% if filters_view_mode != 'no_sidebar'  and search.results.size > 0 %}
+        {% assign filters_size = search.filters | size %}
+        {% if filters_size > 0 %}
+        <button type='button' class='search-page--open-sidebar-btn open_mobile_sidebar  btn btn-gray'>{{ 'general.search.sidebar.mobile_open_button' | t }}</button>
+        {% endif %}
+        {% endif %}
+
+        <div {% if pagination_mode != 'standart' %} id="AjaxinateContainer" {% endif %} class="SearchGrid grid">
+          <div class="zoom-fade-animation  list-view-items {% if settings.align_height %} use_align_height {% else %} use_image_height {% endif %}  " >
+
+            {% assign show_as_list = true %}
+            {%- assign max_height = 345 -%}
+
+            {% for item in search.results %}
+            <div class="list-view-item zoom-fade-animation-element-wrapper">
+              {% if item.object_type == 'product' %}
+              {% include 'product-card-item', list: show_as_list, max_height: max_height, product: item, show_vendor: true,products_per_row: 1 %}
+              {% else %}
+              
+
+              <div class="zoom-fade-animation-element-wrapper grid__item  product-item-block  view-mode-list">
+                {% capture img_id %}ProductCardImage-{{ section.id }}-{{ item.id }}{% endcapture %}
+                {% capture wrapper_id %}ProductCardImageWrapper-{{ section.id }}-{{ item.id }}{% endcapture %}
+
+                {% assign preview_image = item.image %}
+                {% unless preview_image == blank %}
+                {% include 'image-style', image: preview_image, height: max_height, wrapper_id: wrapper_id, img_id: img_id %}
+                {% endunless %}
+
+                <div class="product-card product-card-wrapper">
+                  <div class='product-item--media'>
+
+                    <div class="product-card__image-with-placeholder-wrapper">
+                      <a class="list-view-item__link-image product-card__link-image" href="{{ item.url | within: collection }}">
+                        <div id="{{ wrapper_id }}" class="list-view-item__image-wrapper product-card__image-wrapper js">
+                          <div style="padding-top:{% unless preview_image == blank %}{{ 1 | divided_by: preview_image.aspect_ratio | times: 100 }}%{% else %}100%{% endunless %};">
+                            <img id="{{ img_id }}"
+                                 class="list-view-item__image product-card__image zoom-fade-animation-element"
+                                 alt="{{ preview_image.alt | split: "#" | first  | default: item.title  }}"
+                                 srcset="{%- if preview_image.width >= 375 -%}{{ preview_image | img_url: '375x' }} 375w,{%- endif -%}
+                                         {%- if preview_image.width >= 720 -%}{{ preview_image | img_url: '720x' }} 750w,{%- endif -%}
+                                         {%- if preview_image.width >= 1066 -%}{{ preview_image | img_url: '1066x' }} 1066w,{%- endif -%}
+                                         {%- if preview_image.width >= 1500 -%}{{ preview_image | img_url: '1500x' }} 1500w{%- endif -%}"
+                                 src="{{ preview_image | img_url: '535x' }}"
+                                 sizes="100vw"
+                                 loading="lazy"
+                                 width="{{ preview_image.width }}"
+                                 height="{{ preview_image.height }}"
+                                 data-media-id="{{preview_image.id}}"
+                                 data-image
+                                 style="{% if max_img_width == '0px' %} width: auto; {% else %} max-width: {{max_img_width}} {% endif %}"
+                                 />
+
+                          
+
+                            {% render 'load_spinner' %}
+
+                          </div>
+                        </div>
+                      </a>
+                    </div>
+
+
+                  </div>
+                  <div class='product-item--info'>
+                    <a class="item__link-title product-card__link-title" href="{{ item.url }}" aria-label="{{ item.title }}">
+                      <span class="h4 item__title product-card__title" aria-hidden="true">{{ item.title }}</span>
+                    </a>
+                    {% if item.published_at %}{{ item.published_at | date: format: "date" }} &#8212; {% endif %}
+                     <div class='product-item__desc rte'>
+                    {{ item.content | strip_html | truncate: 200 }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {%- if paginate.pages > 1 -%}
+        {% include 'pagination', paginate: paginate %}
+        {%- endif -%}
+        {% endif %}
+
+        {% if search.results_count < 2  %}
+        <div class="search--less-than-2-results"></div>
+        {% endif %}
+
+
+      </div>
+    </div>
+  </div>
+
+
+  {% if pagination_mode != 'standart' %} 
+  <script src="{{ 'ajaxinate.js' | asset_url }}" defer="defer"></script>  
+  {% endif %}
+</div>
+
+  {% endpaginate %}
+{% schema %}
+{
+"name": "t:sections.search-page.name",
+"settings": [
+{
+"type":"image_picker",
+"id":"header_image",
+"label":"t:sections.search-page.settings.header_image.label"
+},
+{
+		"type":"color",
+		"id":"image_overlay_color",
+		"label":"t:sections.search-page.settings.image_overlay_color.label",
+		"default": "#000"
+		},
+      {
+        "type": "range",
+        "id": "image_overlay_opacity",
+       "label": "t:sections.search-page.settings.image_overlay_opacity.label",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+       "unit": "t:sections.search-page.settings.image_overlay_opacity.unit",
+        "default": 40
+      },
+  {
+      "type":"select",
+      "id":"search_layout",
+      "label":"t:sections.search-page.settings.search_layout.label",
+	 "info":"t:sections.search-page.settings.search_layout.info",
+      "default":"sidebar_fixed_left",
+      "options":[
+        {
+          "value":"sidebar_fixed_left",
+          "label":"t:sections.search-page.settings.search_layout.options__1.label"
+        },
+        {
+          "value":"off_canvas_sidebar",
+          "label":"t:sections.search-page.settings.search_layout.options__2.label"
+        },
+        {
+          "value":"no_sidebar",
+          "label":"t:sections.search-page.settings.search_layout.options__3.label"
+        }
+      ]
+    },
+{
+"type":"select",
+"id":"pagination_mode",
+"label":"t:sections.search-page.settings.pagination_mode.label",
+"options": [
+{
+"label":"t:sections.search-page.settings.pagination_mode.options__1.label",
+"value":"standart"
+},
+{
+"label":"t:sections.search-page.settings.pagination_mode.options__2.label",
+"value":"click"
+},
+{
+"label":"t:sections.search-page.settings.pagination_mode.options__3.label",
+"value":"scroll"
+}
+],
+"default": "standart"
+}
+]
+}
+{% endschema %}

@@ -1,0 +1,102 @@
+{% comment %}
+    Renders a list of product's price (regular, sale, unit)
+    Accompanies product listings (collection page, search result) and not updated dynamically
+    Accepts:
+    - variant: {Object} Variant Liquid object (optional)
+    - product: {Object} Product Liquid object (optional)
+
+    Usage:
+    {% include 'product-price-listing', product: product %}
+{% endcomment %}
+{%- liquid
+  if product.title
+    assign compare_at_price = product.compare_at_price
+    assign price = product.price
+    assign available = product.available
+    assign variant = product.variants.first
+  else
+    assign compare_at_price = 1999
+    assign price = 1999
+    assign available = true
+  endif
+
+if settings.currency_code_enable 
+  assign money_price = price | money_with_currency
+ else 
+   assign money_price = price | money
+ endif
+ 
+-%}
+
+{% unless product.price_max == 0 and settings.custom_price0_text != blank or  price == 0 and settings.custom_price0_text != blank %}
+<div class="price price--listing
+  {%- if available == false %} price--sold-out {% endif -%}
+           {%- if compare_at_price > price %} price--on-sale {% endif -%}
+           {%- if product.price_varies == false and product.compare_at_price_varies %} price--compare-price-hidden {% endif -%}
+           {%- if variant.unit_price_measurement %} price--unit-available {% endif -%}"
+    >
+
+  <div class="price__regular">
+    
+      <span class="visually-hidden visually-hidden--inline">{{ 'products.product.regular_price' | t }}</span>
+      <span class="price-item price-item--regular">
+        {%- if product.price_varies -%}
+        {{ 'products.product.from_lowest_price_html' | t: lowest_price: money_price }}
+        {%- else -%}
+        {{ money_price }}
+        {%- endif -%}
+      </span>
+  </div>
+  <div class="price__sale">
+      <span class="visually-hidden visually-hidden--inline">{{ 'products.product.sale_price' | t }}</span>
+      <span class="price-item price-item--sale">
+        {%- if product.price_varies -%}
+        {{ 'products.product.from_lowest_price_html' | t: lowest_price: money_price }}
+        {%- else -%}
+        {{ money_price }}
+        {%- endif -%}
+      </span>
+    <div class="price__compare">
+        <span class="visually-hidden visually-hidden--inline">{{ 'products.product.regular_price' | t }}</span>
+        <s class="price-item price-item--regular">
+          {% if settings.currency_code_enable %}
+          {{ compare_at_price | money_with_currency }}
+          {% else %}
+          {{ compare_at_price | money }}
+          {% endif %}
+        </s>
+    </div>
+  </div>
+  <div class="price__unit">
+      <span class="visually-hidden visually-hidden--inline">{{ 'products.product.unit_price_label' | t }}</span>
+    <div class="price-unit-price">
+      {%- capture unit_price_separator -%}
+      <span aria-hidden="true">/</span><span class="visually-hidden">{{ 'general.accessibility.unit_price_separator' | t }}&nbsp;</span>
+      {%- endcapture -%}
+      {%- capture unit_price_base_unit -%}
+      <span>
+        {%- if variant.unit_price_measurement -%}
+        {%- if variant.unit_price_measurement.reference_value != 1 -%}
+        {{- variant.unit_price_measurement.reference_value -}}
+        {%- endif -%}
+        {{ variant.unit_price_measurement.reference_unit }}
+        {%- endif -%}
+      </span>
+      {%- endcapture -%}
+
+      <span>
+        {% if settings.currency_code_enable %}
+        {{  variant.unit_price | money_with_currency }}
+        {% else %}
+        {{  variant.unit_price | money }}
+        {% endif %}
+      </span>{{- unit_price_separator -}}{{- unit_price_base_unit -}}
+    </div>
+  </div>
+</div>
+
+{% else %}
+<span class='custom_free_text'>
+  {{settings.custom_price0_text }}
+</span>
+{% endunless %}

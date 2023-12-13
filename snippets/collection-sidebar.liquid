@@ -1,0 +1,484 @@
+{% unless section.settings.collection_sidebar_filters == 'none' %}
+{%- assign color_label = 'color,colour,couleur,colore,farbe,색,色,カラー,färg,farve' | split: ',' -%}
+{% assign c = 0 %}
+{% for t in collection.all_tags %}
+{% capture cat %}{{ cat }}{% capture temp_cat %}{% if t contains '_' %}{% assign cat_grp = t | split: '_' %}{{ cat_grp.first }}{% endif %}{% endcapture %}{% unless cat contains temp_cat %}{% if t contains '_' %}{% assign new_cat_grp = t | split: '_' %}{{ new_cat_grp.first }}{% endif %}{% unless forloop.last %}+{% endunless %}{% assign c = c | plus: 1 %}{% endunless %}{% endcapture %}
+{% endfor %}
+{% assign cat_array = cat | split: '+' %}
+
+{% assign sidebar_index = i %}
+
+
+{% assign visible_filters = true %}
+{% if filters_view_mode == 'off_canvas_sidebar' %}
+{% assign visible_filters = false %}
+{% endif %}
+
+{%- assign active_values_size = 0 -%}
+{%- for filter in collection.filters -%}
+{% for activeFilter in filter.active_values %}
+{% assign active_values_size = active_values_size | plus: 1 %}
+{% endfor %}
+{% endfor %}
+ 
+<div class='collection-sidebar'>
+
+  <span class='close-collection-sidebar'>
+    {% include 'icon' with 'close' %}
+  </span>
+
+  <form class="search-form search-sidebar_form" action="{{ routes.search_url }}" method="get" role="search">
+    <div class="search-form__input-wrapper">
+
+   <label for="collection-sidebar__search_input" class="visually-hidden"></label>
+  
+      <input
+   id="collection-sidebar__search_input"
+             type="text"
+             name="q"
+             placeholder="{{ 'general.search.search' | t }}"
+             role="combobox"
+             aria-autocomplete="list"
+             aria-expanded="false"
+             aria-label="{{ 'general.search.search' | t }}"
+             aria-haspopup="listbox"
+             class="search-form__input search-bar__input"
+
+             data-base-url="{{ routes.search_url }}"
+             />
+      <input type="hidden" name="options[prefix]" value="last" aria-hidden="true" />
+      <div class="predictive-search-wrapper predictive-search-wrapper--drawer" data-predictive-search-mount="drawer"></div>
+    </div>
+
+    <button class="search-button__submit search-form__submit"
+            type="submit"
+            data-search-form-submit>
+      {% include 'icon' with 'search-loop' %}
+      <span class="icon__fallback-text">{{ 'general.search.submit' | t }}</span>
+    </button>
+  </form>
+
+  <div class="category-filters-area">
+    {% assign current_url = collection.url %}
+
+
+    {% assign firstLevelMenu = linklists[section.settings.collection_linklist]%}
+    {% if firstLevelMenu.links != blank  %}
+    <div class="category-filters-area-section">
+      <span class="category-filters-section-title h4 {% if visible_filters %} active {% endif %}">
+        <span> {{firstLevelMenu.title}}</span>
+        {% include 'icon' with 'angle-down' %}
+
+      </span>
+      <div class="category-filters-area-list sidebar_advanced_menu {% if visible_filters %} active {% endif %}" id="accordion_collection_{{sidebar_index}}" role="tablist" area_multiselectable="true">
+        {% for link in firstLevelMenu.links %}
+
+        {%- assign child_id = forloop.index -%}
+        {% if link.links.size > 0 %}
+        <div class="panel-heading collapse"
+            
+             data-collapse-panel='{{link.title | escape | handle}}_{{child_id}}_collection_{{sidebar_index}}'>
+          {{link.title | escape }}
+        </div>
+        <div class="panel-collapse" role="tab" id="{{link.title | escape | handle}}_{{child_id}}_collection_{{sidebar_index}}" style='height:0px;'>
+          <ul class="panel-group-nav-list second-level-nav-list">
+            {% for child_link in link.links %}
+            {% if child_link.links.size > 0 %}
+            <li>
+               <div class="panel-heading collapse"
+             data-collapse-panel='{{child_link.title | escape | handle}}_{{child_id}}_collection_{{sidebar_index}}'>
+          {{child_link.title | escape }}
+        </div>
+                 <div class="panel-collapse"  id="{{child_link.title | escape | handle}}_{{child_id}}_collection_{{sidebar_index}}" >
+              <ul class="panel-group-nav-list third-level-nav-list">
+                {% for grand_child_link in child_link.links %}
+                <li><a href="{{grand_child_link.url}}" data-parent="#{{child_link.handle | escape | handle}}_collection_{{sidebar_index}}">{{grand_child_link.title | escape }}</a></li>
+                {% endfor %}
+              </ul>
+            </div>
+              </li>
+         
+            {% else %}
+            <li>
+              <a href="{{child_link.url}}" class="dropdown-menu-links">{{child_link.title | escape }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+          </ul>
+        </div>
+        {% else %}
+        <div class="panel-heading" role="tab"><a href="{{ link.url }}">{{ link.title | escape }}</a></div>
+        {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    
+    {% assign current_tags_size = current_tags | size %}
+    {% if active_values_size > 0 or current_tags_size > 0 %}
+    <div class="active-filters ">
+      <a href="{{ collection.url }}" class="active-filters__clear btn btn--primary">
+        <span>{{ 'collections.sidebar.clear_all' | t }}</span>
+        {% render 'icon' with 'close' %}
+      </a>
+    </div>
+    {% endif %} 
+
+
+    {% if section.settings.collection_sidebar_filters == 'default' %}
+    
+   
+    <form class="filter-form">
+      
+      {%- if collection.current_type != blank or collection.current_vendor != blank -%}
+      <input id='sidebar_current_vendor' type="hidden" name="q" value="{{ collection.current_vendor | default: collection.current_type | escape }}">
+      {%- endif -%}
+       <input id='sidebar_sort_by' type="hidden" name="sort_by" value="{{ sort_by }}">
+      
+      {%- for filter in collection.filters -%}
+      {% assign downcase_filter_label = filter.label  | downcase %}
+
+
+      {%- if color_label contains downcase_filter_label  -%}
+      {%- assign show_color_swatch = true -%}
+      {%- else -%}
+      {%- assign show_color_swatch = false -%}
+      {%- endif -%}
+
+
+      <div class="category-filters-area-section">
+        <span class="category-filters-section-title h4 {% if visible_filters %} active {% endif %}">
+          <span>{{  filter.label }}</span>
+          {% include 'icon' with 'angle-down' %}
+        </span>
+
+
+        <ul class=" category-filters-area-list advanced-filters {% if visible_filters %} active {% endif %}">
+
+
+          {%- case filter.type -%}
+          {%- when 'list' -%}
+
+          {%- for filter_value in filter.values -%}
+          {% assign activeFilter = false %}
+          {% for activeFilter in filter.active_values %}
+          {% if activeFilter.label == filter_value.label %}
+          {% assign activeFilter = true %}
+          {% endif %}
+          {% endfor %}
+
+          <li class=" {% if activeFilter %} active-filter  {% endif %} advanced-filter {% if show_color_swatch %} colored_filter_link {% endif %}" 
+              data-group="{{ downcase_filter_label }}" 
+              data-handle="{{ filter_value.value | handle }}">
+
+            <input type="checkbox"
+                   name="{{ filter_value.param_name }}"
+                   value="{{ filter_value.value }}"
+                   id="Filter-{{ filter.label }}-{{ forloop.index }}"
+                   {% if filter_value.active -%}checked{%- endif %}
+                    {% if filter_value.count == 0 and filter_value.active == false -%}disabled{%- endif %}
+                  >
+
+            {% if show_color_swatch %}
+            <div class="tooltip_filters">{{ filter_value.value }}</div>
+            <label for='Filter-{{ filter.label }}-{{ forloop.index }}'
+                   style="{% render 'color_swatch_customization', default_value: filter_value.value %}"
+                   ></label> 
+            {% endif %}
+
+            <a href='javascript: void(0);' class='check_filter_value'>{{filter_value.label }} ({{ filter_value.count }}) </a>
+          </li>
+          {%- endfor -%}
+
+          {%- when 'price_range' -%}
+
+
+          <li class="advanced-filter">
+
+
+
+            {%- assign min_value = filter.min_value.value | default: 0.0 | divided_by: 100.0 -%}
+            {%- assign max_value = filter.max_value.value | default: filter.range_max | divided_by: 100.0 -%}
+            {%- assign range_max = filter.range_max | divided_by: 100.0 | ceil -%}
+
+            
+       
+            
+            <div class="filter-group-display__price-range">
+              <div class="filter-group-display__price-range-from filter-group-display__price-range-block">
+
+                <label for="Filter-{{ filter.min_value.param_name  }}-{{ forloop.index }}" class="visually-hidden">{{ 'collections.sidebar.label_min_price' | t }}</label>
+               
+                <input name="{{ filter.min_value.param_name }}"
+                       class='filter-group-display__price-range-input'
+                       id="Filter-{{ filter.min_value.param_name  }}-{{ forloop.index }}"
+                       {% if filter.min_value.value -%}
+                       value="{{ filter.min_value.value | money_without_trailing_zeros | strip_html }}"
+                       {%- endif %}
+                	  type="text"
+                       placeholder="{{ 0 | money_without_trailing_zeros | strip_html}}"
+                       min="0"
+                       max="{{ max_value | ceil }}"
+                       >
+              </div>
+              <div class='filter-group-display__price-divider'>-</div>
+              <div class="filter-group-display__price-range-to filter-group-display__price-range-block">
+
+                <label for="Filter-{{ filter.max_value.param_name  }}-{{ forloop.index }}" class="visually-hidden">{{ 'collections.sidebar.label_max_price' | t }}</label>
+
+                <input name="{{ filter.max_value.param_name }}"
+                       class='filter-group-display__price-range-input'
+                       id="Filter-{{ filter.max_value.param_name  }}-{{ forloop.index }}"
+                       {% if filter.max_value.value -%}
+                       value="{{  filter.max_value.value | money_without_trailing_zeros   | strip_html }}"
+                       {%- endif %}
+                 	 type="text"
+                       placeholder="{{  max_value | ceil | times:100 | money_without_trailing_zeros | strip_html }}"
+                       min="0"
+                       max="{{ range_max  }}"
+                       >
+              </div>
+            </div>
+
+            <div class='price_range_container'>     
+
+
+              <label for="FilterRange-{{ filter.min_value.param_name  }}-{{ forloop.index }}" class="visually-hidden">{{ 'collections.sidebar.label_min_price' | t }}</label>
+
+              <input  class="price_range"
+                     id="FilterRange-{{ filter.min_value.param_name  }}-{{ forloop.index }}"
+                     type="range" 
+                     data-name="{{ filter.min_value.param_name }}"
+                     value="{{ filter.min_value.value | times: 1 | divided_by: 100.0  | ceil }}"
+                     min="0"
+                     max="{{ filter.range_max | divided_by: 100.0  | ceil  }}"   step="1" >
+
+              <input  class="price_range"
+                     type="range" 
+                     id="FilterRange-{{ filter.max_value.param_name  }}-{{ forloop.index }}"
+                     data-name="{{ filter.max_value.param_name }}"
+                     min="0"
+                     max="{{ filter.range_max  | times: 1  | divided_by: 100.0  | ceil }}"   step="1"
+                     value="{{ filter.max_value.value | times: 1   | divided_by: 100.0  | ceil }}"
+                     >
+              <label for="FilterRange-{{ filter.max_value.param_name  }}-{{ forloop.index }}" class="visually-hidden">{{ 'collections.sidebar.label_max_price' | t }}</label>
+
+            </div>
+
+
+          </li>
+          {%- endcase -%}         
+        </ul>
+
+        <a href="javascript: void(0);" class="show_more_options" data-default-text="{{ 'collections.sidebar.show_all_html' | t: category:  filter.label  }}">
+          <span>{{ 'collections.sidebar.show_all_html' | t:  category:  filter.label }}</span>
+        </a>
+      </div>
+
+
+
+      {%- endfor -%}
+
+    </form>
+    {% endif %}
+
+
+    {% if section.settings.collection_sidebar_filters == 'groups' %}
+
+    {% if collection.all_tags.size > 0 %}
+    {% assign group_array = section.settings.group_array | escape | split: ',' %}
+    {% for group in group_array %}
+    {% if cat_array contains group %}
+    {% capture array %}
+    {% unless array == blank or array == "" %}{{ array }},{% endunless %}{{group | strip}}
+    {% endcapture%}
+    {% endif %}
+    {% endfor%}
+    {% assign cat_array = array %}
+
+    {% if group_array == blank %}
+    {% assign group_array = cat_array %}
+    {% endif %}
+
+
+    {% for cat_item in group_array %}
+    {% assign tags_present = false %}
+    {% if cat_array contains cat_item %}
+    {% assign tags_present = true %}
+    {% endif %}
+
+    {% unless tags_present == false %}
+
+    {%- if color_label contains cat_item  -%}
+    {%- assign show_color_swatch = true -%}
+    {%- else -%}
+    {%- assign show_color_swatch = false -%}
+    {%- endif -%}
+
+
+ 
+    {% assign linklist_title = cat_item | handleize %}
+    {% if linklists[linklist_title].links != '' %}
+    <div class="category-filters-area-section">
+      <span class="category-filters-section-title h4 {% if visible_filters %} active {% endif %}">
+        <span>{{ cat_item }}</span>
+        {% include 'icon' with 'angle-down' %}
+      </span>
+
+      <ul class="category-filters-area-list advanced-filters {% if visible_filters %} active {% endif %}">
+
+        {% for link in linklists[linklist_title].links %}
+        {% for tag in collection.all_tags %}
+        {% assign title = cat_item | append: "_" | append: link.title %}
+        {% if tag == title %}
+        {% assign cat = tag | split: '_' | first %}
+        {% if cat != tag and cat_item == cat %}
+
+        {% if current_tags contains tag %}
+        <li class="advanced-filter active-filter {% if show_color_swatch %} colored_filter_link {% endif %}" data-group="{{ cat_item }}" data-handle="{{ tag | handle }}"> 
+          {% if show_color_swatch %}
+          {% assign tag_color_value = tag | remove_first: cat_item | remove_first: '_' %}
+          <div class="tooltip_filters">{{tag | remove_first: cat_item | remove_first: '_' }}</div>
+          <label 
+                 style="{% render 'color_swatch_customization', default_value: tag_color_value %}"
+                 ></label> {% endif %} {{ tag | remove_first: cat_item | remove_first: '_' | link_to_remove_tag: tag }}</li>
+        {% else %}
+        <li class="advanced-filter {% if show_color_swatch %} colored_filter_link {% endif %}" data-group="{{ cat_item }}" data-handle="{{ tag | handle }}"> 
+          {% if show_color_swatch %}
+          {% assign tag_color_value = tag | remove_first: cat_item | remove_first: '_' %}
+          
+          <div class="tooltip_filters">{{tag | remove_first: cat_item | remove_first: '_' }}</div> 
+          <label 
+                 style="{% render 'color_swatch_customization', default_value: tag_color_value %}"></label> {% endif %} {{ tag | remove_first: cat_item | remove_first: '_' | link_to_add_tag: tag }}</li>
+        {% endif %}
+        {% endif %}
+        {% endif %}
+        {% endfor %}
+        {% endfor %}
+      </ul><!--  if linklists[linklist_title].links != ''  -->
+      <a href="javascript: void(0);" class="show_more_options" data-default-text="{{ 'collections.sidebar.show_all_html' | t: category: cat_item  }}">
+        <span>{{ 'collections.sidebar.show_all_html' | t: category: cat_item  }}</span>
+      </a>
+    </div>
+    {% endif %}
+
+    {% unless cat_item == '' or linklists[linklist_title].links.size > 0  %}
+    <div class="category-filters-area-section">
+      <span class="category-filters-section-title h4 {% if visible_filters %} active {% endif %}">
+        <span>{{ cat_item }}</span>
+        {% include 'icon' with 'angle-down' %}
+      </span>
+
+      <ul class="category-filters-area-list advanced-filters {% if visible_filters %} active {% endif %}">
+
+
+        {% for tag in collection.all_tags %}
+        {% assign cat = tag | split: '_' | first %}
+        {% if cat != tag and cat_item == cat %}
+
+        {% if current_tags contains tag %}
+        <li class="advanced-filter active-filter {% if show_color_swatch %} colored_filter_link {% endif %}" data-group="{{ cat_item }}" data-handle="{{ tag | handle }}">
+          {% if show_color_swatch %}
+          {% assign tag_color_value = tag | remove_first: cat_item | remove_first: '_' %}
+          <div class="tooltip_filters">{{tag | remove_first: cat_item | remove_first: '_' }}</div> 
+          <label 
+                 style="{% render 'color_swatch_customization', default_value: tag_color_value %}"
+                 ></label> {% endif %}
+          {{ tag | remove_first: cat_item | remove_first: '_' | link_to_remove_tag: tag }}
+        </li>
+        {% else %}
+        <li class="advanced-filter {% if show_color_swatch %} colored_filter_link {% endif %}" data-group="{{ cat_item }}" data-handle="{{ tag | handle }}">
+          {% if show_color_swatch %}
+          {% assign tag_color_value = tag | remove_first: cat_item | remove_first: '_' %}
+          <div class="tooltip_filters">{{tag | remove_first: cat_item | remove_first: '_' }}</div> 
+          <label 
+                 style="{% render 'color_swatch_customization', default_value: tag_color_value %}"></label> {% endif %} 
+          {{ tag | remove_first: cat_item | remove_first: '_' | link_to_add_tag: tag }}
+        </li>
+        {% endif %}
+        {% endif %}
+        {% endfor %}
+      </ul>
+      <a href="javascript: void(0);" class="show_more_options" data-default-text="{{ 'collections.sidebar.show_all_html' | t: category: cat_item  }}">
+        <span>{{ 'collections.sidebar.show_all_html' | t:  category: cat_item }}</span>
+      </a>
+    </div>
+    {% endunless %}
+
+    {% endunless %}
+
+    {% endfor %}
+    {% endif %}
+
+    {% elsif section.settings.collection_sidebar_filters  == 'simple-tags' %}
+    <div class="category-filters-area-section">
+
+      <ul class="category-filters-area-list {% if visible_filters %} active {% endif %}">
+
+       
+        {% for tag in collection.tags %}
+        {% if current_tags contains tag %}
+        <li class="active">
+          {{ tag | link_to_remove_tag: tag }}
+        </li>
+        {% else %}
+        <li>
+          {{ tag | link_to_tag: tag }}
+        </li>
+        {% endif %}
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+
+    <div>
+
+
+
+
+
+
+      {% if section.settings.show_sidebar_vendors %}
+      <div class="category-filters-area-section">
+        <span class="category-filters-section-title h4 {% if visible_filters %} active {% endif %}">
+          <span>{{ 'collections.sidebar.widget_vendors_title' | t }}</span>
+          {% include 'icon' with 'angle-down' %}
+        </span>
+        <ul class="category-filters-area-list {% if visible_filters %} active {% endif %}">
+          {% for product_vendor in collection.all_vendors %}
+          <li>{{ product_vendor | link_to_vendor }}</li>
+          {% else %}
+          <li>{{ 'collections.sidebar.no_vendors' | t }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      {% if section.settings.show_collection_sidebar_sale and section.settings.sidebar_collection_sale_collection != blank  %}
+      <div class="category-filters-area-section products-widget ">
+        <span class="category-filters-section-title h4 {% if visible_filters %} active {% endif %}">
+          <span>{{section.settings.collection_sidebar_sale_title}}</span>
+          {% include 'icon' with 'angle-down' %}
+        </span>
+        <div class="category-filters-area-list onsale-list-container {% if visible_filters %} active {% endif %} {% if settings.align_height %} use_align_height {% else %} use_image_height {% endif %}">
+          
+          {% assign max_height = 140 %}
+          {% for product in collections[section.settings.sidebar_collection_sale_collection].products limit:section.settings.sidebar_collection_product_count %}
+
+          {% include 'product-card-item', list: false, max_height: max_height, product: product, show_vendor: show_vendor, products_per_row: 1 %}
+
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+
+
+  </div>
+
+
+</div>
+{% endunless %}

@@ -1,0 +1,199 @@
+{% comment %}
+  This is used to create CSS custom variables with Liquid references
+  The file variables.scss is referring these CSS custom variables as Sass variables
+  to use throughout the stylesheet
+{% endcomment %}
+{% style %}
+  {%- assign header_font = settings.type_header_font -%}
+  {%- assign base_font = settings.type_base_font -%}
+  {%- assign navigation_font = settings.type_menu_font -%}
+
+
+  {%- assign base_font_bolder = base_font | font_modify: 'weight', 'bolder' -%}
+  {%- assign base_font_bold = base_font | font_modify: 'weight', 'bold' -%}
+  {%- assign base_font_italic = base_font | font_modify: 'style', 'italic' -%}
+  {%- assign base_font_bold_italic = base_font_bold | font_modify: 'style', 'italic' -%}
+
+  :root {
+
+	--header_megamenu_bg: {{ settings.header_megamenu_bg }};
+	--header_nav_2_bg: {{ settings.header_nav_2_bg }};
+	--header_nav_2_color_text: {{ settings.header_nav_2_color_text}};
+	--search_bar_bg: {{ settings.search_bar_bg }};
+
+	--header_search_categories_bg: {{ settings.header_search_categories_bg }};
+	--header_search_categories_color_text: {{ settings.header_search_categories_color_text }};
+	--alternateHeader_bg_color: {{ settings.alternateHeader_bg_color }};
+	--alternateHeader_text_color: {{ settings.alternateHeader_text_color}};
+    --logo_text_color: {{ settings.logo_text_color }};
+    --header_color_text: {{ settings.header_color_text }};
+	--header_nav_hover_link: {{ settings.header_nav_hover_link }};
+
+    --secondary_nav_color_text: {{ settings.secondary_nav_color_text }};
+    --secondary_nav_color_lighter: {{ settings.secondary_nav_color_text  | color_modify: 'alpha', 0.3 }};
+
+
+	--white-color: {{ "#ffffff" }};
+
+
+    --letter-spacing: 0;
+    --font-size: 1;
+	--rating-star-bg: {{ settings.color_text | color_modify: 'alpha', 0.15 }};
+
+    --color-text: {{ settings.color_text }};
+    --color-text-rgb: {{ settings.color_text | color_to_rgb | remove: 'rgb(' | remove: 'rgba(' | remove: ')' | remove: ', 0.0' }};
+    --color-body-text: {{ settings.color_body_text }};
+	--breadcrumbs_color: {{ settings.breadcrumbs_color }};
+
+	--rte__link_color: {{ settings.rte__link_color }};
+	--rte_hover_link_color: {{ settings.rte_hover_link_color }};
+
+
+    --color-sale-text: {{ settings.color_sale_text }};
+    --color-small-button-text-border: {{ settings.color_small_button_text_border }};
+    --color-text-field: {{ settings.color_text_field }};
+    --color-text-field-text: {{ settings.color_text_field_text }};
+    --color-text-field-text-rgb: {{ settings.color_text_field_text | color_to_rgb | remove: 'rgb(' | remove: 'rgba(' | remove: ')' | remove: ', 0.0' }};
+
+    --color-btn-primary: {{ settings.color_button }};
+    --color-btn-primary-darker: {{ settings.color_button | color_darken: 10   | color_saturate : 100  }};
+    --color-btn-primary-text: {{ settings.color_button_text }};
+	
+	--color-btn-secondary: {{ settings.color_secondary_button }};
+
+	--color--btn-white-darker: {{ '#ffffff'| color_darken: 10    }};
+
+
+    --color-blankstate: {{ settings.color_body_text | color_modify: 'alpha', 0.35 }};
+    --color-blankstate-border: {{ settings.color_body_text | color_modify: 'alpha', 0.2 }};
+    --color-blankstate-background: {{ settings.color_body_text | color_modify: 'alpha', 0.1 }}; 
+
+    --color-text-focus: {%- include 'adaptive-color' with settings.color_text as color -%};
+
+
+    --color-btn-primary-focus: {%- include 'adaptive-color' with settings.color_button as color -%};
+ 	--color-btn-secondary-focus: {%- include 'adaptive-color' with settings.color_secondary_button as color -%};
+	--color-btn-white-focus: {%- include 'adaptive-color' with '#ffffff' as color -%};
+
+
+
+    --color-btn-social-focus: {%- include 'adaptive-color' with settings.color_borders as color -%};
+    --color-small-button-text-border-focus: {%- include 'adaptive-color' with settings.color_small_button_text_border as color -%};
+    --predictive-search-focus: {%- include 'adaptive-color' with settings.color_body_bg as color, is_background_color: true -%};
+
+    --color-body: {{ settings.color_body_bg }};
+    --color-bg: {{ settings.color_body_bg }};
+    --color-bg-rgb: {{ settings.color_body_bg | color_to_rgb | remove: 'rgb(' | remove: 'rgba(' | remove: ')' | remove: ', 0.0' }};
+    --color-bg-alt: {{ settings.color_body_text | color_modify: 'alpha', 0.05 }};
+    --color-bg-currency-selector: {{ settings.color_body_text | color_modify: 'alpha', 0.2 }};
+ 
+    {%- assign image_overlay_opacity = settings.image_overlay_opacity | divided_by: 100.00 -%}
+    --opacity-image-overlay: {{ image_overlay_opacity }};
+
+    {%- comment -%}
+      Based on the image overlay opacity, either lighten or darken the image on hover
+    {%- endcomment -%}
+    {%- if image_overlay_opacity > 0.85 -%}
+      {%- assign image_overlay_opacity_hover = image_overlay_opacity | minus: 0.3 -%}
+    {%- else -%}
+      {%- assign image_overlay_opacity_hover = image_overlay_opacity | plus: 0.4 -%}
+    {%- endif -%}
+    --hover-overlay-opacity: {{ image_overlay_opacity_hover | at_most: 1 }};
+
+    --color-border: {{ settings.color_borders }};
+    --color-border-form: {{ settings.color_text_field_border }};
+    --color-border-form-darker: {{ settings.color_text_field_border | color_darken: 10}};
+
+    --svg-select-icon: url({{ "ico-select.svg" | asset_url }});
+ 	--svg-select-white-icon: url({{ "ico-white-select.svg" | asset_url }});
+    --slick-img-url: url({{ "ajax-loader.gif" | asset_url }});
+
+    --font-weight-body--bold: {{ base_font_bold.weight | default: 700 }};
+    --font-weight-body--bolder: {{ base_font_bolder.weight | default: 700 }};
+
+    --font-stack-header: {{ header_font.family }}, {{ header_font.fallback_families }};
+    --font-style-header: {{ header_font.style }};
+    --font-weight-header: {{ header_font.weight }};
+
+    --font-stack-navigation: {{ navigation_font.family }}, {{ navigation_font.fallback_families }};
+    --font-style-navigation: {{ navigation_font.style }};
+    --font-weight-navigation: {{ navigation_font.weight }};
+
+
+	
+
+    --font-stack-body: {{ base_font.family }}, {{ base_font.fallback_families }};
+    --font-style-body: {{ base_font.style }};
+    --font-weight-body: {{ base_font.weight }};
+
+    --font-size-header: {{ settings.type_header_base_size }};
+	--font-size-navigation: {{ settings.type_menu_base_size }};
+
+
+	
+	--heading1-letter-spacing: {{ settings.type_header_letterSpacing | times: 1 | append: 'px' }};
+    --heading2-letter-spacing: {{ settings.type_header_letterSpacing | times: 1 | append: 'px' }};
+    --heading3-letter-spacing: {{ settings.type_header_letterSpacing | times: 0.5 | append: 'px' }};
+    --heading4-letter-spacing: {{ settings.type_header_letterSpacing | times: 0.5 | append: 'px' }};
+    --heading5-letter-spacing: {{ settings.type_header_letterSpacing | times: 0.25 | append: 'px' }};
+    --heading6-letter-spacing:  {{ settings.type_header_letterSpacing | times: 0.25 | append: 'px' }};
+
+	--heading-line-height : {{ settings.type_header_lineHeight | times: 1  }};
+
+    --font-size-base: {{ settings.type_base_size }};
+
+    --font-h1-desktop: {{ settings.type_header_base_size | times: 2 | floor }};
+    --font-h1-mobile: {{ settings.type_header_base_size | times: 1.4 | floor }};
+
+    --font-h2-desktop: {{ settings.type_header_base_size | times: 1.3 | floor   }};
+    --font-h2-mobile: {{ settings.type_header_base_size | times: 1 | floor   }};
+
+    --font-h3-desktop: {{ settings.type_header_base_size | times: 1 | floor | at_least: 18 }};
+    --font-h3-mobile: {{ settings.type_header_base_size | times: 0.65 | floor | at_least: 16 }};
+
+    --font-h4-desktop: {{ settings.type_header_base_size | times: 0.55 | floor | at_least: 16 }};
+    --font-h4-mobile: {{ settings.type_header_base_size | times: 0.55 | times: 0.9 | floor | at_least: 15 }};
+
+    --font-h5-desktop: {{ settings.type_header_base_size | times: 0.45 | floor | at_least: 14  }};
+    --font-h5-mobile: {{ settings.type_header_base_size | times: 0.45 |  floor  | at_least: 13 }};
+
+    --font-h6-desktop: {{ settings.type_header_base_size | times: 0.4 | floor  | at_least: 12  }};
+    --font-h6-mobile: {{ settings.type_header_base_size | times: 0.4 | times: 0.9 | floor | at_least: 11  }};
+
+    --font-mega-title-large-desktop: {{ settings.type_header_base_size | times: 2.5 | floor }};
+
+    --font-rich-text-large: {{ settings.type_base_size | times: 1.15 | floor }};
+    --font-rich-text-small: {{ settings.type_base_size | times: 0.88 | floor }};
+
+    {% comment %} Create an appropriate poster background color based on background color and brightness {% endcomment %}
+    {%- assign color_body_bg = settings.color_body_bg -%}
+    {%- assign color_body_bg_brightness = color_body_bg | color_brightness -%}
+    {%- if color_body_bg_brightness <= 26 -%}
+      {%- assign background_color_poster = color_body_bg | color_lighten: 10 -%}
+    {%- elsif color_body_bg_brightness <= 65 -%}
+      {%- assign background_color_poster = color_body_bg | color_lighten: 5 -%}
+    {%- else -%}
+      {%- assign background_color_poster = color_body_bg | color_darken: 5 -%}
+    {%- endif -%}
+
+    --color-video-bg: {{ background_color_poster }};
+
+    {% comment %} Image placeholder {% endcomment %}
+    --global-color-image-loader-primary: {{ settings.color_text | color_modify: 'alpha', 0.06 }};
+    --global-color-image-loader-secondary: {{ settings.color_text | color_modify: 'alpha', 0.12 }};
+
+{% comment %} Product grid labels {% endcomment %}
+	--product_label_sale_color: {{ settings.product_label_sale_color }};
+	--product_label_sold_out_color: {{ settings.product_label_sold_out_color }};
+	--product_label_1_color: {{ settings.product_label_1_color }};
+ 	--product_label_2_color: {{ settings.product_label_2_color }};
+
+	
+	--product-image-height: {{ settings.collection_height | append: 'px' }};
+
+  }
+
+
+
+
+{% endstyle %}

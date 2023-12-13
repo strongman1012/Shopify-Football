@@ -1,0 +1,74 @@
+
+{% assign collection_image = nill %}
+
+{% if collection_image == blank or collection_image == nill %}
+
+{% if collection.image != blank %}
+{%- assign collection_image = collection.image -%}
+{% elsif collection.products.first and collection.products.first.media != empty %}
+{%- assign collection_image = collection.products.first.featured_media.preview_image -%}
+{% else %}
+{% assign collection_image = nill %}
+{% endif %}
+{% endif %} 
+
+{% assign show_full_image_style = section.settings.show_full_image_style %}
+
+
+{% assign items_per_row = items_per_row | default: 1 %}
+
+
+
+<div class="collection-grid-item">
+  <a href="{{ collection.url }}" class="collection-grid-item__link">
+    {% unless collection_image == blank %}
+     <div class='collection-grid-item__image-wrapper'>
+    <img src="{{collection_image | img_url:'535x'}}" 
+         srcset="{%- if collection_image.width >= 375 -%}{{ collection_image | img_url: '375x' }} 375w,{%- endif -%}
+                 {%- if collection_image.width >= 720 -%}{{ collection_image | img_url: '720x' }} 750w,{%- endif -%}
+                 {%- if collection_image.width >= 1066   and items_per_row < 3 -%}{{ collection_image | img_url: '1066x' }} 1066w{%- endif -%}"
+         sizes="(min-width: 750px) calc(100vw / {{ items_per_row }}), 100vw"
+         loading="lazy"
+         class="zoom-fade-animation-element"
+         width="{{ collection_image.width }}"
+         height="{{ collection_image.height }}"
+         alt="{{collection_image.alt | default: collection.title }}">
+    
+      {% render 'load_spinner' %}
+        <span class='collection-grid-item__image-wrapper-overlay'></span>
+    </div>
+    {% else %}
+    {% if collection == empty or collection_image == blank  %}
+    <div class="collection-grid-item__overlay">
+      {% capture current %}{% cycle 1, 2, 3 %}{% endcapture %}
+      {{ 'collection-' | append: current | placeholder_svg_tag: 'placeholder-svg zoom-fade-animation-element' }}
+    </div>
+    {% endif %}
+    {% endunless %}
+  </a>
+
+  <div class='collection-grid-item__info'>
+    <div class="collection-grid-item__title h4">
+      <a href="{% if collection.title == empty %}#{% else %}{{ collection.url }}{% endif %}">
+      {% if collection.title == blank %}
+      {{ 'homepage.onboarding.collection_title' | t }}
+      {% else %}
+      {{ collection.title }}
+      {% endif %}
+      </a>
+    </div>
+    
+    {% if template contains 'list-collections' %}
+    <div class='collection-grid-item-products-count'>
+      <span> ({{ collection.all_products_count }}) {{ 'collections.general.products' | t }}</span>
+    </div>
+    <div class='collection-grid-item__button_wrapper'>
+      <a href="{{ collection.url }}" class="btn btn--secondary">
+        <span>{{ 'collections.general.browse_collections' | t }}</span>
+        {% include 'icon' with 'tail-right' %}
+      </a>
+    </div>
+    {% endif %}
+  </div>
+
+</div>

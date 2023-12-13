@@ -1,0 +1,121 @@
+
+
+
+<ul id="dropdown-{{ index }}" class="first_lvl nav-dropdown categories-nav-dropdown" data-type="menu">
+
+  {%- for link in menu.links -%}
+  {%- assign downcase_title = link.title | downcase | strip -%}
+  {% assign show_menu_image = false %}
+  
+  {%- assign mega_menu_block = nil -%}
+  
+  {% for block in section.blocks %}
+  {% if block.type == 'category_menu' %}
+  {% assign menu_item = block.settings.menu_item | downcase | strip %}
+  {% if menu_item == downcase_title %}
+  {% assign show_menu_image = true %}
+  {%- assign mega_menu_block = block -%}
+  {% endif %}
+  {% endif %}
+  {% endfor %}
+
+  <li class="nav-dropdown__item {% if  link.links.size > 0 %}has-mega-menu{% endif %} ">
+    {%- if link.links.size == 0 -%}
+    <a href="{{ link.url }}" class="nav-dropdown__link link" data-type="menuitem">
+      <span>{{ link.title }}</span>
+    </a>
+    {%- else -%}
+    <a href="{{ link.url }}" class="nav-dropdown__link link" data-type="menuitem" aria-expanded="false" aria-haspopup="true">
+      <span>{{- link.title -}}</span>
+     {%- render 'icon', icon: 'chevron-right' -%}
+    </a>
+    
+    {% assign isThirdLvl = false %}
+     {%- for sub_link in link.links -%}
+    {%- if sub_link.links.size > 0 -%}
+     {% assign isThirdLvl = true %}
+    {% break %}
+    {% endif %}
+    {% endfor %}
+    <div id="dropdown-{% increment nav_dropdown %}" class="{% unless isThirdLvl %} withoutMegamenuLvl {% endunless %} second_lvl categories-nav-dropdown nav-dropdown {% if show_menu_image %}nav-has-menu_image{% endif %}" data-type="menu" aria-hidden="true">
+		<ul>
+      {%- for sub_link in link.links -%}
+      <li class="nav-dropdown__item">
+        {%- if sub_link.links.size == 0 -%}
+        <a href="{{ sub_link.url }}" class="nav-dropdown__link link label_link" data-type="menuitem">
+          <span>{{ sub_link.title }}</span>
+        </a>
+        {%- else -%}
+        <a href="{{ sub_link.url }}" class="nav-dropdown__link link label_link" data-type="menuitem" aria-expanded="false" aria-haspopup="true">{{- sub_link.title -}}</a>
+
+        <div id="dropdown-{% increment nav_dropdown %}" class="third_lvl nav-dropdown " data-type="menu" aria-hidden="true">
+
+			<ul>
+          {%- for sub_sub_link in sub_link.links -%}
+          <li class="nav-dropdown__item">
+            <a href="{{ sub_sub_link.url }}" class="nav-dropdown__link link" data-type="menuitem"><span>{{ sub_sub_link.title }}</span></a>
+          </li>
+          {%- endfor -%}
+          </ul>
+        
+        </div>
+        {%- endif -%}
+      </li>
+      {%- endfor -%}
+      </ul>
+      {% if show_menu_image %}
+      <div class='nav-dropdown-image-block'>
+
+        {% if mega_menu_block.settings.image_link != blank %}
+        <a href='{{mega_menu_block.settings.image_link}}'>
+          {% endif %}
+
+          {% if mega_menu_block.settings.image != blank %}
+          
+          {% assign image = mega_menu_block.settings.image %}
+          
+             <img 
+             class="menu_block-image"
+             srcset="{%- if image.width >= 375 -%}{{ image | img_url: '375x' }} 375w,{%- endif -%}
+                {%- if image.width >= 720 -%}{{ image | img_url: '720x' }} 750w,{%- endif -%}
+                {%- if image.width >= 1066 -%}{{ image | img_url: '1066x' }} 1066w,{%- endif -%}
+             	{%- if image.width >= 1500 -%}{{ image | img_url: '1500x' }} 1500w,{%- endif -%}
+                {%- if image.width >= 1780 -%}{{ image | img_url: '1780x' }} 1780w,{%- endif -%}
+                {%- if image.width >= 2000 -%}{{ image | img_url: '2000x' }} 2000w,{%- endif -%}
+                {%- if image.width >= 2800 -%}{{ image | img_url: '2800x' }} 2800w{%- endif -%}"
+             src="{{ image | img_url: '535x' }}"
+             sizes="25vw"
+             loading="lazy"
+             width="{{ image.width }}"
+        	 height="{{ image.height }}"
+             alt="{{ image.alt  | default: link.title }}"
+             style="object-position:{{ image.presentation.focal_point }};"> 
+      
+          
+
+
+            {% if mega_menu_block.settings.image_heading != blank %}
+            <div class='menu_block-image_heading'>
+              <h3>{{mega_menu_block.settings.image_heading }}</h3>
+
+              {% if mega_menu_block.settings.image_link != blank %}
+              <div class='image_link_icon'>
+                <span> {%- render 'icon', icon: 'chevron-right' -%}</span>
+              </div>
+              {% endif %}
+          </div>
+            {% endif %}
+          
+          {% endif %}
+
+          {% if mega_menu_block.settings.image_link != blank %}
+        </a>
+        {% endif %}
+        
+      </div>
+      {% endif %}
+    </div>
+    {%- endif -%}
+  </li>
+  {%- endfor -%}
+</ul>

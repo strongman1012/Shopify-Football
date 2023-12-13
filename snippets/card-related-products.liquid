@@ -1,0 +1,47 @@
+{% assign cart_related_collection = collections[cart_related_collection_handle] %}
+{% if cart_related_collection %}
+
+<div class='cart_related_collection'>
+  <h5 class='cart-drawer-container cart_related_collection__heading'> {{ 'cart.general.cart_related_collection_title' | t }}</h5>
+  <div class='cart_related_products'>
+    {% for product in cart_related_collection.products limit:3 %}
+    <div class='cart_related_product'>
+      <div class="CartItem cart-drawer-container">
+        <div class="CartItem__ImageWrapper AspectRatio">
+          <a href='{{product.url}}'>
+            <div class="AspectRatio" style="--aspect-ratio: {{ product.featured_image.aspect_ratio }}">
+              <img class="CartItem__Image" src="{{ product.featured_image | img_url: '200x' }}" 
+                   srcset="{{ product.featured_image | img_url: '100x' }} 1x, {{ product.featured_image | img_url: '100x', scale: 2 }} 2x"
+                   loading="lazy"
+                   width="{{product.featured_image.width}}"
+                   height="{{product.featured_image.height}}"
+                   alt="{{ product.featured_image.alt | split: "#" | first | default: product.title }}">
+            </div>
+          </a>
+        </div>
+
+        <div class="CartItem__Info">
+          <h6 class="CartItem__Title">
+            <a href="{{ product.url }}">{{ product.title }}</a>
+          </h6>
+
+          <div class="CartItem__Meta">
+            <div class="CartItem__Actions">
+              <div class="CartItem__PriceList">
+                <span class="CartItem__Price Price">
+                  {% if settings.currency_code_enable %}
+                  {{ product.price | money_with_currency }}
+                  {% else %}
+                  {{ product.price | money }}
+                  {% endif %}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}

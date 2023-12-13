@@ -1,0 +1,28 @@
+<section id="section-{{ section.id }}" data-section-id="{{ section.id }}" data-section-type="apps" class="fade-in-animation">
+
+  <div class="{% if section.settings.include_margins %}page-width{% endif %}">
+    {%- for block in section.blocks -%}
+    {% render block %}
+    {%- endfor -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.apps.name",
+  "class": "spaced-section",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "include_margins",
+      "label": "t:sections.apps.settings.include_margins.label",
+      "default": false
+    }
+  ],
+  "blocks": [{"type": "@app"}],
+  "presets": [{
+    "name": "t:sections.apps.presets.name"
+  }]
+}
+{% endschema %}

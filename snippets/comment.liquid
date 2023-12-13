@@ -1,0 +1,13 @@
+<!-- /snippets/comment.liquid -->
+<div class='comment_logo'>
+  {{ comment.author | slice: 0 }} 
+</div>
+<div class="comment__meta">
+  <span class="comment__meta-item">{{ comment.created_at | time_tag: format: 'date' }}</span>
+  <div class="comment__content rte">
+    {{ comment.content }}
+  </div>
+  
+  <span class="comment__meta-author">- {{ comment.author }}</span>
+
+</div>

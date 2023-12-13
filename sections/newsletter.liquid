@@ -1,0 +1,378 @@
+{% assign showFormLabels = section.settings.showFormLabels %}
+
+<section id="section-{{ section.id }}" data-section-id="{{ section.id }}" class='fade-in-animation'>
+
+  <div class="newsletter-section">
+    <div class="page-width-small">
+      <div class="section-header text-center homepage_subtitle_style_{{settings.homepage_subtitle_color}}">
+
+        
+        {% if section.settings.subtitle != blank %}
+       <span class='h5'>{{ section.settings.subtitle  }}</span>
+        {% endif %}
+        {% if section.settings.section_title != blank %}
+        <h2 class="h2">{{ section.settings.section_title | escape }}</h2>
+        {% endif %}
+
+        {% if section.settings.subheading != blank %}
+        <div class="rte">{{ section.settings.subheading }}</div>
+        {% endif %}
+      </div>
+      {%- assign formId = 'Contact_' | append: section.id -%}
+      {% form 'customer', id: formId, class: 'contact-form form-single-field' %}
+      {%- if form.posted_successfully? -%}
+      <p class="form-message form-message--success" tabindex="-1" data-form-status>
+        {{ 'general.newsletter_form.confirmation' | t }}
+      </p>
+      {%- endif -%}
+      
+      
+               
+      
+      
+       {%- if form.errors contains 'email' -%}
+      <span id="{{ formId }}-email-error" class="input-error-message">
+        <span class="visually-hidden">{{ 'general.accessibility.error' | t }} </span>
+        {% include 'icon-error' %}
+        <span>{{ form.errors.translated_fields['email'] | capitalize }} {{ form.errors.messages['email'] }}.</span>
+      </span>
+      {%- endif -%}
+      
+      
+      <input type="hidden" name="contact[tags]" value="newsletter">
+
+
+      {% if showFormLabels %}        
+
+        <div class="grid grid--half-gutters">
+          <div class="grid__item medium-up--one-half">
+
+         <label for="{{ formId }}-first-name" class="visually-hidden"></label>
+        
+            <input type="text"
+                   name="contact[first_name]"
+                   id="{{ formId }}-first-name"
+                   class="Form__Input  input-group__field{% if form.errors %} input--error{% endif %}"
+                   value=""
+                   placeholder="{{ 'general.newsletter_form.first_name_placeholder' | t }}"
+                   aria-label="{{ 'general.newsletter_form.first_name_placeholder' | t }}"
+                   aria-required="true"
+                   autocorrect="off"
+                   autocapitalize="off"
+                   required
+                   {% if form.errors %}
+                   aria-invalid="true"
+                   aria-describedby="{{ formId }}-name-error"
+                   data-form-status
+                   {% endif %}
+                   >
+          </div>
+          <div class="grid__item medium-up--one-half">
+
+         <label for="{{ formId }}-last-name" class="visually-hidden"></label>
+        
+            <input type="text"
+                   name="contact[last_name]"
+                   id="{{ formId }}-last-name"
+                   class="Form__Input  input-group__field{% if form.errors %} input--error{% endif %}"
+                   value=""
+                   placeholder="{{ 'general.newsletter_form.last_name_placeholder' | t }}"
+                   aria-label="{{ 'general.newsletter_form.last_name_placeholder' | t }}"
+                   aria-required="true"
+                   autocorrect="off"
+                   autocapitalize="off"
+                   required
+                   {% if form.errors %}
+                   aria-invalid="true"
+                   aria-describedby="{{ formId }}-name-error"
+                   data-form-status
+                   {% endif %}
+                   >
+          </div>
+        </div>
+
+    
+      {% endif %}
+
+      <div class="input-group {% if form.errors %} input-group--error{% endif %}">
+
+          <label for="{{ formId }}-email" class="visually-hidden"></label>
+        
+        <input type="email"
+               name="contact[email]"
+               id="{{ formId }}-email"
+               class="Form__Input  input-group__field{% if form.errors %} input--error{% endif %}"
+               value="{{ form.email }}"
+               placeholder="{{ 'general.newsletter_form.email_placeholder' | t }}"
+               aria-label="{{ 'general.newsletter_form.email_placeholder' | t }}"
+               aria-required="true"
+               autocorrect="off"
+               autocapitalize="off"
+               {% if form.errors %}
+               aria-invalid="true"
+               aria-describedby="{{ formId }}-email-error"
+               data-form-status
+               {% endif %}
+               >
+        
+      </div>
+      
+      <span class="input-group__btn-wrapper">
+          <button type="submit" class="btn btn--{{section.settings.button_style}}" name="commit">
+            <span>{{ 'general.newsletter_form.submit' | t }}</span>
+             {% include 'icon' with 'tail-right' %}
+          
+          </button>
+        </span>
+      
+     
+      {% endform %}
+    </div>
+  </div>
+
+  {% assign bg_image = section.settings.bg_image %}
+  {% assign bg_image_mobile = section.settings.bg_image_mobile %}
+
+  {% if bg_image != blank %}
+  <div class='section_bg'>
+        <img 
+             class="section_bg_image {% if bg_image_mobile != blank %} small--hide {% endif %}"
+             srcset="{%- if bg_image.width >= 375 -%}{{ bg_image | img_url: '375x' }} 375w,{%- endif -%}
+                {%- if bg_image.width >= 720 -%}{{ bg_image | img_url: '720x' }} 750w,{%- endif -%}
+                {%- if bg_image.width >= 1066 -%}{{ bg_image | img_url: '1066x' }} 1066w,{%- endif -%}
+             	{%- if bg_image.width >= 1500 -%}{{ bg_image | img_url: '1500x' }} 1500w,{%- endif -%}
+                {%- if bg_image.width >= 1780 -%}{{ bg_image | img_url: '1780x' }} 1780w,{%- endif -%}
+                {%- if bg_image.width >= 2000 -%}{{ bg_image | img_url: '2000x' }} 2000w,{%- endif -%}
+                {%- if bg_image.width >= 2800 -%}{{ bg_image | img_url: '2800x' }} 2800w{%- endif -%}"
+             src="{{ bg_image | img_url: '750x' }}"
+             sizes="100vw"
+             loading="lazy"
+             width="{{ bg_image.width }}"
+        	 height="{{ bg_image.height }}"
+             alt="{{bg_image.alt | default: section.settings.section_title }}"
+            style="object-position:{{ bg_image.presentation.focal_point }};">
+      
+      {% if bg_image_mobile != blank %}
+        <img 
+             class="section_bg_image mobile_image medium-up--hide"
+             srcset="{%- if mobile_image.width >= 375 -%}{{ mobile_image | img_url: '375x' }} 375w,{%- endif -%}
+                {%- if bg_image_mobile.width >= 720 -%}{{ bg_image_mobile | img_url: '720x' }} 750w,{%- endif -%}
+                {%- if bg_image_mobile.width >= 1066 -%}{{ bg_image_mobile | img_url: '1066x' }} 1066w,{%- endif -%}
+             	{%- if bg_image_mobile.width >= 1500 -%}{{ bg_image_mobile | img_url: '1500x' }} 1500w{%- endif -%}"
+             src="{{ bg_image_mobile | img_url: '535x' }}"
+             sizes="100vw"
+             loading="lazy"
+             width="{{ bg_image_mobile.width }}"
+        	 height="{{ bg_image_mobile.height }}"
+             alt="{{bg_image_mobile.alt | default: section.settings.section_title  }}"
+             style="object-position:{{ bg_image_mobile.presentation.focal_point }};">
+      {% endif %}
+         
+  </div> 
+  {% endif %}
+
+</section>
+
+{% assign removeBottomMargin = section.settings.removeBottomMargin %}
+
+{% if section.settings.section_bg_color != blank or bg_image != blank %}
+<style>
+  #shopify-section-{{ section.id }} {
+    background-color: {{section.settings.section_bg_color}};
+    padding-top:35px;
+    margin-bottom:35px;
+  }
+  
+  #shopify-section-{{ section.id }} .section_bg {
+    opacity: {{ section.settings.bg_image_opacity}}%;
+  }
+  {% if section.settings.section_color != blank %}
+  #shopify-section-{{ section.id }} p,
+  #shopify-section-{{ section.id }} h2 {
+    color: {{section.settings.section_color }};
+  }
+  
+   {% if settings.homepage_subtitle_color == 'match_header' %}
+      #section-{{ section.id }}  .section-header .h5 {
+      color: {{ section.settings.section_color }};
+    }
+    #section-{{ section.id }}  .section-header .h5:before {
+      background: {{ section.settings.section_color }};
+    }
+    {% endif %}
+  
+  {% endif %}
+  
+  #shopify-section-{{ section.id }} .Form__Input  {
+    background-color: var(--color-body);
+      }
+  @media only screen and (min-width: 750px) {
+    #shopify-section-{{ section.id }} {
+    	padding-top:55px;
+      margin-bottom:55px;
+    }
+  }
+</style>
+{% endif %}
+{% if removeBottomMargin %}
+<style>
+  #shopify-section-{{ section.id }} {
+    margin-bottom:0;
+  }
+</style>
+  {% endif %}
+
+
+{% schema %}
+{
+  "name": "t:sections.newsletter.name",
+  "class": "index-section index-section--flush index-newsletter",
+  "settings": [
+  {
+      "type": "paragraph",
+      "content": "t:sections.newsletter.settings.paragraph__1.content"
+    },
+  {
+      "type": "color",
+      "id": "section_bg_color",
+      "label": "t:sections.newsletter.settings.section_bg_color.label"
+},
+  {
+      "type": "color",
+      "id": "section_color",
+      "label": "t:sections.newsletter.settings.section_color.label"
+},
+  {
+      "type": "image_picker",
+      "id": "bg_image",
+      "label": "t:sections.newsletter.settings.bg_image.label"
+},
+{
+      "type": "image_picker",
+      "id": "bg_image_mobile",
+		"label":"t:sections.newsletter.settings.bg_image_mobile.label"
+},
+  {
+        "type": "range",
+        "id": "bg_image_opacity",
+       "label": "t:sections.newsletter.settings.bg_image_opacity.label",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+       "unit": "t:sections.newsletter.settings.bg_image_opacity.unit",
+        "default": 70
+      },
+
+
+    {
+      "type": "text",
+      "id": "section_title",
+      "label": "t:sections.newsletter.settings.section_title.label",
+      "default": {
+        "cs": "Přihlaste se k odběru novinek",
+        "da": "Tilmeld dig vores nyhedsbrev",
+        "de": "Unseren Newsletter abonnieren",
+		 "en": "Subscribe to our newsletter",
+       
+        "es": "Suscríbete a nuestro boletín de noticias",
+        "fi": "Tilaa uutiskirjeemme",
+        "fr": "S'inscrire à la newsletter",
+        "it": "Iscriviti alla nostra newsletter",
+        "ja": "ストアからのお知らせを受け取る",
+        "ko": "뉴스 레터 구독",
+        "nb": "Abonner på nyhetsbrevet vårt",
+        "nl": "Abonneren op onze nieuwsbrief",
+        "pl": "Zapisz się do naszego newslettera",
+        "pt-BR": "Assine a nossa newsletter",
+        "pt-PT": "Subscreva a nossa newsletter",
+        "sv": "Prenumerera på vårt nyhetsbrev",
+        "th": "สมัครรับจดหมายข่าวของเรา",
+        "tr": "Bültenimize abone olun",
+        "vi": "Đăng ký nhận bản tin",
+        "zh-CN": "订阅我们的新闻通讯",
+        "zh-TW": "訂閱我們的電子報"
+      }
+    },
+  {
+      "type": "text",
+      "id": "subtitle",
+      "label": "t:sections.newsletter.settings.subtitle.label"
+},
+    {
+      "type": "richtext",
+      "id": "subheading",
+      "label": "t:sections.newsletter.settings.subheading.label",
+      "default": {
+        "cs": "<p>Získejte informace o propagačních akcích, nových produktech a slevách – přímo do své schránky.</p>",
+        "da": "<p>Reklamer, nye produkter og salg. Direkte i din indbakke.</p>",
+        "de": "<p>Werbeaktionen, neue Produkte und Sonderangebote. Direkt in deinem Posteingang.</p>",
+		 "en": "<p>Promotions, new products and sales. Directly to your inbox.</p>",
+        "es": "<p>Promociones, nuevos productos y ofertas. Directamente a tu bandeja de entrada.</p>",
+        "fi": "<p>Kampanjat, uudet tuotteet ja myynti. Suoraan saapuneet-kansioosi</p>",
+        "fr": "<p>Promotions, nouveaux produits et soldes. Directement dans votre boîte de réception.</p>",
+        "it": "<p>Promozioni, nuovi prodotti e offerte. Direttamente nella tua casella di posta.</p>",
+        "ja": "<p>新商品やセール情報などのお得な情報をお届けします。</p>",
+        "ko": "<p>프로모션, 신제품, 판매. 받은 편지함으로 바로 이동.</p>",
+        "nb": "<p>Kampanjer, nye produkter og salg. Direkte i innboksen din.</p>",
+        "nl": "<p>Promoties, nieuwe producten en uitverkoop rechtstreeks in je inbox.</p>",
+        "pl": "<p>Promocje, nowe produkty i wyprzedaże. Bezpośrednio do Twojej skrzynki odbiorczej.</p>",
+        "pt-BR": "<p>Promoções, novos produtos e vendas. Diretamente para sua caixa de entrada.</p>",
+        "pt-PT": "<p>Promoções, novos produtos e ofertas. Diretamente na sua caixa de entrada.</p>",
+        "sv": "<p>Kampanjer, nya produkter och försäljning. Direkt till din inkorg.</p>",
+        "th": "<p>โปรโมชัน สินค้าใหม่ และการลดราคา ตรงสู่กล่องจดหมายเข้าของคุณ</p>",
+        "tr": "<p>Promosyonlar, yeni ürünler ve indirimler. Doğrudan gelen kutunuzda.</p>",
+        "vi": "<p>Khuyến mãi, sản phẩm mới và chương trình giảm giá. Trực tiếp vào hộp thư đến của bạn.</p>",
+        "zh-CN": "<p>促销、新产品和销售。直接发送到您的收件箱。</p>",
+        "zh-TW": "<p>讓您直接在收件匣內收取促銷活動、最新產品和特賣活動訊息。</p>"
+      }
+    },
+	{
+      "type": "select",
+      "id": "button_style",
+      "label": "t:sections.newsletter.settings.button_style.label",
+      "default": "primary",
+      "options": [
+		   {
+          "label": "t:sections.newsletter.settings.button_style.options__1.label",
+          "value": "primary"
+        },
+		   {
+          "label": "t:sections.newsletter.settings.button_style.options__2.label",
+          "value": "secondary"
+        },
+		   {
+          "label": "t:sections.newsletter.settings.button_style.options__3.label",
+          "value": "white"
+        },
+		   {
+          "label": "t:sections.newsletter.settings.button_style.options__4.label",
+          "value": "transparent_primary"
+        },
+		   {
+          "label": "t:sections.newsletter.settings.button_style.options__5.label",
+          "value": "transparent_secondary"
+        }
+	]
+},
+   {
+		"type":"checkbox",
+		"id":"showFormLabels",
+		"label": "t:sections.newsletter.settings.showFormLabels.label",
+	"default": true
+	},
+  
+	{
+		"type":"checkbox",
+		"id":"removeBottomMargin",
+		"label": "t:sections.newsletter.settings.removeBottomMargin.label",
+		"info": "t:sections.newsletter.settings.removeBottomMargin.info"
+	}
+  ],
+  "presets": [
+    {
+      "name": "t:sections.newsletter.presets.name",
+ "category":"Custom Sections"
+    }
+  ]
+}
+{% endschema %}

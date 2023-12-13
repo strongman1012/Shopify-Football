@@ -1,0 +1,92 @@
+
+{% assign collection_image = nill %}
+
+{% if collection_image == blank or collection_image == nill %}
+
+{% if collection.image != blank %}
+{%- assign collection_image = collection.image -%}
+{% elsif collection.products.first and collection.products.first.media != empty %}
+{%- assign collection_image = collection.products.first.featured_media.preview_image -%}
+{% else %}
+{% assign collection_image = nill %}
+{% endif %}
+{% endif %} 
+
+{% assign collection_image_height = section.settings.collection_image_height %}
+{% assign items_per_row = items_per_row | default: 1 %}
+
+{% assign max_alternate_img_width = preview_image.width | append: "px" %}
+
+{% assign collection_grid_display = section.settings.collection_grid_display %}
+
+
+ {% if settings.align_height %}
+  {% assign product_img_width = collection_image.width %}
+  {% assign product_img_height = collection_image.height %}
+  {% assign product_img_ratio = collection_image.aspect_ratio %}
+  {% if max_img_height < product_img_height %}
+  {% assign max_img_width = max_img_height | times: product_img_ratio | append:"px"%}
+  {% else %}
+  {% assign max_img_width = product_img_height | times: product_img_ratio | append:"px"%}
+  {% endif %}
+  {% endif %}
+
+
+<div class="collection-grid-item {% if collection_grid_display == 'full_image' %} full_image {% else %} fixed_height_images {% endif %}">
+
+  <div class='collection-grid-item__image-with-placeholder-wrapper'>
+    <a href="{{ collection.url }}" class="collection-grid-item__link">
+      {% unless collection_image == blank %}
+      <div class='collection-grid-item__image-wrapper'>
+        <div style="padding-top:{% unless collection_image == blank %}{{ 1 | divided_by: collection_image.aspect_ratio | times: 100 }}%{% else %}100%{% endunless %};">
+          <img src="{{collection_image | img_url:'535x'}}" 
+               srcset="{%- if collection_image.width >= 375 -%}{{ collection_image | img_url: '375x' }} 375w,{%- endif -%}
+                       {%- if collection_image.width >= 720 -%}{{ collection_image | img_url: '720x' }} 750w,{%- endif -%}
+                       {%- if collection_image.width >= 1066  and items_per_row < 3 -%}{{ collection_image | img_url: '1066x' }} 1066w{%- endif -%}"
+               sizes="(min-width: 750px) calc(100vw / {{ items_per_row }}), 100vw"
+               loading="lazy"
+               width="{{ collection_image.width }}"
+               height="{{ collection_image.height }}"
+               class="zoom-fade-animation-element"
+               alt="{{ collection_image.alt | default: collection.title }}"
+               style="{% if max_img_width == '0px' %} width: auto; {% else %} max-width: {{max_img_width}} {% endif %}"
+               >
+          {% render 'load_spinner' %}
+        </div>
+      </div>
+      {% else %}
+      {% if collection == empty %}
+      <div class="collection-grid-item__overlay">
+        {% capture current %}{% cycle 1, 2, 3 %}{% endcapture %}
+        {{ 'collection-' | append: current | placeholder_svg_tag: 'placeholder-svg zoom-fade-animation-element' }}
+      </div>
+      {% endif %}
+      {% endunless %}
+    </a>
+  </div>
+
+  <div class='collection-grid-item__info collections-grid-item__info'>
+    <div class="collection-grid-item__title h3">
+      <a href="{% if collection.title == empty %}#{% else %}{{ collection.url }}{% endif %}">
+      {% if collection.title == blank %}
+      {{ 'homepage.onboarding.collection_title' | t }}
+      {% else %}
+      {{ collection.title }}
+      {% endif %}
+      </a>
+    </div>
+    
+    {% if template contains 'list-collections' %}
+    <div class='collection-grid-item-products-count'>
+      <span> {{ collection.all_products_count }} {{ 'collections.general.products' | t }}</span>
+    </div>
+    <div class='collection-grid-item__button_wrapper'>
+      <a href="{{ collection.url }}" class="btn btn--secondary">
+        <span>{{ 'collections.general.browse_collections' | t }}</span>
+        {% include 'icon' with 'tail-right' %}
+      </a>
+    </div>
+    {% endif %}
+  </div>
+
+</div>

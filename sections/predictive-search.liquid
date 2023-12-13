@@ -1,0 +1,296 @@
+<section class="search-ajax" data-section-id="{{ section.id }}">
+  
+ {%- if predictive_search.performed -%}
+   
+  {%- assign clean_terms = predictive_search.terms | split: ' AND ' | last | remove_first: '*' -%}
+  {% assign searchTerms = predictive_search.terms | split: "AND" | first  | remove: "*" %}
+
+{%- assign total_count = 0 -%}
+
+    {%- if predictive_search.resources.queries.size > 0 -%}
+      {%- assign total_count = total_count | plus: predictive_search.resources.queries.size -%}
+      <div class='search_popular_searches_menu suggestions_menu'>
+                       
+                        <div class="predictive-search-title">
+                          <h3  class="predictive-search-title__content">{{ 'general.search.search_title' | t }}</h3>
+                        </div>
+                        <div class='search_popular_menu  '>
+                           {%- for suggestion in predictive_search.resources.queries -%}
+                          <a tabindex="0" href='{{ suggestion.url }}'> {{  suggestion.styled_text  }} </a>
+                          {% endfor %}
+                        </div>
+                      </div>
+         {%- endif -%}
+   
+   
+{%- if predictive_search.resources.products.size > 0 -%}
+{%- assign total_count = total_count | plus: predictive_search.resources.queries.size -%}
+
+
+  <div class="predictive-search-title">
+  <h3  class="predictive-search-title__content">{{ 'general.search.search_products' | t }}</h3>
+  </div>
+  <ul class="search-bar__result-products predictive-search__list">
+  
+  {% assign product_search_limit = 0 %}
+  {%- for product in predictive_search.resources.products -%}
+  
+  <li class="predictive-search-item">
+    <a class="predictive-search-item__link" 
+       href="{{ product.url }}" tabindex="0"
+       >
+      <div class="predictive-search__column predictive-search__column--image">
+        {% assign default_alt = item.title  %}
+        <img class="predictive-search-item__image" 
+             src="{{ product.featured_media | img_url:'300x' }}" 
+             alt="{{ product.featured_media.alt | split: "#" | first  | default: default_alt }}"> 
+      </div>
+      <div class="predictive-search__column predictive-search__column--content predictive-search__column--center">
+        <span class="predictive-search-item__title">
+          <span class="predictive-search-item__title-text">{{ product.title }}</span>
+        </span>
+        <span class="predictive-search-item__price">
+          {% unless product.price_max == 0 and settings.custom_price0_text != blank %}
+          {% if settings.currency_code_enable %}
+          {{ product.price | money_with_currency }}
+          {% else %}
+          {{ product.price | money }}
+          {% endif %}              
+  
+  
+          {% else %}
+          {{settings.custom_price0_text }}
+          {% endunless %}
+        </span>
+      </div>
+    </a>
+  </li>
+  
+  {% assign product_search_limit = product_search_limit | plus: 1 %}
+  {% if product_search_limit == 3 %}
+  {% break %}
+  {% endif %}
+  
+  {%- endfor -%}
+  </ul>
+{%- endif -%}
+
+
+     {%- if predictive_search.resources.collections.size > 0 -%}
+      {%- assign total_count = total_count | plus: predictive_search.resources.collections.size -%}
+
+     
+      <div class="predictive-search-title">
+      <h3  class="predictive-search-title__content">{{ 'general.search.search_collections' | t }}</h3>
+      </div>
+
+      <ul class="search-bar__result-linklist predictive-search__list">
+  {% assign product_search_limit = 0 %}
+  {%- for collection in predictive_search.resources.collections -%}
+  
+  <li class='predictive-search-item__link'>
+    <a href="{{ collection.url }}" tabindex="0" class="search-bar__result-link">{{ collection.title }}</a>
+  </li>
+  {% assign product_search_limit = product_search_limit | plus: 1 %}
+  {% if product_search_limit == 3 %}
+  {% break %}
+  {% endif %}
+  
+  {%- endfor -%}
+  </ul>
+       
+    {%- endif -%}
+   
+{%- if predictive_search.resources.pages.size > 0 -%}
+  {%- assign total_count = total_count | plus: predictive_search.resources.pages.size -%}
+
+
+  <div class="predictive-search-title">
+  <h3  class="predictive-search-title__content">{{ 'general.search.search_pages' | t }}</h3>
+  </div>
+  <ul class="search-bar__result-linklist predictive-search__list">
+  {% assign product_search_limit = 0 %}
+  {%- for page in predictive_search.resources.pages -%}
+  
+  <li class='predictive-search-item__link'>
+    <a href="{{ page.url }}" tabindex="0" class="search-bar__result-link">{{ page.title }}</a>
+  </li>
+  {% assign product_search_limit = product_search_limit | plus: 1 %}
+  {% if product_search_limit == 3 %}
+  {% break %}
+  {% endif %}
+  
+  {%- endfor -%}
+  </ul>
+
+  {%  endif %}
+   
+{%- if predictive_search.resources.articles.size > 0 -%}
+    {%- assign total_count = total_count | plus: predictive_search.resources.articles.size -%}
+
+    <div class="predictive-search-title">
+    <h3  class="predictive-search-title__content">{{ 'general.search.search_articles' | t }}</h3>
+    </div>
+    <ul class="search-bar__result-linklist predictive-search__list">
+    {% assign product_search_limit = 0 %}
+    {%- for article in predictive_search.resources.articles -%}
+    
+    <li class='predictive-search-item__link'>
+      <a href="{{ article.url }}" tabindex="0" class="search-bar__result-link">{{ article.title }}</a>
+    </li>
+    {% assign product_search_limit = product_search_limit | plus: 1 %}
+    {% if product_search_limit == 3 %}
+    {% break %}
+    {% endif %}
+    {%- endfor -%}
+    </ul>
+
+{%- endif -%}
+
+
+{%- if  total_count > 3 -%}
+<div class='search-bar__view-all-button-wrapper'> 
+<a class="search-bar__view-all " href="{{ routes.search_url }}?q={{ predictive_search.terms }}&type={{ predictive_search.types | join: ',' }}">
+  <span> {{- 'general.search.view_results' | t -}}</span>
+</a>
+</div>
+{%- endif -%}
+
+
+ {%- elsif search.performed -%}
+
+
+{%- assign clean_terms = search.terms | split: ' AND ' | last | remove_first: '*' -%}
+{% assign searchTerms = search.terms | split: "AND" | first  | remove: "*" %}
+
+
+{%- if search.results_count > 0 -%}
+
+{% assign foundProduct = false %}
+{% assign foundPage = false %}
+{% assign foundArticle = false %}
+
+{% for item in search.results  %}
+{% if item.object_type == 'product' %}
+{% assign foundProduct = true %}
+{% elsif item.object_type == 'page' %}
+{% assign foundPage = true %}
+{% elsif  item.object_type == 'article' %}
+{% assign foundArticle = true %}
+{% endif %}
+{% endfor %}
+
+  {%- if foundProduct  -%}
+  <div class="predictive-search-title">
+    <h3  class="predictive-search-title__content">{{ 'general.search.search_products' | t }}</h3>
+  </div>
+  <ul class="search-bar__result-products predictive-search__list">
+
+    {% assign product_search_limit = 0 %}
+    {%- for item in search.results  -%}
+    {% if item.object_type == 'product' %}
+    <li class="predictive-search-item">
+      <a class="predictive-search-item__link" 
+         href="{{ item.url }}" tabindex="0"
+         >
+        <div class="predictive-search__column predictive-search__column--image">
+          {% assign default_alt = item.title  %}
+          <img class="predictive-search-item__image" 
+               src="{{ item.featured_media | img_url:'300x' }}" 
+               alt="{{ item.featured_media.alt | split: "#" | first  | default: default_alt }}"> 
+        </div>
+        <div class="predictive-search__column predictive-search__column--content predictive-search__column--center">
+          <span class="predictive-search-item__title">
+            <span class="predictive-search-item__title-text">{{ item.title }}</span>
+          </span>
+          <span class="predictive-search-item__price">
+            {% unless item.price_max == 0 and settings.custom_price0_text != blank %}
+            {% if settings.currency_code_enable %}
+            {{ item.price | money_with_currency }}
+            {% else %}
+            {{ item.price | money }}
+            {% endif %}              
+
+
+            {% else %}
+            {{settings.custom_price0_text }}
+            {% endunless %}
+          </span>
+        </div>
+      </a>
+    </li>
+    {% assign product_search_limit = product_search_limit | plus: 1 %}
+    {% if product_search_limit == 3 %}
+    {% break %}
+    {% endif %}
+    {% endif %}
+    {%- endfor -%}
+  </ul>
+  {%- else -%}
+
+  {%- if foundPage -%}
+  <div class="predictive-search-title">
+    <h3  class="predictive-search-title__content">{{ 'general.search.search_pages' | t }}</h3>
+  </div>
+  <ul class="search-bar__result-linklist predictive-search__list">
+    {% assign product_search_limit = 0 %}
+    {%- for item in search.results  -%}
+
+    {% if item.object_type == 'page' %}
+    <li class='predictive-search-item__link'>
+      <a href="{{ item.url }}" tabindex="0" class="search-bar__result-link">{{ item.title }}</a>
+    </li>
+    {% assign product_search_limit = product_search_limit | plus: 1 %}
+    {% if product_search_limit == 3 %}
+    {% break %}
+    {% endif %}
+    {% endif %}
+    {%- endfor -%}
+  </ul>
+  {% elsif foundArticle  %}
+  <div class="predictive-search-title">
+    <h3  class="predictive-search-title__content">{{ 'general.search.search_articles' | t }}</h3>
+  </div>
+  <ul class="search-bar__result-linklist predictive-search__list">
+    {% assign product_search_limit = 0 %}
+    {%- for item in search.results  -%}
+    {% if item.object_type == 'article' %}
+    <li class='predictive-search-item__link'>
+      <a href="{{ item.url }}" tabindex="0" class="search-bar__result-link">{{ item.title }}</a>
+    </li>
+    {% assign product_search_limit = product_search_limit | plus: 1 %}
+    {% if product_search_limit == 3 %}
+    {% break %}
+    {% endif %}
+    {% endif %}
+    {%- endfor -%}
+  </ul>
+  {% endif %}
+
+  {%- endif -%}
+
+  {% if search.types contains 'product' %}
+  {%- if search.results_count > 3 -%}
+  <div class='search-bar__view-all-button-wrapper'> 
+    <a class="search-bar__view-all " href="{{ routes.search_url }}?q={{ search.terms }}&type={{ search.types | join: ',' }}">
+      {%- if settings.search_mode == 'product' -%}
+      <span> {{- 'general.search.view_products' | t -}}</span>
+      {%- else -%}
+      <span> {{- 'general.search.view_results' | t -}}</span>
+      {%- endif -%}
+
+    </a>
+  </div>
+  {%- endif -%}
+  {% endif %}
+
+{%- endif -%}
+{%- endif -%}
+
+</section>
+
+{% schema %}
+  {
+  "name": "Search ajax"
+  }
+{% endschema %}

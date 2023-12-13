@@ -1,0 +1,128 @@
+<section id="section-{{ section.id }}" data-section-id="{{ section.id }}" data-section-type="index-page" class='fade-in-animation'>
+  
+  {% assign section_width = section.settings.section_width %}
+
+  {% assign font_size = section.settings.font_size %}
+  {% assign page_handle = section.settings.page_title %}
+  {% assign page = pages[page_handle] %}
+  
+  <div class='{{section_width}}'>
+
+    {% if section.settings.title != blank or  section.settings.subtitle != blank %}
+    <header class="section-header homepage_subtitle_style_{{settings.homepage_subtitle_color}} ">
+      {% if section.settings.subtitle != blank  %}
+      <span class='h5'>{{ section.settings.subtitle  }}</span>
+      {% endif %}
+      {% if section.settings.title != blank  %}
+      <h2>{{ section.settings.title }}</h2>
+      {% endif %}
+    </header>
+    {% endif %}
+    
+   
+    <div class='page_content'>
+      <div class='rte'>
+         {% if page.content.size > 0 %}
+      	{{page.content}}
+        {% else %}
+        	<p>{{ 'homepage.onboarding.select_page' | t }}</p>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+  
+  
+  {% case font_size %}
+  {% when 'normal' %}
+  {% assign size =  settings.type_base_size  %}
+
+  {% when 'lg' %}
+  {% assign size =  settings.type_base_size | times: 1.3  %}
+
+  {% when 'xl' %}
+  {% assign size =  settings.type_base_size | times: 1.6  %}
+
+  {% endcase %}
+  <style>
+    #section-{{ section.id }} .page_content .rte {
+      font-size: {{size}}px;
+    }
+  </style>
+  
+  
+</section>
+
+{% schema %}
+  {
+   "name": "t:sections.index-page.name",
+	"class":"index-section",
+    "settings": [
+	 {
+        "type": "text",
+        "id": "title",
+        "label": "t:sections.index-page.settings.title.label",
+		"default":"Heading"
+    },
+    {
+      "type":  "text",
+      "id":    "subtitle",
+      "label": "t:sections.index-page.settings.subtitle.label",
+		"default":"Subtitle"
+    },
+
+
+ 	 {
+        "type": "page",
+        "id": "page_title",
+        "label": "t:sections.index-page.settings.page_title.label"
+      },
+      {
+       "type":"select",
+       "id":"section_width",
+       "label":"t:sections.index-page.settings.section_width.label",
+       "default":"page-width",
+       "options":[
+ 		 {
+             "label":"t:sections.index-page.settings.section_width.options__1.label",
+             "value":" "
+          },
+          {
+             "label":"t:sections.index-page.settings.section_width.options__2.label",
+             "value":"page-width"
+          },
+          {
+             "label":"t:sections.index-page.settings.section_width.options__3.label",
+             "value":"page-width-small"
+          }
+         ]
+       },
+		{
+        "type":"select",
+        "id":"font_size",
+        "label":"t:sections.index-page.settings.font_size.label",
+        "default":"lg",
+        "options":[
+           {
+              "label":"t:sections.index-page.settings.font_size.options__1.label",
+              "value":"normal"
+           },
+           {
+              "label":"t:sections.index-page.settings.font_size.options__2.label",
+              "value":"lg"
+           },
+           {
+              "label":"t:sections.index-page.settings.font_size.options__3.label",
+              "value":"xl"
+           }
+          ]
+         }
+	],
+    "presets": [
+        {
+          "name": "t:sections.index-page.presets.name",
+          "category":"Custom Sections"
+        }
+      ]
+  }
+{% endschema %}

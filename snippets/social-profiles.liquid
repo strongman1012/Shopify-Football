@@ -1,0 +1,69 @@
+{% if
+  settings.twitter_link != blank
+or settings.facebook_link != blank
+or settings.pinterest_link != blank
+or settings.instagram_link != blank
+or settings.tumblr_link != blank
+or settings.youtube_link != blank
+or settings.vimeo_link != blank
+%}
+{%- assign social_icons = true -%}
+{% endif %}
+{% if social_icons != true %}
+<style>
+  .nav-main-copy {
+    position: relative;
+    top: 60px;
+  }
+</style>
+{% endif %}
+
+{% if settings.social_twitter_link != '' %}
+<li class="twitter">
+  <a href="{{ settings.social_twitter_link | escape }}" target="_blank" title="Twitter">
+    {%- render 'icon-twitter' -%}
+  </a>
+</li>
+{% endif %}
+{% if settings.social_facebook_link != '' %}
+<li class="facebook">
+  <a href="{{ settings.social_facebook_link | escape }}" target="_blank" title="Facebook">
+    {%- render 'icon-facebook' -%}
+  </a>
+</li>
+{% endif %}
+{% if settings.social_pinterest_link != '' %}
+<li class="pinterest">
+  <a href="{{ settings.social_pinterest_link | escape }}" target="_blank" title="Pinterest">
+    {%- render 'icon-pinterest' -%}
+  </a>
+</li>
+{% endif %}
+{% if settings.social_instagram_link != '' %}
+<li class="instagram">
+  <a href="{{ settings.social_instagram_link | escape }}" target="_blank" title="Instagram">
+    {%- render 'icon-instagram' -%}
+  </a>
+</li>
+{% endif %}
+{% if settings.social_tumblr_link != '' %}
+<li class="tumblr">
+  <a href="{{ settings.social_tumblr_link | escape }}" target="_blank" title="Tumblr">
+    {%- render 'icon-tumblr' -%}
+  </a>
+</li>
+{% endif %}
+{% if settings.social_youtube_link != '' %}
+<li class="youtube">
+  <a href="{{ settings.social_youtube_link | escape }}" target="_blank" title="YouTube">
+    {%- render 'icon-youtube' -%}
+  </a>
+</li>
+{% endif %}
+{% if settings.social_vimeo_link != '' %}
+<li class="vimeo">
+  <a href="{{ settings.social_vimeo_link | escape }}" target="_blank" title="Vimeo">
+    {%- render 'icon-vimeo' -%}
+  </a>
+</li>
+{% endif %}

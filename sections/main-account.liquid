@@ -1,0 +1,107 @@
+{% assign header_image = settings.customer_header_image %}
+{% assign header_heading =  'customer.login.account' | t  %}
+{% assign show_breadcrumbs = settings.show_customer_breadcrumbs %}
+{% assign show_heading = settings.show_customer_heading %}
+
+{% assign image_overlay_color = settings.customer_image_overlay_color %} 
+{% assign image_overlay_opacity = settings.customer_image_overlay_opacity %}
+
+{% if header_image != blank %}
+{% render 'custom_page_header' image: header_image, heading: header_heading, show_breadcrumbs: show_breadcrumbs, show_heading: show_heading, image_overlay_color: image_overlay_color, image_overlay_opacity: image_overlay_opacity %}
+{% endif %}
+
+<section id="section-{{ section.id }}" data-section-id="{{ section.id }}">
+  <div class="page-width-small">
+    <div class="section-header text-left">
+
+      {% if header_image == blank %}
+      {% if show_heading %}
+       <h1 class="h3">{{ 'customer.account.title' | t }}</h1>
+      {% endif %}
+      {% if show_breadcrumbs %}
+      <div class='account-breadcrumbs'>
+        <ol class="breadcrumbs__list">
+          <li class="breadcrumbs__item">
+            <a class="breadcrumbs__link" href="{{ routes.root_url }}">{{ 'general.breadcrumbs.home' | t }}</a>
+          </li>
+          <li class="breadcrumbs__item">
+            <span>{{ 'customer.login.account' | t }}</span>
+          </li>
+        </ol>
+      </div>
+      {% endif %}
+      {% endif %}
+
+      <div class='greeting_row'>
+
+        <h4>{{ 'customer.orders.welcome_html' | t: customer_name: customer.name }} </h4>
+        {{ 'layout.customer.log_out' | t | customer_logout_link }}
+      </div>
+    </div>
+
+    <div class="grid myaccount">
+      <div class="grid__item myaccount__account-details">
+        <h4>{{ 'customer.account.details' | t }}</h4>
+
+        {{ customer.default_address | format_address }}
+        
+          <a href="{{ routes.account_addresses_url }}" class="link--primary">{{ 'customer.account.view_addresses' | t }} ({{ customer.addresses_count }})</a>
+      </div>
+
+      <div class="grid__item myaccount__order-history">
+
+        {% paginate customer.orders by 20 %}
+        {% if customer.orders.size != 0 %}
+
+        <table class="responsive-table account_orders_table">
+          <thead>
+            <tr>
+              <th scope="col">{{ 'customer.orders.order_number' | t }}</th>
+              <th scope="col">{{ 'customer.orders.date' | t }}</th>
+              <th scope="col">{{ 'customer.orders.payment_status' | t }}</th>
+              <th scope="col">{{ 'customer.orders.fulfillment_status' | t }}</th>
+              <th scope="col">{{ 'customer.orders.total' | t }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in customer.orders %}
+            <tr>
+              <td data-label="{{ 'customer.orders.order_number' | t }}" scope="row">
+                <a href="{{ order.customer_url }}"  aria-label="{{ 'customer.orders.order_number_link' | t: number: order.name }}">{{ order.name }}</a>
+              </td>
+              <td data-label="{{ 'customer.orders.date' | t }}">{{ order.created_at | time_tag: format: 'date' }}</td>
+              <td data-label="{{ 'customer.orders.payment_status' | t }}">{{ order.financial_status_label }}</td>
+              <td data-label="{{ 'customer.orders.fulfillment_status' | t }}">{{ order.fulfillment_status_label }}</td>
+              <td data-label="{{ 'customer.orders.total' | t }}">
+                {% if settings.currency_code_enable %}
+                {{ order.total_price | money_with_currency }}
+                {% else %}
+                {{ order.total_price | money }}
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        {% else %}
+
+        <p>{{ 'customer.orders.none' | t }}</p>
+
+        {% endif %}
+        {%- if paginate.pages > 1 -%}
+        {% include 'pagination', paginate: paginate %}
+        {%- endif -%}
+        {% endpaginate %}
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{% schema %}
+  {
+     "name": "t:sections.main-account.name",
+    "settings": []
+  }
+{% endschema %}

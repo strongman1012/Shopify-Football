@@ -1,0 +1,311 @@
+
+
+{% assign logos_count = section.settings.logos_count | times:1 %}
+{% assign rows_count = section.settings.rows_count | times:1  %}
+{% assign enable_carousel = section.settings.enable_carousel %}
+{% assign show_hover_opacity = section.settings.show_hover_opacity %}
+
+
+{% assign show_dots = section.settings.show_dots %}
+{% assign blogs_size = section.blocks.size %}
+{% assign total_blocks_count = logos_count | times: rows_count %}
+
+{% if blogs_size <= total_blocks_count %}
+{% assign show_dots = false %}
+{% endif %}
+
+{%- capture flickity_options -%}
+{
+  "prevNextButtons": false,
+  "wrapAround": true,
+  "dragThreshold": 15,
+ "cellAlign": "left",
+  "pauseAutoPlayOnHover": true,
+  "autoPlay": {% if section.settings.enable_autoplay %}{{ section.settings.cycle_speed | times: 1000 }}{% else %}false{% endif %},
+  "pageDots": {% if show_dots %}true{% else %}false{% endif %}
+}
+{%- endcapture -%}
+
+
+
+
+{% case logos_count %}
+{% when 2 %}
+{%- assign grid_item_width = 'medium-up--one-half' -%}
+{% when 3 %}
+{%- assign grid_item_width = 'small--one-half medium-up--one-third' -%}
+{% when 4 %}
+{%- assign grid_item_width = 'small--one-half medium-up--one-quarter' -%}
+{% when 5 %}
+{%- assign grid_item_width = 'small--one-half medium-up--one-fifth' -%}
+{% endcase %}
+
+
+<section id="section-{{ section.id }}" data-section-id="{{ section.id }}" data-section-type="logo-bar" class="">
+
+  <div class="page-width-small">
+    
+     {% if section.settings.subtitle != blank  or  section.settings.title != blank %}
+    <div class="section-header text-center homepage_subtitle_style_{{settings.homepage_subtitle_color}} {% if section.settings.show_arrows and enable_carousel %} section-header-wrapper {% endif %}">
+      {% if section.settings.subtitle != blank %}
+     <span class='h5'>{{ section.settings.subtitle  }}</span>
+      {% endif %}
+      {% if section.settings.title != blank %}
+      <h2>{{ section.settings.title | escape }}</h2>
+      {% endif %}
+      
+      {% if section.settings.show_arrows and enable_carousel %}
+        <div class='slider_custom_arrows'>
+          <a href="javascript:void(0)" id='button_prev_{{section.id}}' class='button-prev btn btn--circle-arrow' aria-label="Previous" aria-describedby="button previous">
+            {% include 'icon' with 'tail-left' %}
+          </a>
+          <a href="javascript:void(0)" id='button_next_{{section.id}}' class='button-next btn btn--circle-arrow' aria-label="Next" aria-describedby="button next">
+            {% include 'icon' with 'tail-right' %}
+          </a>
+        </div>
+      {% endif %}
+      
+    </div>
+     {% endif %}
+
+
+    {% if section.blocks.size > 0 %}
+
+    {% if enable_carousel %}
+    <div class='zoom-fade-animation logo-bar--slider logos_style_background hover_opacity_{{show_hover_opacity}}' data-flickity-config='{{ flickity_options }}'>
+      <ul class=" logo-bar {% if logos_count == 1 %} full_logo_bar{% endif %}">
+        {% assign break_index = logos_count | times: rows_count %}
+		{% assign blocks_size = section.blocks.size %}
+        
+      
+        
+        {% for block in section.blocks %}   
+
+        {% assign modulo_index = forloop.index | modulo:break_index %}
+        <li class="zoom-fade-animation-element-wrapper logo-bar__item  {{grid_item_width}}" {{ block.shopify_attributes }}>
+      
+          <div class="grid-view-item">
+          
+              {% if block.settings.image != blank %}
+              
+              {% capture img_id %}Logobar_item-Image-{{ section.id }}{% endcapture %}
+              {% capture wrapper_id %}Logobar_item-Image-{{ section.id }}{% endcapture %}
+              {% include 'image-style', image: block.settings.image, height: 940, wrapper_id: wrapper_id, img_id: img_id %}
+              <div class="logo-bar__image-container" >
+                  {% if block.settings.link != blank %}
+            <a href="{{ block.settings.link }}" class="logo-bar__link" aria-label="{{block.settings.image.alt | default: "logo" }}">
+              
+              {% endif %}
+                  <img id=" {{ img_id }}"
+                       class="logo-bar__image zoom-fade-animation-element"
+                       srcset="{%- if block.settings.image.width >= 375 -%}{{ block.settings.image | img_url: '375x' }} 375w,{%- endif -%}
+                               {%- if block.settings.image.width >= 720 -%}{{ block.settings.image | img_url: '720x' }} 750w,{%- endif -%}
+                               {%- if block.settings.image.width >= 1066 -%}{{ block.settings.image | img_url: '1066x' }} 1066w,{%- endif -%}
+                               {%- if block.settings.image.width >= 1500 -%}{{ block.settings.image | img_url: '1500x' }} 1500w,{%- endif -%}
+                               {%- if block.settings.image.width >= 1780 and logos_count < 4 -%}{{ block.settings.image | img_url: '1780x' }} 1780w,{%- endif -%}
+                               {%- if block.settings.image.width >= 2000 and logos_count < 3 -%}{{ block.settings.image | img_url: '2000x' }} 2000w,{%- endif -%}
+                               {%- if block.settings.image.width >= 2800 and logos_count < 2 -%}{{ block.settings.image | img_url: '2800x' }} 2800w{%- endif -%}"
+                       src="{{ block.settings.image | img_url: '535x' }}"
+                       sizes="(min-width: 750px) calc(100vw / {{ logos_count }}), 100vw"
+                       loading="lazy"
+                       width="{{ block.settings.image.width }}"
+                       height="{{ block.settings.image.height }}"
+                       alt="{{ block.settings.image.alt | escape }}"
+                      style="object-position:{{ block.settings.image.presentation.focal_point }};">
+                
+                 {% render 'load_spinner' %}
+                  {% if block.settings.link != blank %}
+            </a>
+            {% endif %}
+                
+              </div>
+              
+             
+              {% else %}
+              {{ 'logo' | placeholder_svg_tag: 'placeholder-svg zoom-fade-animation-element' }}
+              {% endif %}
+            
+          </div>
+        </li>
+		{% if modulo_index == 0 and blocks_size != forloop.index %}
+        </ul>
+      	 <ul class="logo-bar grid {% if logos_count == 1 %} full_logo_bar{% endif %}">
+        {% endif %}
+
+        {% endfor %}
+      </ul>
+    </div>
+    {% else %}
+    <ul class="zoom-fade-animation logo-bar grid logos_style_background hover_opacity_{{show_hover_opacity}} {% if logos_count == 1 %} full_logo_bar{% endif %}">
+      {% for block in section.blocks %}      
+      <li class="zoom-fade-animation-element-wrapper logo-bar__item grid__item grid__item--{{section.id}} {{grid_item_width}}" {{ block.shopify_attributes }}>
+        <div class="grid-view-item">
+          {% if block.settings.link != blank %}
+          <a href="{{ block.settings.link }}" class="logo-bar__link">
+            {% endif %}
+            {% if block.settings.image != blank %}
+            {{ block.settings.image | img_url: '160x160', scale: 2 | img_tag: block.settings.image.alt, 'logo-bar__image zoom-fade-animation-element' }}
+            {% else %}
+            {{ 'logo' | placeholder_svg_tag: 'placeholder-svg zoom-fade-animation-element' }}
+            {% endif %}
+            {% if block.settings.link != blank %}
+          </a>
+          {% endif %}
+        </div>
+      </li>
+      {% endfor %}
+      {% endif %}
+    </ul>
+    {% endif %}
+
+    {% if section.blocks.size == 0 %}
+    {% include 'no-blocks' %}
+    {% endif %}
+  </div>
+</section>
+
+
+{% schema %}
+{
+  "name": "t:sections.logo-bar.name",
+  "class": "index-section",
+  "settings": [
+
+    {
+      "type": "text",
+      "id": "title",
+      "label": "t:sections.logo-bar.settings.title.label",
+      "default": {
+        "cs": "Seznam log",
+        "da": "Logoliste",
+        "de": "Logo-Liste",
+        "en": "Logo list",
+        "es": "Lista de logos",
+        "fi": "Logoluettelo",
+        "fr": "Liste de logos",
+        "it": "Elenco loghi",
+        "ja": "ロゴリスト",
+        "ko": "로고 목록",
+        "nb": "Logoliste",
+        "nl": "Logolijst",
+        "pl": "Lista logo",
+        "pt-BR": "Lista de logos",
+        "pt-PT": "Lista de logótipos",
+        "sv": "Logotyplista",
+        "th": "รายการโลโก้",
+        "tr": "Logo listesi",
+        "vi": "Danh sách logo",
+        "zh-CN": "logo 列表",
+        "zh-TW": "標誌清單"
+      }
+    }, 
+{
+      "type": "text",
+      "id": "subtitle",
+      "label": "t:sections.logo-bar.settings.subtitle.label"
+},
+	{
+		"type":"header",
+		"content": "t:sections.logo-bar.settings.carousel_options.label"
+	},
+	{
+      "type": "checkbox",
+      "id": "enable_carousel",
+		"label":"t:sections.logo-bar.settings.enable_carousel.label",
+		"default": true
+	},
+	{
+      "type": "checkbox",
+      "id": "show_dots",
+		"label":"t:sections.logo-bar.settings.show_dots.label",
+		"default": true
+	},
+ {
+         "type":"checkbox",
+         "id":"show_arrows",
+         "label":"t:sections.logo-bar.settings.show_arrows.label",
+         "default":true
+      },
+      {
+         "type":"checkbox",
+         "id":"enable_autoplay",
+         "label":"t:sections.logo-bar.settings.enable_autoplay.label",
+         "default":true
+      },
+	{
+      "type": "range",
+      "id": "cycle_speed",
+      "min": 3,
+      "max": 9,
+      "step": 1,
+      "unit": "t:sections.logo-bar.settings.cycle_speed.unit",
+      "label": "t:sections.logo-bar.settings.cycle_speed.label",
+      "default": 5
+    },
+{
+    "type": "range",
+    "id": "logos_count",
+    "min": 1,
+    "max": 4,
+    "step": 1,
+    "label": "t:sections.logo-bar.settings.logos_count.label",
+    "default": 4
+},
+{
+    "type": "range",
+    "id": "rows_count",
+    "min": 1,
+    "max": 3,
+    "step": 1,
+    "label": "t:sections.logo-bar.settings.rows_count.label",
+    "default": 2
+},
+{
+         "type":"checkbox",
+         "id":"show_hover_opacity",
+         "label":"t:sections.logo-bar.settings.show_hover_opacity.label",
+         "default":true
+      }
+
+  ],
+  "blocks": [
+    {
+      "type": "logo_image",
+      "name": "t:sections.logo-bar.blocks.logo_image.name",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.logo-bar.blocks.logo_image.settings.image.label"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "t:sections.logo-bar.blocks.logo_image.settings.link.label",
+          "info": "t:sections.logo-bar.blocks.logo_image.settings.link.info"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.logo-bar.presets.name",
+ "category":"Custom Sections",
+      "blocks": [
+        {
+          "type": "logo_image"
+        },
+        {
+          "type": "logo_image"
+        },
+        {
+          "type": "logo_image"
+        },
+        {
+          "type": "logo_image"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

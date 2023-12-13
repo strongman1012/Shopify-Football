@@ -1,0 +1,40 @@
+{% comment %} 
+Reduce below value if you need the back to the top button to appear higher up on the page. 
+That value is in pixels.
+{% endcomment %}
+{% assign vertical_offset_for_trigger = 1000 %}
+
+{% comment %} 
+Vertical offset from bottom of browser for the position of the button.
+{% endcomment %}
+
+<a id="BackToTop" href="#" title="Back to the top" class="back-to-top hide btn btn--circle-arrow ">
+ {% include 'icon' with 'arrow-up' %}
+</a>
+<script>
+  (function() {
+    function trackScroll() {
+      var scrolled = window.pageYOffset;
+      var coords = {{ vertical_offset_for_trigger }};
+
+      if (scrolled > coords) {
+        goTopBtn.classList.remove('hide');
+      }
+      if (scrolled < coords) {
+        goTopBtn.classList.add('hide');
+      }
+    }
+
+    function backToTop() {
+      if (window.pageYOffset > 0) {
+        window.scrollBy(0, -80);
+        setTimeout(backToTop, 0);
+      }
+    }
+
+    var goTopBtn = document.querySelector('.back-to-top');
+
+    window.addEventListener('scroll', trackScroll);
+    goTopBtn.addEventListener('click', backToTop);
+  })();
+</script>

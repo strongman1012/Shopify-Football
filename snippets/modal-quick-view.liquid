@@ -1,0 +1,14 @@
+<div id="modal-quick-view" class="modal" aria-hidden="true">
+  <div class="modal__dialog modal__dialog--stretch" role="dialog">
+    <button class="modal__close close-quick-view"
+            title="{{ 'general.accessibility.close_modal' | t | escape }}">
+      {%- render 'icon', icon: 'close' -%}
+    </button>
+
+    <div class="modal__loader">
+      {%- render 'icon', icon: 'search-loader' -%}
+    </div>
+
+    <div class="modal__inner"></div>
+  </div>
+</div>

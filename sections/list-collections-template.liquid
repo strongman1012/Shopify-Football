@@ -1,0 +1,259 @@
+{% assign header_image = section.settings.header_image %}
+{% assign header_heading = section.settings.title | default: page_title %}
+{% assign image_overlay_color = section.settings.image_overlay_color %}
+{% assign image_overlay_opacity = section.settings.image_overlay_opacity %}
+  {% assign show_breadcrumbs = section.settings.show_breadcrumbs %}
+  
+{% render 'custom_page_header' image: header_image, heading: header_heading, show_breadcrumbs: show_breadcrumbs, show_heading: true, image_overlay_color: image_overlay_color, image_overlay_opacity: image_overlay_opacity %}
+
+
+{% assign collection_image_height = section.settings.collection_image_height %}
+
+
+
+  {%- assign blocks = section.blocks | sort: 'collection.all_products_count' -%}
+
+  {% case section.settings.grid %}
+    {% when 2 %}
+      {%- assign grid_item_width = ' small--one-half medium-up--one-half' -%}
+      {%- assign image_size = '530x' -%}
+    {% when 3 %}
+      {%- assign grid_item_width = 'small--one-half tablet--one-third medium-up--one-third' -%}
+      {%- assign image_size = '530x' -%}
+    {% when 4 %}
+      {%- assign grid_item_width = 'small--one-half tablet--one-third medium-up--one-quarter' -%}
+      {%- assign image_size = '400x' -%}
+    {% when 5 %}
+      {%- assign grid_item_width = 'small--one-half tablet--one-third desk--one-quarter medium-up--one-fifth' -%}
+      {%- assign image_size = '225x' -%}
+  {% endcase %}
+  
+  {%  case section.settings.grid_mobile %}
+     {% when "1" %}
+    {%- assign grid_item_width = grid_item_width | append:" mobile--one-whole  small--one-whole" %}
+     {% when "2" %}
+    {%- assign grid_item_width = grid_item_width | append:"  mobile--one-half  small--one-half" %}   
+    {%  endcase %}
+    
+
+<section id="section-{{ section.id }}" data-section-id="{{ section.id }}" {%  if section.settings.grid_mobile == '2' %} class="half_row_mobile" {%  endif %}>
+
+<div class="page-width"> 
+
+
+  
+  <ul class="zoom-fade-animation grid grid--uniform list-collections-grid {% if settings.align_height %} use_align_height {% else %} use_image_height {% endif %} ">
+    {% if section.settings.display_type == 'all' %}
+      {% case section.settings.sort %}
+        {% when 'products_high' or 'products_low' %}
+          {%- assign collections = collections | sort: 'all_products_count' -%}
+        {% when 'date' or 'date_reversed' %}
+          {%- assign collections = collections | sort: 'published_at' -%}
+      {% endcase %}
+      {% if section.settings.sort == 'products_low' or section.settings.sort == 'date' or section.settings.sort == 'alphabetical' %}
+        {% for collection in collections %}
+          <li class="zoom-fade-animation-element-wrapper grid__item {{ grid_item_width }}">
+            {% include 'collections-grid-item', collection: collection, items_per_row: section.settings.grid %}
+          </li>
+        {% endfor %}
+      {% else %}
+        {% for collection in collections reversed %}
+          <li class="zoom-fade-animation-element-wrapper grid__item {{ grid_item_width }}">
+            {% include 'collections-grid-item', collection: collection, items_per_row: section.settings.grid %}
+          </li>
+        {% endfor %}
+      {% endif %}
+    {% else %}
+      {% for block in section.blocks %}
+        <li class="zoom-fade-animation-element-wrapper grid__item {{ grid_item_width }}">
+          {%- assign collection = collections[block.settings.collection] -%}
+          {% include 'collections-grid-item', collection: collection, items_per_row: section.settings.grid %}
+        </li>
+      {% endfor %}
+    {% endif %}
+  </ul>
+</div>
+  
+  {% if section.settings.collection_grid_display == 'fixed_height_images' %}
+  <style>
+  
+    #section-{{ section.id }} .list-collections-grid .collection-grid-item__image-with-placeholder-wrapper {
+      height: auto!important;
+      max-height: {{ section.settings.collection_image_height }}px !important;
+      min-height: {{ section.settings.collection_image_height }}px !important;
+      margin-bottom: 15px;
+    }
+    #section-{{ section.id }} .list-collections-grid .collection-grid-item__image-with-placeholder-wrapper .collection-grid-item__link .collection-grid-item__image-wrapper img  {
+      max-height: none !important;
+      max-width: 100% !important;
+      object-fit: cover;
+      height: 100%;
+    }
+    
+  </style>
+  {% endif %}
+</section>
+
+
+{% schema %}
+{
+  "name": "t:sections.list-collections-template.name",
+  "settings": [
+
+{
+		"type":"image_picker",
+		"id":"header_image",
+		"label":"t:sections.list-collections-template.settings.header_image.label"
+		},
+{
+		"type":"color",
+		"id":"image_overlay_color",
+		"label":"t:sections.list-collections-template.settings.image_overlay_color.label",
+		"default": "#000"
+		},
+      {
+        "type": "range",
+        "id": "image_overlay_opacity",
+       "label": "t:sections.list-collections-template.settings.image_overlay_opacity.label",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+       "unit": "t:sections.list-collections-template.settings.image_overlay_opacity.unit",
+        "default": 40
+      },
+        {
+        "type": "text",
+        "id": "title",
+        "label": "t:sections.list-collections-template.settings.title.label"
+        },
+    {
+		"type":"checkbox",
+	"id":"show_breadcrumbs",
+	"label": "t:sections.list-collections-template.settings.show_breadcrumbs.label",
+	"default": true
+	},
+
+{
+      "type": "select",
+      "id": "collection_grid_display",
+      "label": "t:sections.list-collections-template.settings.collection_grid_display.label",
+      "info": "t:sections.list-collections-template.settings.collection_grid_display.info",
+      "default": "full_image",
+      "options": [
+        {
+          "value": "full_image",
+          "label": "t:sections.list-collections-template.settings.collection_grid_display.options__1.label"
+        },
+        {
+          "value": "fixed_height_images",
+          "label": "t:sections.list-collections-template.settings.collection_grid_display.options__2.label"
+        }
+      ]
+    },
+
+      {
+        "type": "range",
+        "id": "collection_image_height",
+		"label":"t:sections.list-collections-template.settings.collection_image_height.label",
+        "min": 200,
+        "max": 400,
+        "step": 10,
+        "default": 300,
+        "unit": "t:sections.list-collections-template.settings.collection_image_height.unit"
+      },
+	
+    {
+      "type": "paragraph",
+      "content": "t:sections.list-collections-template.settings.paragraph__1.content"
+    },
+    {
+      "type": "radio",
+      "id": "display_type",
+      "label": "t:sections.list-collections-template.settings.display_type.label",
+      "default": "all",
+      "options": [
+        {
+          "value": "all",
+          "label": "t:sections.list-collections-template.settings.display_type.options__1.label"
+        },
+        {
+          "value": "selected",
+          "label": "t:sections.list-collections-template.settings.display_type.options__2.label"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "sort",
+      "label": "t:sections.list-collections-template.settings.sort.label",
+      "info": "t:sections.list-collections-template.settings.sort.info",
+      "default": "alphabetical",
+      "options": [
+        {
+          "value": "products_high",
+          "label": "t:sections.list-collections-template.settings.sort.options__1.label"
+        },
+        {
+          "value": "products_low",
+          "label": "t:sections.list-collections-template.settings.sort.options__2.label"
+        },
+        {
+          "value": "alphabetical",
+          "label": "t:sections.list-collections-template.settings.sort.options__3.label"
+        },
+        {
+          "value": "alphabetical_reversed",
+          "label": "t:sections.list-collections-template.settings.sort.options__4.label"
+        },
+        {
+          "value": "date",
+          "label": "t:sections.list-collections-template.settings.sort.options__5.label"
+        },
+        {
+          "value": "date_reversed",
+          "label": "t:sections.list-collections-template.settings.sort.options__6.label"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "grid",
+      "label": "t:sections.list-collections-template.settings.grid.label",
+      "default": 3,
+      "min": 2,
+      "max": 5,
+      "step": 1
+    },
+    {
+      "type":"select",
+      "id":"grid_mobile",
+      "label": "t:sections.list-collections-template.settings.grid_mobile.label",
+      "default":"1",
+      "options": [
+        {
+          "value":"1",
+          "label":"1"
+        },
+        {
+          "value":"2",
+          "label":"2"
+        }
+      ]
+    }
+     
+  ],
+  "blocks": [
+    {
+      "type": "collection",
+      "name": "t:sections.list-collections-template.blocks.collection.name",
+      "settings": [
+        {
+          "label": "t:sections.list-collections-template.blocks.collection.settings.collection.label",
+          "id": "collection",
+          "type": "collection"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,264 @@
+<section id="section-{{ section.id }}" class="fade-in-animation" data-section-id="{{ section.id }}" data-section-type="index-accordion">
+
+  {% assign image = section.settings.image %}
+  {% assign mobile_image = section.settings.mobile_image %}
+    {% assign content_side = section.settings.content_side %}
+
+  
+  
+  {% capture section_content%} 
+    {% if section.settings.title != blank or  section.settings.subtitle != blank %}
+    <header class="section-header homepage_subtitle_style_{{settings.homepage_subtitle_color}}">
+      {% if section.settings.subtitle != blank  %}
+     <span class='h5'>{{ section.settings.subtitle  }}</span>
+      {% endif %}
+      {% if section.settings.title != blank  %}
+      <h2>{{ section.settings.title }}</h2>
+      {% endif %}
+    </header>
+    {% endif %}
+
+    {% if section.blocks.size > 0 %}
+    <div class='homepage_accordion' id='homepage_accordion-{{ section.id }}'>
+      {% for block in section.blocks %}
+      <div class='homepage_accordion__block'>
+        <a href="javascript:void(0)" class='h5 question' data-id="{{block.id}}">
+        {% render 'icon' with "plus" %}
+        {% render 'icon' with "minus" %}
+        <span>{{ block.settings.question }}</span>
+        </a>
+        <div class='answer'>
+          <div class='answer_content'>
+            {{ block.settings.answer}}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  
+     {% if section.blocks.size == 0 %}
+    <div class="placeholder-noblocks">
+      {{ 'homepage.onboarding.no_content' | t }}
+    </div>
+  {% endif %}
+  
+  {% endcapture %}
+  
+  
+
+
+  
+  <div class='section_bg {% if content_side == 'full_width' %} full_height {% endif %}'>
+ {% if image != blank %}  
+        <img 
+             class="section_bg_image {% if mobile_image != blank %} small--hide {% endif %}"
+             srcset="{%- if image.width >= 375 -%}{{ image | img_url: '375x' }} 375w,{%- endif -%}
+                {%- if image.width >= 720 -%}{{ image | img_url: '720x' }} 750w,{%- endif -%}
+                {%- if image.width >= 1066 -%}{{ image | img_url: '1066x' }} 1066w,{%- endif -%}
+             	{%- if image.width >= 1500 -%}{{ image | img_url: '1500x' }} 1500w,{%- endif -%}
+                {%- if image.width >= 1780 -%}{{ image | img_url: '1780x' }} 1780w,{%- endif -%}
+                {%- if image.width >= 2000 -%}{{ image | img_url: '2000x' }} 2000w,{%- endif -%}
+                {%- if image.width >= 2800 -%}{{ image | img_url: '2800x' }} 2800w{%- endif -%}"
+             src="{{ image | img_url: '750x' }}"
+             sizes="100vw"
+             loading="lazy"
+             width="{{ image.width }}"
+        	 height="{{ image.height }}"
+             alt="{{image.alt | default:  section.settings.title }}"
+             style="object-position:{{ image.presentation.focal_point }};">
+      
+      {% if mobile_image != blank %}
+        <img 
+             class="section_bg_image mobile_image medium-up--hide"
+             srcset="{%- if mobile_image.width >= 375 -%}{{ mobile_image | img_url: '375x' }} 375w,{%- endif -%}
+                {%- if mobile_image.width >= 720 -%}{{ mobile_image | img_url: '720x' }} 750w,{%- endif -%}
+                {%- if mobile_image.width >= 1066 -%}{{ mobile_image | img_url: '1066x' }} 1066w,{%- endif -%}
+             	{%- if mobile_image.width >= 1500 -%}{{ mobile_image | img_url: '1500x' }} 1500w{%- endif -%}"
+             src="{{ mobile_image | img_url: '535x' }}"
+             sizes="100vw"
+             loading="lazy"
+             width="{{ mobile_image.width }}"
+        	 height="{{ mobile_image.height }}"
+             alt="{{mobile_image.alt | default:  section.settings.title}}"
+             style="object-position:{{ mobile_image.presentation.focal_point }};">
+      {% endif %}
+           
+    
+     {% else %}
+    <div class='section_bg_image'>
+      {% capture current %}{% cycle 1, 2 %}{% endcapture %}
+      {{ 'lifestyle-' | append: current | placeholder_svg_tag: 'placeholder-svg' }}
+    </div>
+    {% endif %}
+
+  </div>
+  <div class='section_content'>
+    <div class="{% if content_side == 'full_width' %} page-width  {% else %} page-width-small content_side_{{content_side}} {% endif %}">
+      <div class='section_content__wrapper text-left'>
+        <div class='section_main_content'>
+          {{section_content}}
+        </div>
+
+       
+
+      </div>
+    </div>
+  </div>
+  
+  
+  <style>
+    #section-{{ section.id }} *:not(.h5) {
+      color: {{ section.settings.text_color }};
+    }
+       {% if settings.homepage_subtitle_color == 'match_header' %}
+    #section-{{ section.id }}  .section-header .h5 {
+      color: {{ section.settings.text_color }};
+    }
+     #section-{{ section.id }}  .section-header .h5:before {
+      background: {{ section.settings.text_color }};
+    }
+    {% endif %}
+
+  </style>
+
+  {% unless content_side == 'full_width' %}
+  <div class='section_overlay content_side_{{content_side}}'></div>
+  <div class='section_overlay_border_top content_side_{{content_side}}'></div>
+  <div class='section_overlay_border_bottom content_side_{{content_side}}'></div>
+  {% else %}
+  <div class='section_overlay full_width '></div>
+  {% endunless %}
+  
+
+  {% assign color_image_overlay = section.settings.color_image_overlay %}
+
+   {% if color_image_overlay == 'rgba(0,0,0,0)' or color_image_overlay == blank %}
+  {% assign color_image_overlay = settings.color_button %}
+  {% endif %}
+  
+  <style>
+    #section-{{ section.id }} .section_overlay {
+      opacity: {{ section.settings.image_overlay_opacity }}% ;
+      background-color: {{ color_image_overlay }};
+    }
+  </style>
+</section>
+
+{% schema %}
+  {
+    "name": "t:sections.index-accordion.name",
+	"class": "index-section bg_image_with_custom_content",
+    "settings": [
+		{
+		"type":"image_picker",
+		"id":"image",
+		"label":"t:sections.index-accordion.settings.image.label"
+		},
+		{
+		"type":"image_picker",
+		"id":"mobile_image",
+		"label":"t:sections.index-accordion.settings.mobile_image.label"
+		},
+{
+      "type": "select",
+      "id": "content_side",
+      "label": "t:sections.index-accordion.settings.content_side.label",
+	"options": [
+		{
+          "value": "left",
+          "label": "t:sections.index-accordion.settings.content_side.options__1.label"
+		},
+		{
+          "value": "right",
+          "label": "t:sections.index-accordion.settings.content_side.options__2.label"
+		},
+{
+          "value": "full_width",
+          "label": "t:sections.index-accordion.settings.content_side.options__3.label"
+		}	
+	],
+	"default":"left"
+	},
+		{
+		"type":"text",
+		"id":"title",
+		"label":"t:sections.index-accordion.settings.title.label",
+		"default":"Heading"
+		},
+		{
+		"type":"text",
+		"id":"subtitle",
+		"label":"t:sections.index-accordion.settings.subtitle.label",
+		"default":"Subtitle"
+		},
+
+		{
+		"type":"color",
+		"id":"text_color",
+		"label":"t:sections.index-accordion.settings.text_color.label",
+		"default":"#000"
+		},
+	
+
+	{
+        "type": "color",
+        "id": "color_image_overlay",
+       "label": "t:sections.index-accordion.settings.color_image_overlay.label"
+},
+      {
+        "type": "range",
+        "id": "image_overlay_opacity",
+       "label": "t:sections.index-accordion.settings.image_overlay_opacity.label",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+       "unit": "t:sections.index-accordion.settings.image_overlay_opacity.unit",
+        "default": 70
+      }
+	],
+	"blocks": [
+	{
+		"name":"t:sections.index-accordion.blocks.block.name",
+		"type":"block",
+		"settings": [
+		{
+			"type":"text",
+			"id":"question",
+			"label":"t:sections.index-accordion.blocks.block.settings.question.label",
+			"default":"Question title"
+		},
+		{
+			"type":"richtext",
+			"id":"answer",
+			"label":"t:sections.index-accordion.blocks.block.settings.answer.label",
+			"default":"<p>Answer text</p>"
+		}
+		]
+	}
+	],
+	"presets": [
+	{
+	"name":"t:sections.index-accordion.presets.name",
+	"category":"Custom Sections",
+	"blocks": [
+		{
+		"type":"block"
+		},
+		{
+		"type":"block"
+		},
+{
+		"type":"block"
+		},
+{
+		"type":"block"
+		},
+		{
+		"type":"block"
+		}
+		]
+	}
+	]
+  }
+{% endschema %}

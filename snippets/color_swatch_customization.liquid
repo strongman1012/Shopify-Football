@@ -1,0 +1,29 @@
+{% assign custom_color_swatches = settings.custom_color_swatches %}
+{% assign file_extension = 'png' %}
+
+{% assign default_downcase_value = default_value  | downcase %}
+
+{% if custom_color_swatches != blank %}
+  {% assign find_custom_color = false %}
+  {% assign custom_color_swatchesArr  =  custom_color_swatches | split:"," %}
+  {% for swatchItem in custom_color_swatchesArr %}
+  {% assign custom_color_swatch__name = swatchItem | split: " - " | first  | append: " " | strip | downcase %}
+  {% assign custom_color_swatch__value = swatchItem | split: " - " | last | append: " " | strip | downcase %}                
+
+    {% if default_downcase_value == custom_color_swatch__name %}
+    {% assign find_custom_color = true %}     
+        background-color: {{ custom_color_swatch__value }};
+    {% break %}
+    {% endif %}
+
+  {% endfor %}
+
+    {% if find_custom_color == false %}
+      background-color: {{ default_value | split: ' ' | last | handle }};
+      background-image: url({{ default_value | handle | append: '.' | append: file_extension | file_img_url:"100x" }});
+    {% endif %}
+
+  {% else %}
+    background-color: {{ default_value | split: ' ' | last | handle }};
+    background-image: url({{ default_value | handle | append: '.' | append: file_extension | file_img_url:"100x" }});
+{% endif %}

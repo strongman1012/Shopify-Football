@@ -1,0 +1,286 @@
+<section id="section-{{ section.id }}" data-section-id="{{ section.id }}" data-section-type="video" 
+         class='video-section fade-in-animation'>
+
+
+  <link rel="stylesheet" href="{{ 'photoswipe.css' | asset_url }}" type="text/css">
+  <link rel="stylesheet" href="{{ 'default-skin.css' | asset_url }}" type="text/css">
+
+  {% assign image = section.settings.image %}
+  {% assign mobile_image = section.settings.mobile_image %}
+  <div class='{% if image != blank or mobile_image != blank %} section_content {% else %} section_content_without_bg {% endif %}'>
+    <div class='page-width'>
+      <div class="section-header homepage_subtitle_style_{{settings.homepage_subtitle_color}}" >
+        {% if section.settings.subtitle != blank  %}
+       <span class='h5'>{{ section.settings.subtitle  }}</span>
+        {% endif %}
+
+        {% if section.settings.title != blank %}
+        <h2>{{ section.settings.title | escape }}</h2>
+        {% endif %}
+
+
+      </div> 
+      <div class='section-tabs-content'>
+
+        <div class='index-tabs_nav__wrapper {% if section.blocks.size == 1 %} single_tab {% endif %}'>
+          <div class='index-tabs_nav  '> 
+            {% for block in section.blocks %}
+            {% if  block.settings.heading != blank %}
+            <div class='index-tabs_nav--item {% if forloop.first %} active {% endif %}' data-index="{{forloop.index0}}" data-href='tab_{{block.settings.heading | handle }}_{{block.id}}' aria-label="{{ block.settings.heading}}">
+              <h3>{{ block.settings.heading }}</h3>
+            </div>
+            {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+
+
+        {% for block in section.blocks %}
+        <div class='index-tabs-content_block {% if forloop.first %} active  {% endif %}' id='tab_{{block.settings.heading | handle  }}_{{block.id}}'>
+
+          {% assign content = block.settings.content %}
+          {% assign btn_text = block.settings.btn_text %}
+          {% assign btn_link = block.settings.btn_link %} 
+          {% assign video_url = block.settings.video_url %}
+          {% assign image_overlay = block.settings.image %}
+          {% assign html5_video_url = block.settings.html5_video_url %}
+
+          {% if content != blank or  btn_text != blank  %}
+          <div class='content_column'>
+            
+            {% if content != blank %}
+            {{content}} 
+            {% endif %}
+
+            {% if btn_text != blank %}
+            <a class='btn video_tab_link btn--{{block.settings.button_style }}' href='{{btn_link}}'> 
+              <span>{{ btn_text }}</span>
+              {% include 'icon' with 'tail-right' %}
+            </a>
+            {% endif %}
+          </div>
+          {% endif %}
+
+          {% if video_url != blank or html5_video_url != blank %}
+          <div class="VideoWrapper  {% if content == blank and  btn_text == blank %} VideoContentWithoutText {% endif %} ">
+            
+              {% if image_overlay != blank %}
+              <img 
+               class="video_image_overlay"
+               srcset="{%- if image_overlay.width >= 375 -%}{{ image_overlay | img_url: '375x' }} 375w,{%- endif -%}
+                  {%- if image_overlay.width >= 720 -%}{{ image_overlay | img_url: '720x' }} 750w,{%- endif -%}
+                  {%- if image_overlay.width >= 1066 -%}{{ image_overlay | img_url: '1066x' }} 1066w,{%- endif -%}
+                  {%- if image_overlay.width >= 1500 -%}{{ image_overlay | img_url: '1500x' }} 1500w,{%- endif -%}
+                  {%- if image_overlay.width >= 1780 -%}{{ image_overlay | img_url: '1780x' }} 1780w{%- endif -%}"               
+               src="{{ image_overlay | img_url: '750x' }}"
+               sizes="100vw"
+               loading="lazy"
+               width="{{ image_overlay.width }}"
+               height="{{ image_overlay.height }}"
+               alt="{{image_overlay.alt | default:  block.settings.heading }}"
+                 style="object-position:{{ image_overlay.presentation.focal_point }};"> 
+              {% else %}
+
+
+               {%- if video_url.type == 'youtube' -%}
+              <img src='https://img.youtube.com/vi/{{video_url.id}}/hqdefault.jpg' class='video_image_overlay' alt='' />
+              {% else %}
+              <img src='https://i.vimeocdn.com/video/{{video_url.id}}_200x200.webp' class='video_image_overlay' alt='' />
+              {% endif %}
+            
+            {% endif %}
+            
+            <span class='play_video_btn'>
+              {% render 'icon-play'  %}
+            </span>
+
+            <div class=' hide VideoModalContent   '>
+              {% if video_url != blank and html5_video_url == blank %}
+               {%- if video_url.type == 'youtube' -%}
+              <iframe id="VideoModal_{{block.id}}" src="//www.youtube.com/embed/{{ video_url.id }}?autoplay=0&showinfo=0&controls=1&rel=0&modestbranding=1" frameborder="0" allowfullscreen></iframe>
+              {% else %}
+              <iframe id="VideoModal_{{block.id}}" src="https://player.vimeo.com/video/{{ video_url.id }}" class="js-vimeo" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+              {% endif %}
+              {% else %}
+              {% if html5_video_url != blank %}
+              <video controls id="VideoModal_{{block.id}}" >
+                <source src="{{html5_video_url}}" type="video/mp4">
+              </video>
+              {% endif %}
+              {% endif %}
+            </div>
+
+          </div>
+          {% endif %}
+
+
+
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  
+   {% if image != blank %}
+  <div class='section_bg'>
+      
+    
+        <img 
+             class="section_bg_image {% if mobile_image != blank %} small--hide {% endif %}"
+             srcset="{%- if image.width >= 375 -%}{{ image | img_url: '375x' }} 375w,{%- endif -%}
+                {%- if image.width >= 720 -%}{{ image | img_url: '720x' }} 750w,{%- endif -%}
+                {%- if image.width >= 1066 -%}{{ image | img_url: '1066x' }} 1066w,{%- endif -%}
+             	{%- if image.width >= 1500 -%}{{ image | img_url: '1500x' }} 1500w,{%- endif -%}
+                {%- if image.width >= 1780 -%}{{ image | img_url: '1780x' }} 1780w,{%- endif -%}
+                {%- if image.width >= 2000 -%}{{ image | img_url: '2000x' }} 2000w,{%- endif -%}
+                {%- if image.width >= 2800 -%}{{ image | img_url: '2800x' }} 2800w{%- endif -%}"
+             src="{{ image | img_url: '535x' }}"
+             sizes="100vw"
+             loading="lazy"
+             width="{{ image.width }}"
+        	 height="{{ image.height }}"
+             alt="{{image.alt | default: section.settings.title }}"
+             style="object-position:{{ image.presentation.focal_point }};"> 
+      
+      {% if mobile_image != blank %}
+        <img 
+             class="section_bg_image mobile_image medium-up--hide"
+             srcset="{%- if mobile_image.width >= 375 -%}{{ mobile_image | img_url: '375x' }} 375w,{%- endif -%}
+                {%- if mobile_image.width >= 720 -%}{{ mobile_image | img_url: '720x' }} 750w,{%- endif -%}
+                {%- if mobile_image.width >= 1066 -%}{{ mobile_image | img_url: '1066x' }} 1066w,{%- endif -%}
+             	{%- if mobile_image.width >= 1500 -%}{{ mobile_image | img_url: '1500x' }} 1500w{%- endif -%}"
+             src="{{ mobile_image | img_url: '535x' }}"
+             sizes="100vw"
+             loading="lazy"
+             width="{{ mobile_image.width }}"
+        	 height="{{ mobile_image.height }}"
+             alt="{{mobile_image.alt | default: section.settings.title  }}"
+             style="object-position:{{ mobile_image.presentation.focal_point }};"> 
+      {% endif %}
+           
+   
+  </div>
+   {% endif %}
+
+</section>
+
+
+
+{% schema %}
+{
+   "name": "t:sections.video.name",
+	"class":"index-section section_with_bg",
+	"max_blocks":3,
+	"settings": [
+		{
+		"type":"image_picker",
+		"id":"image",
+		"label":"t:sections.video.settings.image.label"
+		},
+		{
+		"type":"image_picker",
+		"id":"mobile_image",
+		"label":"t:sections.video.settings.mobile_image.label"
+		},
+      {
+      "type":"text",
+      "id":"title",
+      "label":"t:sections.video.settings.title.label",
+		"default":"Heading"
+      },
+	{
+	"type":"text",
+	"id":"subtitle",
+	"label":"t:sections.video.settings.subtitle.label",
+	"default": "Subheading"
+	}
+],
+"blocks": [
+	{
+	"name":"t:sections.video.blocks.name.label",
+	"type":"video",
+	"settings": [
+	{
+	"type":"text",
+	"id":"heading",
+	"label":"t:sections.video.blocks.settings.heading.label",
+	"default":"Heading"
+	},
+	{
+	"type":"richtext",
+	"id":"content",
+	"label":"t:sections.video.blocks.settings.content.label"
+	},
+	{
+	"type":"text",
+	"id":"btn_text",
+	"label":"t:sections.video.blocks.settings.button_title.label"
+	},
+	{
+	"type":"url",
+	"id":"btn_link",
+	"label":"t:sections.video.blocks.settings.button_url.label"
+	},
+{
+      "type": "select",
+      "id": "button_style",
+      "label": "t:sections.video.blocks.settings.button_style.label",
+      "default": "primary",
+      "options": [
+		   {
+          "label": "t:sections.video.blocks.settings.button_style.options__1.label",
+          "value": "primary"
+        },
+		   {
+          "label": "t:sections.video.blocks.settings.button_style.options__2.label",
+          "value": "secondary"
+        },
+		   {
+          "label": "t:sections.video.blocks.settings.button_style.options__3.label",
+          "value": "white"
+        },
+		   {
+          "label": "t:sections.video.blocks.settings.button_style.options__4.label",
+          "value": "transparent_primary"
+        },
+		   {
+           "label": "t:sections.video.blocks.settings.button_style.options__5.label",
+          "value": "transparent_secondary"
+        }
+	]
+},
+{
+      "type": "image_picker",
+      "id": "image",
+      "label":"t:sections.video.blocks.settings.image.label"
+	},
+ 	 {
+      "type": "video_url",
+      "accept": ["youtube","vimeo"],
+      "id": "video_url",
+     "label":"t:sections.video.blocks.settings.video_url.label",
+      "default": "https://www.youtube.com/watch?v=_9VUPq3SxOc"
+    },
+	{
+	"type":"text",
+	"id":"html5_video_url",
+	"label":"t:sections.video.blocks.settings.html5_video_url.label",
+	"info":"t:sections.video.blocks.settings.html5_video_url.info"
+
+	}
+]
+}
+],
+	"presets": [
+	{
+	"name": "t:sections.video.presets.name",
+	"category":"Custom Sections",
+      "blocks": [
+        {
+          "type": "video"
+        }
+      ]
+	}
+	]
+}
+{% endschema %}
